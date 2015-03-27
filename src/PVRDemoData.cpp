@@ -20,344 +20,17 @@
  *
  */
 
-#include "tinyxml/XMLUtils.h"
 #include "PVRDemoData.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tinyxml/tinyxml.h>
+#include <jsoncpp/include/json/json.h>
 
-#include <curl/curl.h>
-#include <regex>
+#include "SAPI.h"
 
-using namespace std;
 using namespace ADDON;
-
-const static std::string m_authFailedStr = "Authorization failed.";
-bool m_authFailed = false;
-
-struct MemoryStruct {
-	char *memory;
-	size_t size;
-};
-
-static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-	size_t realsize = size * nmemb;
-	struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-	mem->memory = (char *)realloc(mem->memory, mem->size + realsize + 1);
-	if (mem->memory == NULL) {
-		/* out of memory! */
-		printf("not enough memory (realloc returned NULL)\n");
-		return 0;
-	}
-
-	memcpy(&(mem->memory[mem->size]), contents, realsize);
-	mem->size += realsize;
-	mem->memory[mem->size] = 0;
-
-	return realsize;
-}
-
-bool PVRDemoData::InitAPI()
-{
-	struct MemoryStruct chunk;
-	CURL *curl_handle;
-	CURLcode res;
-
-	chunk.memory = (char *)malloc(1);
-	chunk.size = 0;
-
-	//curl_global_init(CURL_GLOBAL_ALL);
-
-	curl_handle = curl_easy_init();
-	curl_easy_setopt(curl_handle, CURLOPT_URL, g_strServer.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_HEADERFUNCTION, WriteMemoryCallback);
-	curl_easy_setopt(curl_handle, CURLOPT_HEADERDATA, (void *)&chunk);
-
-	res = curl_easy_perform(curl_handle);
-	if (res != CURLE_OK) {
-		XBMC->Log(LOG_ERROR, "InitAPI: failed: %s\n", curl_easy_strerror(res));
-		free(chunk.memory);
-		return false;
-	}
-
-	curl_easy_cleanup(curl_handle);
-
-	//curl_global_cleanup();
-
-	// xpcom.common.js > get_server_params
-
-	string cmd = chunk.memory;
-	free(chunk.memory);
-
-	regex cmdRegex("Location:\\s(https?):\\/\\/(.+)\\/(.+)\\/(.+)\\/(.+)");
-	smatch cmdMatch;
-	if (!regex_search(cmd, cmdMatch, cmdRegex)) {
-		XBMC->Log(LOG_ERROR, "failed to get api endpoint\n");
-		return false;
-	}
-
-	m_apiEndpoint = cmdMatch[1].str() + "://" + cmdMatch[2].str() + "/" + cmdMatch[3].str() + "/server/load.php";
-	m_referrer = cmdMatch[1].str() + "://" + cmdMatch[2].str() + "/" + cmdMatch[3].str() + "/" + cmdMatch[4].str() + "/";
-
-	XBMC->Log(LOG_ERROR, "api endpoint: %s\n", m_apiEndpoint.c_str());
-	XBMC->Log(LOG_ERROR, "referrer: %s\n", m_referrer.c_str());
-
-	return true;
-}
-
-bool PVRDemoData::DoAPICall(string *url, struct MemoryStruct *chunk)
-{
-	string finalUrl;
-	string cookie;
-	string authHeader;
-	CURL *curl_handle;
-	CURLcode res;
-
-	finalUrl = m_apiEndpoint + *url;
-
-	int pos = 0;
-	cookie = "mac=" + g_strMac + "; stb_lang=en; timezone=Europe%2FKiev";
-	while ((pos = cookie.find(":")) > 0) {
-		cookie.replace(pos, 1, "%3A");
-	}
-
-	authHeader = "Authorization: Bearer " + m_token;
-
-	//curl_global_init(CURL_GLOBAL_ALL);
-
-	curl_handle = curl_easy_init();
-	curl_easy_setopt(curl_handle, CURLOPT_URL, finalUrl.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)chunk);
-	curl_easy_setopt(curl_handle, CURLOPT_COOKIE, cookie.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3");
-	curl_easy_setopt(curl_handle, CURLOPT_REFERER, m_referrer.c_str());
-
-	struct curl_slist *headers = NULL; // init to NULL is important
-	headers = curl_slist_append(headers, "X-User-Agent: Model: MAG250; Link: WiFi");
-	headers = curl_slist_append(headers, authHeader.c_str());
-	curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
-
-	res = curl_easy_perform(curl_handle);
-	if (res != CURLE_OK) {
-		XBMC->Log(LOG_ERROR, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		return false;
-	}
-	else {
-		XBMC->Log(LOG_ERROR, "%lu bytes retrieved\n", (long)chunk->size);
-	}
-
-	curl_slist_free_all(headers);
-	curl_easy_cleanup(curl_handle);
-
-	//curl_global_cleanup();
-
-	return true;
-}
-
-bool PVRDemoData::Handshake()
-{
-	string url;
-	struct MemoryStruct chunk;
-	Json::Value parsedFromString;
-	Json::Reader reader;
-	bool parsingSuccessful;
-
-	url = "?type=stb&action=handshake&JsHttpRequest=1-xml&";
-
-	chunk.memory = (char *)malloc(1);
-	chunk.size = 0;
-
-	if (!DoAPICall(&url, &chunk)) {
-		XBMC->Log(LOG_ERROR, "Handshake: api call failed\n");
-		free(chunk.memory);
-		return false;
-	}
-
-	parsingSuccessful = reader.parse(chunk.memory, parsedFromString);
-
-	free(chunk.memory);
-
-	if (!parsingSuccessful) {
-		XBMC->Log(LOG_ERROR, "Handshake: parsing failed\n");
-		return false;
-	}
-
-	m_token = parsedFromString["js"]["token"].asString();
-
-	XBMC->Log(LOG_ERROR, "token: %s\n", m_token.c_str());
-
-	return true;
-}
-
-bool PVRDemoData::GetProfile()
-{
-	string url;
-	struct MemoryStruct chunk;
-	Json::Value parsedFromString;
-	Json::Reader reader;
-	bool parsingSuccessful;
-
-	url = "?type=stb&action=get_profile"
-		"&hd=1&ver=ImageDescription:%200.2.16-250;%20ImageDate:%2018%20Mar%202013%2019:56:53%20GMT+0200;%20PORTAL%20version:%204.9.9;%20API%20Version:%20JS%20API%20version:%20328;%20STB%20API%20version:%20134;%20Player%20Engine%20version:%200x560"
-		"&num_banks=1&sn=0000000000000&stb_type=MAG250&image_version=216&auth_second_step=0&hw_version=1.7-BD-00&not_valid_token=0&JsHttpRequest=1-xml&";
-
-	chunk.memory = (char *)malloc(1);
-	chunk.size = 0;
-
-	if (!DoAPICall(&url, &chunk)) {
-		XBMC->Log(LOG_ERROR, "GetProfile: api call failed\n");
-		free(chunk.memory);
-		return false;
-	}
-
-	parsingSuccessful = reader.parse(chunk.memory, parsedFromString);
-
-	free(chunk.memory);
-
-	if (!parsingSuccessful) {
-		XBMC->Log(LOG_ERROR, "GetProfile: parsing failed\n");
-		return false;
-	}
-
-	// do nothing
-
-	return true;
-}
-
-bool PVRDemoData::GetAllChannels(Json::Value *parsed)
-{
-	string url;
-	struct MemoryStruct chunk;
-	Json::Reader reader;
-	bool parsingSuccessful;
-
-	url = "?type=itv&action=get_all_channels&JsHttpRequest=1-xml&";
-
-	chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */
-	chunk.size = 0;    /* no data at this point */
-
-	if (!DoAPICall(&url, &chunk)) {
-		XBMC->Log(LOG_ERROR, "GetAllChannels: api call failed\n");
-		free(chunk.memory);
-		return false;
-	}
-
-	parsingSuccessful = reader.parse(chunk.memory, *parsed);
-
-	free(chunk.memory);
-
-	if (!parsingSuccessful) {
-		XBMC->Log(LOG_ERROR, "GetAllChannels: parsing failed\n");
-		if (chunk.memory == m_authFailedStr) {
-			m_authFailed = true;
-		}
-		return false;
-	}
-
-	return true;
-}
-
-bool PVRDemoData::Authenticate()
-{
-	XBMC->Log(LOG_ERROR, "authenticating\n");
-
-	if (!Handshake() || !GetProfile()) {
-		return false;
-	}
-
-	TiXmlDocument xmlDoc;
-	string strSettingsFile = GetSettingsFile(g_strUserPath);
-
-	if (!xmlDoc.LoadFile(strSettingsFile))
-	{
-		XBMC->Log(LOG_ERROR, "invalid demo data (no/invalid data file found at '%s')", strSettingsFile.c_str());
-		return false;
-	}
-
-	TiXmlElement *pRootElement = xmlDoc.RootElement();
-	if (strcmp(pRootElement->Value(), "cache") != 0)
-	{
-		XBMC->Log(LOG_ERROR, "invalid demo data (no <demo> tag found)");
-		return false;
-	}
-
-	XBMC->Log(LOG_ERROR, "saving token\n");
-
-	TiXmlElement *pSElement = pRootElement->FirstChildElement("token");
-	pSElement->Clear();
-	pSElement->LinkEndChild(new TiXmlText(m_token));
-
-	if (!xmlDoc.SaveFile(strSettingsFile))
-	{
-		XBMC->Log(LOG_ERROR, "failed to save %s", strSettingsFile.c_str());
-		return false;
-	}
-
-	return true;
-}
-
-bool PVRDemoData::LoadChannels()
-{
-	Json::Value parsed;
-	int iUniqueChannelId = 0;
-
-	if (!GetAllChannels(&parsed)) {
-		XBMC->Log(LOG_ERROR, "LoadChannels: failed\n");
-		return false;
-	}
-
-	for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
-		// try to get the stream url first
-		string cmd = (*it)["cmd"].asString();
-		regex cmdRegex("ffrt2\\s(.+)");
-		smatch cmdMatch;
-		if (!regex_match(cmd, cmdMatch, cmdRegex)) {
-			XBMC->Log(LOG_ERROR, "no stream url. skipping\n");
-			continue;
-		}
-
-		//ssub_match cmdSubMatch = cmdMatch[1];
-
-		PVRDemoChannel channel;
-		channel.iUniqueId = ++iUniqueChannelId;
-
-		/* channel name */
-		channel.strChannelName = (*it)["name"].asString();
-
-		/* radio/TV */
-		channel.bRadio = false;
-
-		string number = (*it)["number"].asString();
-
-		/* channel number */
-		channel.iChannelNumber = std::stoi(number);
-
-		/* sub channel number */
-		channel.iSubChannelNumber = 0;
-
-		/* CAID */
-		channel.iEncryptionSystem = 0;
-
-		/* icon path */
-		channel.strIconPath = "";
-
-		/* stream url */
-		channel.strStreamURL = "pvr://stream/" + cmdMatch[1].str(); // GetLiveStreamURL
-		//channel.strStreamURL = ""; // this will cause OpenLiveStream to be called 
-		channel.strStreamURL2 = cmdMatch[1].str();
-
-		m_channels.push_back(channel);
-
-		XBMC->Log(LOG_ERROR, "%d - %s\n", channel.iChannelNumber, channel.strChannelName.c_str());
-	}
-
-	return true;
-}
 
 PVRDemoData::PVRDemoData(void)
 {
@@ -376,7 +49,7 @@ PVRDemoData::~PVRDemoData(void)
   m_groups.clear();
 }
 
-std::string PVRDemoData::GetSettingsFile(string settingFile) const
+std::string PVRDemoData::GetSettingsFile(std::string settingFile) const
 {
   //string settingFile = g_strClientPath;
   if (settingFile.at(settingFile.size() - 1) == '\\' ||
@@ -387,355 +60,183 @@ std::string PVRDemoData::GetSettingsFile(string settingFile) const
   return settingFile;
 }
 
+bool PVRDemoData::LoadCache()
+{
+	std::string strUSettingsFile;
+	bool bUSettingsFileExists;
+	std::string strSettingsFile;
+	TiXmlDocument xml_doc;
+	TiXmlElement *pRootElement = NULL;
+	TiXmlElement *pTokenElement = NULL;
+
+	strUSettingsFile = GetSettingsFile(g_strUserPath);
+	bUSettingsFileExists = XBMC->FileExists(strUSettingsFile.c_str(), false);
+	strSettingsFile = bUSettingsFileExists ? strUSettingsFile : GetSettingsFile(g_strClientPath);
+
+	if (!xml_doc.LoadFile(strSettingsFile)) {
+		XBMC->Log(LOG_ERROR, "failed to load: %s\n", strSettingsFile.c_str());
+		return false;
+	}
+
+	if (!bUSettingsFileExists) {
+		XBMC->Log(LOG_ERROR, "saving cache to user path\n");
+
+		if (!xml_doc.SaveFile(strUSettingsFile)) {
+			XBMC->Log(LOG_ERROR, "failed to save %s", strUSettingsFile.c_str());
+			return false;
+		}
+
+		XBMC->Log(LOG_ERROR, "reloading cache from user path\n");
+		return LoadCache();
+	}
+
+	pRootElement = xml_doc.RootElement();
+	if (strcmp(pRootElement->Value(), "cache") != 0) {
+		XBMC->Log(LOG_ERROR, "invalid xml doc. root tag 'cache' not found\n");
+		return false;
+	}
+	
+	pTokenElement = pRootElement->FirstChildElement("token");
+	if (!pTokenElement) {
+		XBMC->Log(LOG_ERROR, "token element not found\n");
+	}
+	else if (pTokenElement->GetText()) {
+		g_token = pTokenElement->GetText();
+		g_authorized = true;
+	}
+
+	XBMC->Log(LOG_ERROR, "token: %s\n", g_token.c_str());
+
+	return true;
+}
+
+bool PVRDemoData::SaveCache()
+{
+	std::string strSettingsFile;
+	TiXmlDocument xml_doc;
+	TiXmlElement *pRootElement = NULL;
+	TiXmlElement *pTokenElement = NULL;
+
+	strSettingsFile = GetSettingsFile(g_strUserPath);
+
+	if (!xml_doc.LoadFile(strSettingsFile)) {
+		XBMC->Log(LOG_ERROR, "failed to load: %s\n", strSettingsFile.c_str());
+		return false;
+	}
+
+	pRootElement = xml_doc.RootElement();
+	if (strcmp(pRootElement->Value(), "cache") != 0) {
+		XBMC->Log(LOG_ERROR, "invalid xml doc. root tag 'cache' not found\n");
+		return false;
+	}
+
+	pTokenElement = pRootElement->FirstChildElement("token");
+	pTokenElement->Clear();
+	pTokenElement->LinkEndChild(new TiXmlText(g_token));
+
+	strSettingsFile = GetSettingsFile(g_strUserPath);
+	if (!xml_doc.SaveFile(strSettingsFile)) {
+		XBMC->Log(LOG_ERROR, "failed to save: %s", strSettingsFile.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+bool PVRDemoData::Authenticate()
+{
+	Json::Value parsed;
+
+	XBMC->Log(LOG_ERROR, "authenticating\n");
+
+	if (!SAPI::Handshake(&parsed) || !SAPI::GetProfile(&parsed)) {
+		XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
+		return false;
+	}
+
+	XBMC->Log(LOG_ERROR, "saving token\n");
+
+	if (!SaveCache()) {
+		return false;
+	}
+
+	return true;
+}
+
+bool PVRDemoData::LoadChannels()
+{
+	Json::Value parsed;
+	const char *number = NULL;
+	int iUniqueChannelId = 0;
+
+	if (!SAPI::GetAllChannels(&parsed)) {
+		XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
+		return false;
+	}
+
+	for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
+		number = (*it)["number"].asCString();
+
+		PVRDemoChannel channel;
+		channel.iUniqueId = ++iUniqueChannelId;
+
+		/* channel name */
+		channel.strChannelName = (*it)["name"].asString();
+
+		/* radio/TV */
+		channel.bRadio = false;
+
+		/* channel number */
+		channel.iChannelNumber = atoi(number);
+
+		/* sub channel number */
+		channel.iSubChannelNumber = 0;
+
+		/* CAID */
+		channel.iEncryptionSystem = 0;
+
+		/* icon path */
+		channel.strIconPath = "";
+
+		channel.cmd = (*it)["cmd"].asString();
+
+		/* stream url */
+		channel.strStreamURL = "pvr://stream/" + channel.cmd; // "pvr://stream/" causes GetLiveStreamURL to be called
+
+		m_channels.push_back(channel);
+
+		XBMC->Log(LOG_ERROR, "%d - %s\n", channel.iChannelNumber, channel.strChannelName.c_str());
+	}
+
+	return true;
+}
+
 bool PVRDemoData::LoadDemoData(void)
 {
-  TiXmlDocument xmlDoc;
-  string strUSettingsFile = GetSettingsFile(g_strUserPath);
-  bool bUSettingsFileExists = XBMC->FileExists(strUSettingsFile.c_str(), false);
-  string strSettingsFile = bUSettingsFileExists ? strUSettingsFile : GetSettingsFile(g_strClientPath);
-
-  if (!xmlDoc.LoadFile(strSettingsFile))
-  {
-    XBMC->Log(LOG_ERROR, "invalid demo data (no/invalid data file found at '%s')", strSettingsFile.c_str());
-    return false;
-  }
-
-  TiXmlElement *pRootElement = xmlDoc.RootElement();
-  if (strcmp(pRootElement->Value(), "cache") != 0)
-  {
-    XBMC->Log(LOG_ERROR, "invalid demo data (no <demo> tag found)");
-    return false;
-  }
-
-  if (!bUSettingsFileExists) {
-	  XBMC->Log(LOG_ERROR, "saving to user cache\n");
-	  if (!xmlDoc.SaveFile(strUSettingsFile)) {
-		  XBMC->Log(LOG_ERROR, "failed to save %s", strUSettingsFile.c_str());
-		  return false;
-	  }
-  }
-
-	/*TiXmlNode *pSNode = pRootElement->FirstChild("settings");
-	CStdString strTmp;
-
-	if (!XMLUtils::GetString(pSNode, "token", strTmp)) {
-		m_token = "";
+	LoadCache();
+	
+	if (!SAPI::Init()) {
+		XBMC->Log(LOG_ERROR, "failed to init api\n");
+		return false;
 	}
-	else {
-		m_token = strTmp;
-	}*/
 
-  TiXmlElement *pSElement = pRootElement->FirstChildElement("token");
-  if (!pSElement) {
-	  XBMC->Log(LOG_ERROR, "token element not found\n");
-  }
-  else if (pSElement->GetText()) {
-	  m_token = pSElement->GetText();
-  }
+	if (g_token.empty() && !Authenticate()) {
+		XBMC->Log(LOG_ERROR, "authentication failed\n");
+		return false;
+	}
 
-  XBMC->Log(LOG_ERROR, "token: %s\n", m_token.c_str());
+	if (!LoadChannels()) {
+		if (!g_authorized) {
+			XBMC->Log(LOG_ERROR, "re-authenticating\n");
+			if (!Authenticate()) {
+				XBMC->Log(LOG_ERROR, "authentication failed\n");
+			}
+			XBMC->Log(LOG_ERROR, "re-attempting to load channels\n");
+			LoadChannels();
+		}
+	}
 
-  if (!InitAPI()) {
-	  XBMC->Log(LOG_ERROR, "failed to init api\n");
-	  return false;
-  }
-
-  if (m_token.empty() && !Authenticate()) {
-	  XBMC->Log(LOG_ERROR, "authentication failed\n");
-	  return false;
-  }
-
-  if (!LoadChannels()) {
-	  if (m_authFailed) {
-		  XBMC->Log(LOG_ERROR, "re-authenticating\n");
-		  if (!Authenticate()) {
-			  XBMC->Log(LOG_ERROR, "authentication failed\n");
-		  }
-		  XBMC->Log(LOG_ERROR, "re-attempting to load channels\n");
-		  LoadChannels();
-	  }
-  }
-
-  return true;
-
-  /* load channels */
-  int iUniqueChannelId = 0;
-  TiXmlElement *pElement = pRootElement->FirstChildElement("channels");
-  if (pElement)
-  {
-    TiXmlNode *pChannelNode = NULL;
-    while ((pChannelNode = pElement->IterateChildren(pChannelNode)) != NULL)
-    {
-      CStdString strTmp;
-      PVRDemoChannel channel;
-      channel.iUniqueId = ++iUniqueChannelId;
-
-      /* channel name */
-      if (!XMLUtils::GetString(pChannelNode, "name", strTmp))
-        continue;
-      channel.strChannelName = strTmp;
-
-      /* radio/TV */
-      XMLUtils::GetBoolean(pChannelNode, "radio", channel.bRadio);
-
-      /* channel number */
-      if (!XMLUtils::GetInt(pChannelNode, "number", channel.iChannelNumber))
-        channel.iChannelNumber = iUniqueChannelId;
-
-      /* sub channel number */
-      if (!XMLUtils::GetInt(pChannelNode, "subnumber", channel.iSubChannelNumber))
-        channel.iSubChannelNumber = 0;
-
-      /* CAID */
-      if (!XMLUtils::GetInt(pChannelNode, "encryption", channel.iEncryptionSystem))
-        channel.iEncryptionSystem = 0;
-
-      /* icon path */
-      if (!XMLUtils::GetString(pChannelNode, "icon", strTmp))
-        channel.strIconPath = m_strDefaultIcon;
-      else
-        channel.strIconPath = strTmp;
-
-      /* stream url */
-      if (!XMLUtils::GetString(pChannelNode, "stream", strTmp))
-        channel.strStreamURL = m_strDefaultMovie;
-      else
-        channel.strStreamURL = strTmp;
-
-      m_channels.push_back(channel);
-    }
-  }
-
-  /* load channel groups */
-  int iUniqueGroupId = 0;
-  pElement = pRootElement->FirstChildElement("channelgroups");
-  if (pElement)
-  {
-    TiXmlNode *pGroupNode = NULL;
-    while ((pGroupNode = pElement->IterateChildren(pGroupNode)) != NULL)
-    {
-      CStdString strTmp;
-      PVRDemoChannelGroup group;
-      group.iGroupId = ++iUniqueGroupId;
-
-      /* group name */
-      if (!XMLUtils::GetString(pGroupNode, "name", strTmp))
-        continue;
-      group.strGroupName = strTmp;
-
-      /* radio/TV */
-      XMLUtils::GetBoolean(pGroupNode, "radio", group.bRadio);
-
-      /* members */
-      TiXmlNode* pMembers = pGroupNode->FirstChild("members");
-      TiXmlNode *pMemberNode = NULL;
-      while (pMembers != NULL && (pMemberNode = pMembers->IterateChildren(pMemberNode)) != NULL)
-      {
-        int iChannelId = atoi(pMemberNode->FirstChild()->Value());
-        if (iChannelId > -1)
-          group.members.push_back(iChannelId);
-      }
-
-      m_groups.push_back(group);
-    }
-  }
-
-  /* load EPG entries */
-  pElement = pRootElement->FirstChildElement("epg");
-  if (pElement)
-  {
-    TiXmlNode *pEpgNode = NULL;
-    while ((pEpgNode = pElement->IterateChildren(pEpgNode)) != NULL)
-    {
-      CStdString strTmp;
-      int iTmp;
-      PVRDemoEpgEntry entry;
-
-      /* broadcast id */
-      if (!XMLUtils::GetInt(pEpgNode, "broadcastid", entry.iBroadcastId))
-        continue;
-
-      /* channel id */
-      if (!XMLUtils::GetInt(pEpgNode, "channelid", iTmp))
-        continue;
-      PVRDemoChannel &channel = m_channels.at(iTmp - 1);
-      entry.iChannelId = channel.iUniqueId;
-
-      /* title */
-      if (!XMLUtils::GetString(pEpgNode, "title", strTmp))
-        continue;
-      entry.strTitle = strTmp;
-
-      /* start */
-      if (!XMLUtils::GetInt(pEpgNode, "start", iTmp))
-        continue;
-      entry.startTime = iTmp;
-
-      /* end */
-      if (!XMLUtils::GetInt(pEpgNode, "end", iTmp))
-        continue;
-      entry.endTime = iTmp;
-
-      /* plot */
-      if (XMLUtils::GetString(pEpgNode, "plot", strTmp))
-        entry.strPlot = strTmp;
-
-      /* plot outline */
-      if (XMLUtils::GetString(pEpgNode, "plotoutline", strTmp))
-        entry.strPlotOutline = strTmp;
-
-      /* icon path */
-      if (XMLUtils::GetString(pEpgNode, "icon", strTmp))
-        entry.strIconPath = strTmp;
-
-      /* genre type */
-      XMLUtils::GetInt(pEpgNode, "genretype", entry.iGenreType);
-
-      /* genre subtype */
-      XMLUtils::GetInt(pEpgNode, "genresubtype", entry.iGenreSubType);
-
-      XBMC->Log(LOG_DEBUG, "loaded EPG entry '%s' channel '%d' start '%d' end '%d'", entry.strTitle.c_str(), entry.iChannelId, entry.startTime, entry.endTime);
-      channel.epg.push_back(entry);
-    }
-  }
-
-  /* load recordings */
-  iUniqueGroupId = 0; // reset unique ids
-  pElement = pRootElement->FirstChildElement("recordings");
-  if (pElement)
-  {
-    TiXmlNode *pRecordingNode = NULL;
-    while ((pRecordingNode = pElement->IterateChildren(pRecordingNode)) != NULL)
-    {
-      CStdString strTmp;
-      PVRDemoRecording recording;
-
-      /* recording title */
-      if (!XMLUtils::GetString(pRecordingNode, "title", strTmp))
-        continue;
-      recording.strTitle = strTmp;
-
-      /* recording url */
-      if (!XMLUtils::GetString(pRecordingNode, "url", strTmp))
-        recording.strStreamURL = m_strDefaultMovie;
-      else
-        recording.strStreamURL = strTmp;
-
-      /* recording path */
-      if (XMLUtils::GetString(pRecordingNode, "directory", strTmp))
-        recording.strDirectory = strTmp;
-
-      iUniqueGroupId++;
-      strTmp.Format("%d", iUniqueGroupId);
-      recording.strRecordingId = strTmp;
-
-      /* channel name */
-      if (XMLUtils::GetString(pRecordingNode, "channelname", strTmp))
-        recording.strChannelName = strTmp;
-
-      /* plot */
-      if (XMLUtils::GetString(pRecordingNode, "plot", strTmp))
-        recording.strPlot = strTmp;
-
-      /* plot outline */
-      if (XMLUtils::GetString(pRecordingNode, "plotoutline", strTmp))
-        recording.strPlotOutline = strTmp;
-
-      /* genre type */
-      XMLUtils::GetInt(pRecordingNode, "genretype", recording.iGenreType);
-
-      /* genre subtype */
-      XMLUtils::GetInt(pRecordingNode, "genresubtype", recording.iGenreSubType);
-
-      /* duration */
-      XMLUtils::GetInt(pRecordingNode, "duration", recording.iDuration);
-
-      /* recording time */
-      if (XMLUtils::GetString(pRecordingNode, "time", strTmp))
-      {
-        time_t timeNow = time(NULL);
-        struct tm* now = localtime(&timeNow);
-
-        CStdString::size_type delim = strTmp.Find(':');
-        if (delim != CStdString::npos)
-        {
-          now->tm_hour = (int)strtol(strTmp.Left(delim), NULL, 0);
-          now->tm_min  = (int)strtol(strTmp.Mid(delim + 1), NULL, 0);
-          now->tm_mday--; // yesterday
-
-          recording.recordingTime = mktime(now);
-        }
-      }
-
-      m_recordings.push_back(recording);
-    }
-  }
-
-  /* load timers */
-  pElement = pRootElement->FirstChildElement("timers");
-  if (pElement)
-  {
-    TiXmlNode *pTimerNode = NULL;
-    while ((pTimerNode = pElement->IterateChildren(pTimerNode)) != NULL)
-    {
-      CStdString strTmp;
-      int iTmp;
-      PVRDemoTimer timer;
-      time_t timeNow = time(NULL);
-      struct tm* now = localtime(&timeNow);
-
-      /* channel id */
-      if (!XMLUtils::GetInt(pTimerNode, "channelid", iTmp))
-        continue;
-      PVRDemoChannel &channel = m_channels.at(iTmp - 1);
-      timer.iChannelId = channel.iUniqueId;
-
-      /* state */
-      if (XMLUtils::GetInt(pTimerNode, "state", iTmp))
-        timer.state = (PVR_TIMER_STATE) iTmp;
-
-      /* title */
-      if (!XMLUtils::GetString(pTimerNode, "title", strTmp))
-        continue;
-      timer.strTitle = strTmp;
-
-      /* summary */
-      if (!XMLUtils::GetString(pTimerNode, "summary", strTmp))
-        continue;
-      timer.strSummary = strTmp;
-
-      /* start time */
-      if (XMLUtils::GetString(pTimerNode, "starttime", strTmp))
-      {
-        CStdString::size_type delim = strTmp.Find(':');
-        if (delim != CStdString::npos)
-        {
-          now->tm_hour = (int)strtol(strTmp.Left(delim), NULL, 0);
-          now->tm_min  = (int)strtol(strTmp.Mid(delim + 1), NULL, 0);
-
-          timer.startTime = mktime(now);
-        }
-      }
-
-      /* end time */
-      if (XMLUtils::GetString(pTimerNode, "endtime", strTmp))
-      {
-        CStdString::size_type delim = strTmp.Find(':');
-        if (delim != CStdString::npos)
-        {
-          now->tm_hour = (int)strtol(strTmp.Left(delim), NULL, 0);
-          now->tm_min  = (int)strtol(strTmp.Mid(delim + 1), NULL, 0);
-
-          timer.endTime = mktime(now);
-        }
-      }
-
-      XBMC->Log(LOG_DEBUG, "loaded timer '%s' channel '%d' start '%d' end '%d'", timer.strTitle.c_str(), timer.iChannelId, timer.startTime, timer.endTime);
-      m_timers.push_back(timer);
-    }
-  }
-
-  return true;
+	return true;
 }
 
 int PVRDemoData::GetChannelsAmount(void)
@@ -780,41 +281,23 @@ const char* PVRDemoData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 		{
 			XBMC->Log(LOG_ERROR, "channel found. getting temp stream url\n");
 
-			string url;
-			struct MemoryStruct chunk;
-			Json::Value parsedFromString;
-			Json::Reader reader;
-			bool parsingSuccessful;
+			Json::Value parsed;
+			const char *cmd;
+			const char *streamUrl;
 
-			url = "?type=itv&action=create_link&cmd=ffrt2%20" + thisChannel.strStreamURL2 + "&forced_storage=undefined&disable_ad=0&JsHttpRequest=1-xml&";
-
-			chunk.memory = (char *)malloc(1);  /* will be grown as needed by the realloc above */
-			chunk.size = 0;    /* no data at this point */
-
-			if (!DoAPICall(&url, &chunk)) {
-				XBMC->Log(LOG_ERROR, "API call failed\n");
-
-				free(chunk.memory);
+			if (!SAPI::CreateLink(thisChannel.cmd, &parsed)) {
+				XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
 				break;
 			}
 
-			parsingSuccessful = reader.parse(chunk.memory, parsedFromString);
+			cmd = parsed["js"]["cmd"].asCString();
 
-			free(chunk.memory);
-
-			if (!parsingSuccessful) {
-				break;
-			}
-
-			string cmd = parsedFromString["js"]["cmd"].asString();
-			regex cmdRegex("ffrt2\\s(.+)");
-			smatch cmdMatch;
-			if (!regex_match(cmd, cmdMatch, cmdRegex)) {
+			if ((streamUrl = strstr(cmd, "ffrt2 ")) == NULL) {
 				XBMC->Log(LOG_ERROR, "no stream url. skipping\n");
 				break;
 			}
 
-			m_PlaybackURL = cmdMatch[1].str();
+			m_PlaybackURL.assign(streamUrl + 6);
 			
 			return m_PlaybackURL.c_str();
 		}

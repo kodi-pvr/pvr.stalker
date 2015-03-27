@@ -21,9 +21,11 @@
  */
 
 #include "client.h"
+
 #include "xbmc_pvr_dll.h"
-#include "PVRDemoData.h"
 #include "platform/util/util.h"
+
+#include "PVRDemoData.h"
 
 using namespace std;
 using namespace ADDON;
@@ -47,6 +49,10 @@ std::string g_strClientPath           = "";
 
 std::string g_strMac = "";
 std::string g_strServer = "";
+std::string g_api_endpoint = "";
+std::string g_referrer = "";
+bool g_authorized = false;
+std::string g_token = "";
 
 CHelper_libXBMC_addon *XBMC           = NULL;
 CHelper_libXBMC_pvr   *PVR            = NULL;

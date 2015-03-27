@@ -23,8 +23,8 @@
 
 #include <vector>
 #include "platform/util/StdString.h"
+
 #include "client.h"
-#include <jsoncpp/include/json/json.h>
 
 struct PVRDemoEpgEntry
 {
@@ -58,7 +58,7 @@ struct PVRDemoChannel
   std::string             strChannelName;
   std::string             strIconPath;
   std::string             strStreamURL;
-  std::string             strStreamURL2;
+  std::string             cmd;
   std::vector<PVRDemoEpgEntry> epg;
 };
 
@@ -120,17 +120,11 @@ public:
   virtual std::string GetSettingsFile(std::string settingFile) const;
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
 protected:
-	virtual bool LoadDemoData(void);
-	
-	// api
-	virtual bool InitAPI();
-	virtual bool DoAPICall(std::string *url, struct MemoryStruct *chunk);
-	virtual bool Handshake();
-	virtual bool GetProfile();
-	virtual bool GetAllChannels(Json::Value *parsed);
-
+	virtual bool LoadCache();
+	virtual bool SaveCache();
 	virtual bool Authenticate();
 	virtual bool LoadChannels();
+	virtual bool LoadDemoData(void);
 private:
   std::vector<PVRDemoChannelGroup> m_groups;
   std::vector<PVRDemoChannel>      m_channels;
@@ -140,8 +134,5 @@ private:
   CStdString                       m_strDefaultIcon;
   CStdString                       m_strDefaultMovie;
 
-  std::string m_apiEndpoint;
-  std::string m_referrer;
-  std::string m_token;
   std::string m_PlaybackURL;
 };
