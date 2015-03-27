@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <setting id="mac" type="text" label="30000" default="00:1A:79:00:00:00" />
+    <setting id="server" type="text" label="30001" default="127.0.0.1" />
+</settings>
