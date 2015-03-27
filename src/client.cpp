@@ -25,7 +25,7 @@
 #include "xbmc_pvr_dll.h"
 #include "platform/util/util.h"
 
-#include "PVRDemoData.h"
+#include "SData.h"
 
 using namespace std;
 using namespace ADDON;
@@ -36,9 +36,9 @@ using namespace ADDON;
 
 bool           m_bCreated       = false;
 ADDON_STATUS   m_CurStatus      = ADDON_STATUS_UNKNOWN;
-PVRDemoData   *m_data           = NULL;
+SData   *m_data           = NULL;
 bool           m_bIsPlaying     = false;
-PVRDemoChannel m_currentChannel;
+SChannel m_currentChannel;
 
 /* User adjustable settings are saved here.
  * Default values are defined inside client.h
@@ -50,9 +50,10 @@ std::string g_strClientPath           = "";
 std::string g_strMac = "";
 std::string g_strServer = "";
 std::string g_api_endpoint = "";
-std::string g_referrer = "";
+std::string g_referer = "";
 bool g_authorized = false;
 std::string g_token = "";
+int g_iUniqueChannelId = 0;
 
 CHelper_libXBMC_addon *XBMC           = NULL;
 CHelper_libXBMC_pvr   *PVR            = NULL;
@@ -113,7 +114,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 	  g_strServer = buffer;
   }
 
-  m_data = new PVRDemoData();
+  m_data = new SData();
   m_CurStatus = ADDON_STATUS_OK;
   m_bCreated = true;
   return m_CurStatus;
@@ -151,7 +152,7 @@ unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
 
 ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
 {
-  return ADDON_STATUS_OK;
+	return ADDON_STATUS_NEED_RESTART;
 }
 
 void ADDON_Stop()
@@ -337,7 +338,11 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 const char* GetLiveStreamURL(const PVR_CHANNEL& channel)
 {
 	const char* url = m_data->GetChannelStreamURL(channel);
-	//XBMC->Log(LOG_ERROR, "GetLiveStreamURL: %s\n", url);
+
+	if (strcmp(url, "") == 0) {
+		XBMC->QueueNotification(QUEUE_ERROR, "Failed to get stream URL.");
+	}
+
 	return url;
 }
 

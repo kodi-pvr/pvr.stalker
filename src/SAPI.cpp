@@ -1,5 +1,7 @@
 #include "SAPI.h"
 
+#include <algorithm>
+
 #include "client.h"
 
 using namespace ADDON;
@@ -23,22 +25,40 @@ namespace SAPI
 
 		// xpcom.common.js > get_server_params()
 
-		if ((pos = resp_headers.find("Location: ")) == std::string::npos) {
+		// check for location header
+		if ((pos = resp_headers.find("Location: ")) != std::string::npos) {
+			locationUrl = resp_headers.substr(pos + 10, resp_headers.find("\r\n", pos) - (pos + 10));
+		}
+		else {
+			XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint from location header\n", __FUNCTION__);
+			
+			// convert to lower case
+			std::transform(resp_body.begin(), resp_body.end(), resp_body.begin(), ::tolower);
+
+			// check for meta refresh tag
+			if ((pos = resp_body.find("url=")) != std::string::npos) {
+				locationUrl = g_strServer + "/" + resp_body.substr(pos + 4, resp_body.find("\"", pos) - (pos + 4));
+			}
+			else {
+				XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint from meta refresh tag\n", __FUNCTION__);
+
+				// assume current url is the intended location
+				XBMC->Log(LOG_ERROR, "%s: assuming current url is the intended location\n", __FUNCTION__);
+				locationUrl = g_strServer;
+			}
+		}
+
+		if ((pos = locationUrl.find_last_of("/")) == std::string::npos || locationUrl.substr(pos - 2, 3).compare("/c/") != 0) {
 			XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint\n", __FUNCTION__);
 			return false;
 		}
 
-		locationUrl = resp_headers.substr(pos + 10, resp_headers.find("\r\n", pos) - (pos + 10));
-
-		pos = locationUrl.find_last_of("/");
-		g_referrer = locationUrl.substr(0, pos + 1);
-
-		if (g_referrer.substr(pos - 2).compare("/c/") == 0) {
-			g_api_endpoint = g_referrer.substr(0, pos - 1) + "server/load.php";
-		}
+		// strip tail from url path and set api endpoint and referer
+		g_api_endpoint = locationUrl.substr(0, pos - 1) + "server/load.php";
+		g_referer = locationUrl.substr(0, pos + 1);
 
 		XBMC->Log(LOG_ERROR, "api endpoint: %s\n", g_api_endpoint.c_str());
-		XBMC->Log(LOG_ERROR, "referrer: %s\n", g_referrer.c_str());
+		XBMC->Log(LOG_ERROR, "referer: %s\n", g_referer.c_str());
 
 		return true;
 	}
@@ -54,7 +74,7 @@ namespace SAPI
 		}
 		sock->AddHeader("Cookie", cookie);
 
-		sock->AddHeader("Referer", g_referrer);
+		sock->AddHeader("Referer", g_referer);
 		sock->AddHeader("X-User-Agent", "Model: MAG250; Link: WiFi");
 		sock->AddHeader("Authorization", "Bearer " + g_token);
 
@@ -120,6 +140,22 @@ namespace SAPI
 		std::string resp_body;
 
 		sock.SetURL(g_api_endpoint + "?type=itv&action=get_all_channels&JsHttpRequest=1-xml&");
+
+		if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+			XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool GetOrderedList(Json::Value *parsed)
+	{
+		HTTPSocket sock;
+		std::string resp_headers;
+		std::string resp_body;
+
+		sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=10&JsHttpRequest=1-xml&");
 
 		if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
 			XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);

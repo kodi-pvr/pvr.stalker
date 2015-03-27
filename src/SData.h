@@ -22,11 +22,12 @@
  */
 
 #include <vector>
+#include <jsoncpp/include/json/json.h>
 #include "platform/util/StdString.h"
 
 #include "client.h"
 
-struct PVRDemoEpgEntry
+struct SEpgEntry
 {
   int         iBroadcastId;
   std::string strTitle;
@@ -48,7 +49,7 @@ struct PVRDemoEpgEntry
 //  std::string strEpisodeName;
 };
 
-struct PVRDemoChannel
+struct SChannel
 {
   bool                    bRadio;
   int                     iUniqueId;
@@ -59,10 +60,11 @@ struct PVRDemoChannel
   std::string             strIconPath;
   std::string             strStreamURL;
   std::string             cmd;
-  std::vector<PVRDemoEpgEntry> epg;
+  bool                    use_http_tmp_link;
+  std::vector<SEpgEntry> epg;
 };
 
-struct PVRDemoRecording
+struct SRecording
 {
   int         iDuration;
   int         iGenreType;
@@ -77,7 +79,7 @@ struct PVRDemoRecording
   time_t      recordingTime;
 };
 
-struct PVRDemoTimer
+struct STimer
 {
   int             iChannelId;
   time_t          startTime;
@@ -87,7 +89,7 @@ struct PVRDemoTimer
   std::string     strSummary;
 };
 
-struct PVRDemoChannelGroup
+struct SChannelGroup
 {
   bool             bRadio;
   int              iGroupId;
@@ -95,15 +97,15 @@ struct PVRDemoChannelGroup
   std::vector<int> members;
 };
 
-class PVRDemoData
+class SData
 {
 public:
-  PVRDemoData(void);
-  virtual ~PVRDemoData(void);
+  SData(void);
+  virtual ~SData(void);
 
   virtual int GetChannelsAmount(void);
   virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
-  virtual bool GetChannel(const PVR_CHANNEL &channel, PVRDemoChannel &myChannel);
+  virtual bool GetChannel(const PVR_CHANNEL &channel, SChannel &myChannel);
 
   virtual int GetChannelGroupsAmount(void);
   virtual PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio);
@@ -123,13 +125,14 @@ protected:
 	virtual bool LoadCache();
 	virtual bool SaveCache();
 	virtual bool Authenticate();
+	virtual bool ParseChannels(Json::Value &parsed);
 	virtual bool LoadChannels();
 	virtual bool LoadDemoData(void);
 private:
-  std::vector<PVRDemoChannelGroup> m_groups;
-  std::vector<PVRDemoChannel>      m_channels;
-  std::vector<PVRDemoRecording>    m_recordings;
-  std::vector<PVRDemoTimer>        m_timers;
+  std::vector<SChannelGroup> m_groups;
+  std::vector<SChannel>      m_channels;
+  std::vector<SRecording>    m_recordings;
+  std::vector<STimer>        m_timers;
   time_t                           m_iEpgStart;
   CStdString                       m_strDefaultIcon;
   CStdString                       m_strDefaultMovie;

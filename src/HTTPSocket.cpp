@@ -50,9 +50,9 @@ void HTTPSocket::SetURL(const std::string &url)
 		host.replace(pos, std::string::npos, "");
 	}
 	if ((pos = host.find(":")) != std::string::npos) {
-		std::string sp = host.substr(pos + 1);
-		long int lip = strtol(sp.c_str(), NULL, 10);
-		port = lip != 0L ? (int)lip : port;
+		std::string sport = host.substr(pos + 1);
+		long int lport = strtol(sport.c_str(), NULL, 10);
+		port = lport != 0L ? (int)lport : port;
 		host.replace(pos, std::string::npos, "");
 	}
 
@@ -167,8 +167,6 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
 		response.append(buffer, len);
 		memset(buffer, 0, TEMP_BUFFER_SIZE);
 	}
-
-	XBMC->Log(LOG_ERROR, "%s: end of stream. closing socket\n", __FUNCTION__);
 
 	if (!CloseSocket(&sockfd)) {
 		XBMC->Log(LOG_ERROR, "%s: failed to close socket\n", __FUNCTION__);

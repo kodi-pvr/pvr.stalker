@@ -92,13 +92,13 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   <ItemGroup>
     <ClCompile Include="..\..\src\client.cpp" />
     <ClCompile Include="..\..\src\HTTPSocket.cpp" />
-    <ClCompile Include="..\..\src\PVRDemoData.cpp" />
+    <ClCompile Include="..\..\src\SData.cpp" />
     <ClCompile Include="..\..\src\SAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\client.h" />
     <ClInclude Include="..\..\src\HTTPSocket.h" />
-    <ClInclude Include="..\..\src\PVRDemoData.h" />
+    <ClInclude Include="..\..\src\SData.h" />
     <ClInclude Include="..\..\src\SAPI.h" />
   </ItemGroup>
   <ItemGroup>

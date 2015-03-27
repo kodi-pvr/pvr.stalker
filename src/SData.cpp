@@ -20,19 +20,18 @@
  *
  */
 
-#include "PVRDemoData.h"
+#include "SData.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <tinyxml/tinyxml.h>
-#include <jsoncpp/include/json/json.h>
 
 #include "SAPI.h"
 
 using namespace ADDON;
 
-PVRDemoData::PVRDemoData(void)
+SData::SData(void)
 {
   m_iEpgStart = -1;
   m_strDefaultIcon =  "http://www.royalty-free.tv/news/wp-content/uploads/2011/06/cc-logo1.jpg";
@@ -41,15 +40,15 @@ PVRDemoData::PVRDemoData(void)
   LoadDemoData();
 }
 
-PVRDemoData::~PVRDemoData(void)
+SData::~SData(void)
 {
-	XBMC->Log(LOG_ERROR, "->~PVRDemoData()");
+	XBMC->Log(LOG_ERROR, "->~SData()");
 
   m_channels.clear();
   m_groups.clear();
 }
 
-std::string PVRDemoData::GetSettingsFile(std::string settingFile) const
+std::string SData::GetSettingsFile(std::string settingFile) const
 {
   //string settingFile = g_strClientPath;
   if (settingFile.at(settingFile.size() - 1) == '\\' ||
@@ -60,7 +59,7 @@ std::string PVRDemoData::GetSettingsFile(std::string settingFile) const
   return settingFile;
 }
 
-bool PVRDemoData::LoadCache()
+bool SData::LoadCache()
 {
 	std::string strUSettingsFile;
 	bool bUSettingsFileExists;
@@ -110,7 +109,7 @@ bool PVRDemoData::LoadCache()
 	return true;
 }
 
-bool PVRDemoData::SaveCache()
+bool SData::SaveCache()
 {
 	std::string strSettingsFile;
 	TiXmlDocument xml_doc;
@@ -143,14 +142,14 @@ bool PVRDemoData::SaveCache()
 	return true;
 }
 
-bool PVRDemoData::Authenticate()
+bool SData::Authenticate()
 {
 	Json::Value parsed;
 
 	XBMC->Log(LOG_ERROR, "authenticating\n");
 
 	if (!SAPI::Handshake(&parsed) || !SAPI::GetProfile(&parsed)) {
-		XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
+		XBMC->Log(LOG_ERROR, "%s: authentication failed\n", __FUNCTION__);
 		return false;
 	}
 
@@ -163,22 +162,14 @@ bool PVRDemoData::Authenticate()
 	return true;
 }
 
-bool PVRDemoData::LoadChannels()
+bool SData::ParseChannels(Json::Value &parsed)
 {
-	Json::Value parsed;
-	const char *number = NULL;
-	int iUniqueChannelId = 0;
-
-	if (!SAPI::GetAllChannels(&parsed)) {
-		XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
-		return false;
-	}
+	Json::Value tempValue;
+	const char *tempChar = NULL;
 
 	for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
-		number = (*it)["number"].asCString();
-
-		PVRDemoChannel channel;
-		channel.iUniqueId = ++iUniqueChannelId;
+		SChannel channel;
+		channel.iUniqueId = ++g_iUniqueChannelId;
 
 		/* channel name */
 		channel.strChannelName = (*it)["name"].asString();
@@ -187,7 +178,8 @@ bool PVRDemoData::LoadChannels()
 		channel.bRadio = false;
 
 		/* channel number */
-		channel.iChannelNumber = atoi(number);
+		tempChar = (*it)["number"].asCString();
+		channel.iChannelNumber = atoi(tempChar);
 
 		/* sub channel number */
 		channel.iSubChannelNumber = 0;
@@ -200,28 +192,58 @@ bool PVRDemoData::LoadChannels()
 
 		channel.cmd = (*it)["cmd"].asString();
 
+		tempValue = (*it)["use_http_tmp_link"];
+		if (tempValue.isString()) {
+			tempChar = tempValue.asCString();
+			channel.use_http_tmp_link = atoi(tempChar) > 0 ? true : false;
+		}
+		else if (tempValue.isInt()) {
+			channel.use_http_tmp_link = tempValue.asInt() > 0 ? true : false;
+		}
+
 		/* stream url */
 		channel.strStreamURL = "pvr://stream/" + channel.cmd; // "pvr://stream/" causes GetLiveStreamURL to be called
 
 		m_channels.push_back(channel);
 
-		XBMC->Log(LOG_ERROR, "%d - %s\n", channel.iChannelNumber, channel.strChannelName.c_str());
+		//XBMC->Log(LOG_ERROR, "%d - %s\n", channel.iChannelNumber, channel.strChannelName.c_str());
 	}
 
 	return true;
 }
 
-bool PVRDemoData::LoadDemoData(void)
+bool SData::LoadChannels()
+{
+	Json::Value parsed;
+	g_iUniqueChannelId = 0;
+
+	if (!SAPI::GetAllChannels(&parsed) || !ParseChannels(parsed)) {
+		XBMC->Log(LOG_ERROR, "%s: get all channels failed\n", __FUNCTION__);
+		return false;
+	}
+
+	parsed.clear();
+
+	if (!SAPI::GetOrderedList(&parsed) || !ParseChannels(parsed)) {
+		XBMC->Log(LOG_ERROR, "%s: get ordered list failed\n", __FUNCTION__);
+		return false;
+	}
+
+	return true;
+}
+
+bool SData::LoadDemoData(void)
 {
 	LoadCache();
 	
 	if (!SAPI::Init()) {
 		XBMC->Log(LOG_ERROR, "failed to init api\n");
+		XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
 		return false;
 	}
 
 	if (g_token.empty() && !Authenticate()) {
-		XBMC->Log(LOG_ERROR, "authentication failed\n");
+		XBMC->QueueNotification(QUEUE_ERROR, "Authentication failed.");
 		return false;
 	}
 
@@ -229,26 +251,31 @@ bool PVRDemoData::LoadDemoData(void)
 		if (!g_authorized) {
 			XBMC->Log(LOG_ERROR, "re-authenticating\n");
 			if (!Authenticate()) {
-				XBMC->Log(LOG_ERROR, "authentication failed\n");
+				XBMC->QueueNotification(QUEUE_ERROR, "Authentication failed.");
+				return false;
 			}
-			XBMC->Log(LOG_ERROR, "re-attempting to load channels\n");
-			LoadChannels();
+		}
+		
+		XBMC->Log(LOG_ERROR, "re-attempting to load channels\n");
+		if (!LoadChannels()) {
+			XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");
+			return false;
 		}
 	}
 
 	return true;
 }
 
-int PVRDemoData::GetChannelsAmount(void)
+int SData::GetChannelsAmount(void)
 {
   return m_channels.size();
 }
 
-PVR_ERROR PVRDemoData::GetChannels(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
-    PVRDemoChannel &channel = m_channels.at(iChannelPtr);
+    SChannel &channel = m_channels.at(iChannelPtr);
     if (channel.bRadio == bRadio)
     {
       PVR_CHANNEL xbmcChannel;
@@ -271,46 +298,72 @@ PVR_ERROR PVRDemoData::GetChannels(ADDON_HANDLE handle, bool bRadio)
   return PVR_ERROR_NO_ERROR;
 }
 
-const char* PVRDemoData::GetChannelStreamURL(const PVR_CHANNEL &channel)
+const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 {
-	for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
-	{
-		PVRDemoChannel &thisChannel = m_channels.at(iChannelPtr);
+	SChannel *thisChannel = NULL;
 
-		if (thisChannel.iUniqueId == (int)channel.iUniqueId)
-		{
-			XBMC->Log(LOG_ERROR, "channel found. getting temp stream url\n");
+	for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++) {
+		thisChannel = &m_channels.at(iChannelPtr);
 
-			Json::Value parsed;
-			const char *cmd;
-			const char *streamUrl;
-
-			if (!SAPI::CreateLink(thisChannel.cmd, &parsed)) {
-				XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
-				break;
-			}
-
-			cmd = parsed["js"]["cmd"].asCString();
-
-			if ((streamUrl = strstr(cmd, "ffrt2 ")) == NULL) {
-				XBMC->Log(LOG_ERROR, "no stream url. skipping\n");
-				break;
-			}
-
-			m_PlaybackURL.assign(streamUrl + 6);
-			
-			return m_PlaybackURL.c_str();
+		if (thisChannel->iUniqueId == (int)channel.iUniqueId) {
+			break;
 		}
 	}
 
-	return "";
+	if (!thisChannel) {
+		XBMC->Log(LOG_ERROR, "channel not found\n");
+		return "";
+	}
+
+	if (thisChannel->use_http_tmp_link) {
+		XBMC->Log(LOG_ERROR, "getting temp stream url\n");
+
+		Json::Value parsed;
+		const char *cmd;
+		const char *streamUrl;
+
+		if (!SAPI::CreateLink(thisChannel->cmd, &parsed)) {
+			XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
+			return "";
+		}
+
+		if (!parsed["js"].isMember("cmd")) {
+			XBMC->Log(LOG_ERROR, "no stream url found\n");
+			return "";
+		}
+
+		cmd = parsed["js"]["cmd"].asCString();
+
+		// ffrt\d*\shttp://actual-stream-url.com/playlist.m3u8
+		if ((streamUrl = strstr(cmd, " ")) == NULL) {
+			XBMC->Log(LOG_ERROR, "no stream url found\n");
+			return "";
+		}
+
+		m_PlaybackURL.assign(streamUrl + 1);
+	}
+	else {
+		size_t pos;
+
+		// ffrt\d*\shttp://actual-stream-url.com/playlist.m3u8
+		if ((pos = thisChannel->cmd.find(" ")) == std::string::npos) {
+			XBMC->Log(LOG_ERROR, "no stream url found\n");
+			return "";
+		}
+
+		m_PlaybackURL = thisChannel->cmd.substr(pos + 1);
+	}
+
+	//XBMC->Log(LOG_ERROR, "stream url: %s\n", m_PlaybackURL.c_str());
+
+	return m_PlaybackURL.c_str();
 }
 
-bool PVRDemoData::GetChannel(const PVR_CHANNEL &channel, PVRDemoChannel &myChannel)
+bool SData::GetChannel(const PVR_CHANNEL &channel, SChannel &myChannel)
 {
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
-	PVRDemoChannel &thisChannel = m_channels.at(iChannelPtr);
+	SChannel &thisChannel = m_channels.at(iChannelPtr);
 	if (thisChannel.iUniqueId == (int) channel.iUniqueId)
 	{
 		myChannel.iUniqueId         = thisChannel.iUniqueId;
@@ -329,16 +382,16 @@ bool PVRDemoData::GetChannel(const PVR_CHANNEL &channel, PVRDemoChannel &myChann
   return false;
 }
 
-int PVRDemoData::GetChannelGroupsAmount(void)
+int SData::GetChannelGroupsAmount(void)
 {
   return m_groups.size();
 }
 
-PVR_ERROR PVRDemoData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
+PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
   for (unsigned int iGroupPtr = 0; iGroupPtr < m_groups.size(); iGroupPtr++)
   {
-    PVRDemoChannelGroup &group = m_groups.at(iGroupPtr);
+    SChannelGroup &group = m_groups.at(iGroupPtr);
     if (group.bRadio == bRadio)
     {
       PVR_CHANNEL_GROUP xbmcGroup;
@@ -354,11 +407,11 @@ PVR_ERROR PVRDemoData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR PVRDemoData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
+PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
 {
   for (unsigned int iGroupPtr = 0; iGroupPtr < m_groups.size(); iGroupPtr++)
   {
-    PVRDemoChannelGroup &myGroup = m_groups.at(iGroupPtr);
+    SChannelGroup &myGroup = m_groups.at(iGroupPtr);
     if (!strcmp(myGroup.strGroupName.c_str(),group.strGroupName))
     {
       for (unsigned int iChannelPtr = 0; iChannelPtr < myGroup.members.size(); iChannelPtr++)
@@ -366,7 +419,7 @@ PVR_ERROR PVRDemoData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHA
         int iId = myGroup.members.at(iChannelPtr) - 1;
         if (iId < 0 || iId > (int)m_channels.size() - 1)
           continue;
-        PVRDemoChannel &channel = m_channels.at(iId);
+        SChannel &channel = m_channels.at(iId);
         PVR_CHANNEL_GROUP_MEMBER xbmcGroupMember;
         memset(&xbmcGroupMember, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
 
@@ -382,7 +435,7 @@ PVR_ERROR PVRDemoData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHA
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR PVRDemoData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   if (m_iEpgStart == -1)
     m_iEpgStart = iStart;
@@ -392,7 +445,7 @@ PVR_ERROR PVRDemoData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
 
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
   {
-    PVRDemoChannel &myChannel = m_channels.at(iChannelPtr);
+    SChannel &myChannel = m_channels.at(iChannelPtr);
     if (myChannel.iUniqueId != (int) channel.iUniqueId)
       continue;
 
@@ -401,7 +454,7 @@ PVR_ERROR PVRDemoData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
       time_t iLastEndTimeTmp = 0;
       for (unsigned int iEntryPtr = 0; iEntryPtr < myChannel.epg.size(); iEntryPtr++)
       {
-        PVRDemoEpgEntry &myTag = myChannel.epg.at(iEntryPtr);
+        SEpgEntry &myTag = myChannel.epg.at(iEntryPtr);
 
         EPG_TAG tag;
         memset(&tag, 0, sizeof(EPG_TAG));
@@ -430,16 +483,16 @@ PVR_ERROR PVRDemoData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &
   return PVR_ERROR_NO_ERROR;
 }
 
-int PVRDemoData::GetRecordingsAmount(void)
+int SData::GetRecordingsAmount(void)
 {
   return m_recordings.size();
 }
 
-PVR_ERROR PVRDemoData::GetRecordings(ADDON_HANDLE handle)
+PVR_ERROR SData::GetRecordings(ADDON_HANDLE handle)
 {
-  for (std::vector<PVRDemoRecording>::iterator it = m_recordings.begin() ; it != m_recordings.end() ; it++)
+  for (std::vector<SRecording>::iterator it = m_recordings.begin() ; it != m_recordings.end() ; it++)
   {
-    PVRDemoRecording &recording = *it;
+    SRecording &recording = *it;
 
     PVR_RECORDING xbmcRecording;
 
@@ -462,17 +515,17 @@ PVR_ERROR PVRDemoData::GetRecordings(ADDON_HANDLE handle)
   return PVR_ERROR_NO_ERROR;
 }
 
-int PVRDemoData::GetTimersAmount(void)
+int SData::GetTimersAmount(void)
 {
   return m_timers.size();
 }
 
-PVR_ERROR PVRDemoData::GetTimers(ADDON_HANDLE handle)
+PVR_ERROR SData::GetTimers(ADDON_HANDLE handle)
 {
   int i = 0;
-  for (std::vector<PVRDemoTimer>::iterator it = m_timers.begin() ; it != m_timers.end() ; it++)
+  for (std::vector<STimer>::iterator it = m_timers.begin() ; it != m_timers.end() ; it++)
   {
-    PVRDemoTimer &timer = *it;
+    STimer &timer = *it;
 
     PVR_TIMER xbmcTimer;
     memset(&xbmcTimer, 0, sizeof(PVR_TIMER));
