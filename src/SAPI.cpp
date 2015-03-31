@@ -149,13 +149,13 @@ namespace SAPI
 		return true;
 	}
 
-	bool GetOrderedList(Json::Value *parsed)
+	bool GetOrderedList(uint32_t page, Json::Value *parsed)
 	{
 		HTTPSocket sock;
 		std::string resp_headers;
 		std::string resp_body;
 
-		sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=10&JsHttpRequest=1-xml&");
+		sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=*&fav=0&sortby=number&p=" + std::to_string(page) +"&JsHttpRequest=1-xml&");
 
 		if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
 			XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);

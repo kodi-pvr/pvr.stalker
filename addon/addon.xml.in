@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker.client"
-  version="0.5"
+  version="0.6b"
   name="Stalker Client"
   provider-name="dvbken">
   <requires>

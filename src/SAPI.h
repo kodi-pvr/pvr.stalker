@@ -2,6 +2,7 @@
 
 #include <string>
 #include <jsoncpp/include/json/json.h>
+#include <stdint.h>
 
 #include "HTTPSocket.h"
 
@@ -14,7 +15,6 @@ namespace SAPI
 	bool Handshake(Json::Value *parsed);
 	bool GetProfile(Json::Value *parsed);
 	bool GetAllChannels(Json::Value *parsed);
-	bool GetOrderedList(Json::Value *parsed);
+	bool GetOrderedList(uint32_t page, Json::Value *parsed);
 	bool CreateLink(std::string &cmd, Json::Value *parsed);
 };
-

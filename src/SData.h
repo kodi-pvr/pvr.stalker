@@ -61,6 +61,7 @@ struct SChannel
   std::string             strStreamURL;
   std::string             cmd;
   bool                    use_http_tmp_link;
+  bool                    use_load_balancing;
   std::vector<SEpgEntry> epg;
 };
 
@@ -128,6 +129,9 @@ protected:
 	virtual bool ParseChannels(Json::Value &parsed);
 	virtual bool LoadChannels();
 	virtual bool LoadDemoData(void);
+
+	virtual int GetIntValue(Json::Value &value);
+	virtual bool GetIntValueAsBool(Json::Value &value);
 private:
   std::vector<SChannelGroup> m_groups;
   std::vector<SChannel>      m_channels;

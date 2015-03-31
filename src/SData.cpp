@@ -162,6 +162,28 @@ bool SData::Authenticate()
 	return true;
 }
 
+int SData::GetIntValue(Json::Value &value)
+{
+	const char *tempChar = NULL;
+	int tempInt = -1;
+
+	// some json responses have have ints formated as strings
+	if (value.isString()) {
+		tempChar = value.asCString();
+		tempInt = atoi(tempChar);
+	}
+	else if (value.isInt()) {
+		tempInt = value.asInt();
+	}
+
+	return tempInt;
+}
+
+bool SData::GetIntValueAsBool(Json::Value &value)
+{
+	return GetIntValue(value) > 0 ? true : false;
+}
+
 bool SData::ParseChannels(Json::Value &parsed)
 {
 	Json::Value tempValue;
@@ -191,18 +213,11 @@ bool SData::ParseChannels(Json::Value &parsed)
 		channel.strIconPath = "";
 
 		channel.cmd = (*it)["cmd"].asString();
-
-		tempValue = (*it)["use_http_tmp_link"];
-		if (tempValue.isString()) {
-			tempChar = tempValue.asCString();
-			channel.use_http_tmp_link = atoi(tempChar) > 0 ? true : false;
-		}
-		else if (tempValue.isInt()) {
-			channel.use_http_tmp_link = tempValue.asInt() > 0 ? true : false;
-		}
+		channel.use_http_tmp_link = GetIntValueAsBool((*it)["use_http_tmp_link"]);
+		channel.use_load_balancing = GetIntValueAsBool((*it)["use_load_balancing"]);
 
 		/* stream url */
-		channel.strStreamURL = "pvr://stream/" + channel.cmd; // "pvr://stream/" causes GetLiveStreamURL to be called
+		channel.strStreamURL = "pvr://stream/" + std::to_string(channel.iUniqueId); // "pvr://stream/" causes GetLiveStreamURL to be called
 
 		m_channels.push_back(channel);
 
@@ -215,18 +230,25 @@ bool SData::ParseChannels(Json::Value &parsed)
 bool SData::LoadChannels()
 {
 	Json::Value parsed;
+	uint32_t current_page = 1;
+	uint32_t max_pages = 1;
+
 	g_iUniqueChannelId = 0;
 
-	if (!SAPI::GetAllChannels(&parsed) || !ParseChannels(parsed)) {
-		XBMC->Log(LOG_ERROR, "%s: get all channels failed\n", __FUNCTION__);
-		return false;
-	}
+	while (current_page <= max_pages) {
+		if (!SAPI::GetOrderedList(current_page, &parsed) || !ParseChannels(parsed)) {
+			XBMC->Log(LOG_NOTICE, "%s: get ordered list failed\n", __FUNCTION__);
+			return false;
+		}
 
-	parsed.clear();
+		int total_items = GetIntValue(parsed["js"]["total_items"]);
+		int max_page_items = GetIntValue(parsed["js"]["max_page_items"]);
+		max_pages = static_cast<uint32_t>(ceil((double)total_items / max_page_items));
 
-	if (!SAPI::GetOrderedList(&parsed) || !ParseChannels(parsed)) {
-		XBMC->Log(LOG_ERROR, "%s: get ordered list failed\n", __FUNCTION__);
-		return false;
+		current_page++;
+
+		XBMC->Log(LOG_DEBUG, "%s: total_items: %d | max_page_items: %d | current_page: %d | max_pages: %d\n",
+			__FUNCTION__, total_items, max_page_items, current_page, max_pages);
 	}
 
 	return true;
@@ -301,6 +323,12 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 {
 	SChannel *thisChannel = NULL;
+	// method 1
+	/*const char *cmd;
+	const char *streamUrl;*/
+	// method 2
+	std::string cmd;
+	size_t pos;
 
 	for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++) {
 		thisChannel = &m_channels.at(iChannelPtr);
@@ -315,12 +343,13 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 		return "";
 	}
 
-	if (thisChannel->use_http_tmp_link) {
-		XBMC->Log(LOG_ERROR, "getting temp stream url\n");
+	m_PlaybackURL.clear();
+
+	// /c/player.js#L2198
+	if (thisChannel->use_http_tmp_link || thisChannel->use_load_balancing) {
+		XBMC->Log(LOG_DEBUG, "getting temp stream url\n");
 
 		Json::Value parsed;
-		const char *cmd;
-		const char *streamUrl;
 
 		if (!SAPI::CreateLink(thisChannel->cmd, &parsed)) {
 			XBMC->Log(LOG_ERROR, "%s: failed\n", __FUNCTION__);
@@ -332,26 +361,36 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 			return "";
 		}
 
-		cmd = parsed["js"]["cmd"].asCString();
-
-		// ffrt\d*\shttp://actual-stream-url.com/playlist.m3u8
-		if ((streamUrl = strstr(cmd, " ")) == NULL) {
-			XBMC->Log(LOG_ERROR, "no stream url found\n");
-			return "";
-		}
-
-		m_PlaybackURL.assign(streamUrl + 1);
+		//cmd = parsed["js"]["cmd"].asCString();
+		cmd = parsed["js"]["cmd"].asString();
 	}
 	else {
-		size_t pos;
+		cmd = thisChannel->cmd;
+	}
 
-		// ffrt\d*\shttp://actual-stream-url.com/playlist.m3u8
-		if ((pos = thisChannel->cmd.find(" ")) == std::string::npos) {
-			XBMC->Log(LOG_ERROR, "no stream url found\n");
-			return "";
+	// cmd format
+	// (?:ffrt\d*\s|)(.*)
+
+	// method 1
+	/*if ((streamUrl = strstr(cmd, " ")) != NULL) {
+		m_PlaybackURL.assign(streamUrl + 1);
+	}
+
+	m_PlaybackURL.assign(streamUrl + 1);*/
+
+	// method 2
+	if ((pos = cmd.find(" ")) != std::string::npos) {
+		m_PlaybackURL = cmd.substr(pos + 1);
+	}
+	else {
+		if (cmd.find("http") == 0) {
+			m_PlaybackURL = cmd;
 		}
+	}
 
-		m_PlaybackURL = thisChannel->cmd.substr(pos + 1);
+	if (m_PlaybackURL.empty()) {
+		XBMC->Log(LOG_ERROR, "no stream url found\n");
+		return "";
 	}
 
 	//XBMC->Log(LOG_ERROR, "stream url: %s\n", m_PlaybackURL.c_str());
