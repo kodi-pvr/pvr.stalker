@@ -40,6 +40,7 @@ SData::SData(void)
   m_bApiInit = false;
   m_bAuthenticated = false;
   m_bProfileLoaded = false;
+  m_epgDownloaded = false;
 }
 
 SData::~SData(void)
@@ -562,50 +563,370 @@ PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_G
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle)
 {
-  if (m_iEpgStart == -1)
-    m_iEpgStart = iStart;
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
-  time_t iLastEndTime = m_iEpgStart + 1;
-  int iAddBroadcastId = 0;
+  time_t iStartTimestamp;
+  time_t iStopTimestamp;
 
-  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++)
-  {
-    SChannel &myChannel = m_channels.at(iChannelPtr);
-    if (myChannel.iUniqueId != (int) channel.iUniqueId)
+  for (Json::Value::iterator it = parsed.begin(); it != parsed.end(); ++it) {
+    iStartTimestamp = GetIntValue((*it)["start_timestamp"]);
+    iStopTimestamp = GetIntValue((*it)["stop_timestamp"]);
+
+    if (!(iStartTimestamp > iStart && iStopTimestamp < iEnd)) {
       continue;
+    }
 
-    while (iLastEndTime < iEnd && myChannel.epg.size() > 0)
-    {
-      time_t iLastEndTimeTmp = 0;
-      for (unsigned int iEntryPtr = 0; iEntryPtr < myChannel.epg.size(); iEntryPtr++)
+    EPG_TAG tag;
+    memset(&tag, 0, sizeof(EPG_TAG));
+
+    tag.iUniqueBroadcastId = GetIntValue((*it)["id"]);
+    tag.strTitle = (*it)["name"].asCString();
+    tag.iChannelNumber = iChannelNumber;
+    tag.startTime = iStartTimestamp;
+    tag.endTime = iStopTimestamp;
+    //tag.strPlotOutline = myTag.strPlotOutline.c_str();
+    tag.strPlot = (*it)["descr"].asCString();
+    //tag.strIconPath = myTag.strIconPath.c_str();
+    //tag.iGenreType = myTag.iGenreType;
+    //tag.iGenreSubType = myTag.iGenreSubType;
+
+    PVR->TransferEpgEntry(handle, &tag);
+  }
+
+  return true;
+}
+
+std::vector<std::string> SData::split(std::string str, char delimiter) {
+  std::vector<std::string> internal;
+  std::stringstream ss(str); // Turn the string into a stream.
+  std::string tok;
+
+  while (getline(ss, tok, delimiter)) {
+    internal.push_back(tok);
+  }
+
+  return internal;
+}
+
+bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  struct tm *tm;
+  char buffer[30];
+  std::string strFrom;
+  std::string strTo;
+  uint32_t iCurrentPage = 1;
+  uint32_t iMaxPages = 1;
+  Json::Value parsed;
+
+  tm = gmtime(&iStart);
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d", tm);
+  strFrom = buffer;
+
+  tm = gmtime(&iEnd);
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d", tm);
+  strTo = buffer;
+
+  XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %s - %s\n", __FUNCTION__, iStart, iEnd, strFrom.c_str(), strTo.c_str());
+
+  if (m_epgWeek.empty() && !SAPI::GetWeek(&m_epgWeek)) {
+    XBMC->Log(LOG_ERROR, "%s: GetWeek failed\n", __FUNCTION__);
+    return false;
+  }
+
+  for (Json::Value::iterator it = m_epgWeek["js"].begin(); it != m_epgWeek["js"].end(); ++it) {
+    std::string strFMysql;
+    std::vector<std::string> dateSplit;
+    struct tm tmDate = { 0 };
+    time_t iTimeStamp;
+
+    strFMysql = (*it)["f_mysql"].asString();
+    dateSplit = split(strFMysql, '-');
+
+    tmDate.tm_year = atoi(dateSplit[0].c_str()) - 1900;
+    tmDate.tm_mon = atoi(dateSplit[1].c_str()) - 1;
+    tmDate.tm_mday = atoi(dateSplit[2].c_str());
+    tmDate.tm_isdst = 0;
+    iTimeStamp = mktime(&tmDate);
+
+    XBMC->Log(LOG_DEBUG, "%s: %s - %d\n", __FUNCTION__, strFMysql.c_str(), iTimeStamp);
+
+    // check if week is within range
+    if (!(iTimeStamp > iStart && iTimeStamp < iEnd)) {
+      continue;
+    }
+
+    iCurrentPage = 1;
+    iMaxPages = 1;
+
+    while (iCurrentPage <= iMaxPages) {
+      if (!SAPI::GetSimpleDataTable(channel.iChannelId, strFMysql, iCurrentPage, &parsed)
+        || !ParseEPG(parsed["js"]["data"], iStart, iEnd, channel.iChannelNumber, handle))
       {
-        SEpgEntry &myTag = myChannel.epg.at(iEntryPtr);
-
-        EPG_TAG tag;
-        memset(&tag, 0, sizeof(EPG_TAG));
-
-        tag.iUniqueBroadcastId = myTag.iBroadcastId + iAddBroadcastId;
-        tag.strTitle           = myTag.strTitle.c_str();
-        tag.iChannelNumber     = myTag.iChannelId;
-        tag.startTime          = myTag.startTime + iLastEndTime;
-        tag.endTime            = myTag.endTime + iLastEndTime;
-        tag.strPlotOutline     = myTag.strPlotOutline.c_str();
-        tag.strPlot            = myTag.strPlot.c_str();
-        tag.strIconPath        = myTag.strIconPath.c_str();
-        tag.iGenreType         = myTag.iGenreType;
-        tag.iGenreSubType      = myTag.iGenreSubType;
-
-        iLastEndTimeTmp = tag.endTime;
-
-        PVR->TransferEpgEntry(handle, &tag);
+        XBMC->Log(LOG_ERROR, "%s: GetSimpleDataTable failed\n", __FUNCTION__);
+        return false;
       }
 
-      iLastEndTime = iLastEndTimeTmp;
-      iAddBroadcastId += myChannel.epg.size();
+      int iTotalItems = GetIntValue(parsed["js"]["total_items"]);
+      int iMaxPageItems = GetIntValue(parsed["js"]["max_page_items"]);
+      iMaxPages = static_cast<uint32_t>(ceil((double)iTotalItems / iMaxPageItems));
+
+      iCurrentPage++;
+
+      XBMC->Log(LOG_DEBUG, "%s: iTotalItems: %d | iMaxPageItems: %d | iCurrentPage: %d | iMaxPages: %d\n",
+        __FUNCTION__, iTotalItems, iMaxPageItems, iCurrentPage, iMaxPages);
     }
   }
+
+  return true;
+}
+
+bool SData::LoadEPGForChannel2(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  struct tm *tm;
+  char buffer[30];
+  std::string strFrom;
+  std::string strTo;
+  Json::Value parsed;
+
+  tm = gmtime(&iStart);
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d", tm);
+  strFrom = buffer;
+
+  tm = gmtime(&iEnd);
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d", tm);
+  strTo = buffer;
+
+  XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %s - %s\n", __FUNCTION__, iStart, iEnd, strFrom.c_str(), strTo.c_str());
+
+  if (m_epgWeek.empty() && !SAPI::GetWeek(&m_epgWeek)) {
+    XBMC->Log(LOG_ERROR, "%s: GetWeek failed\n", __FUNCTION__);
+    return false;
+  }
+
+  for (Json::Value::iterator it = m_epgWeek["js"].begin(); it != m_epgWeek["js"].end(); ++it) {
+    std::string strFMysql;
+    std::vector<std::string> dateSplit;
+    struct tm tmDate = { 0 };
+    time_t iTimeStamp;
+
+    strFMysql = (*it)["f_mysql"].asString();
+    dateSplit = split(strFMysql, '-');
+
+    tmDate.tm_year = atoi(dateSplit[0].c_str()) - 1900;
+    tmDate.tm_mon = atoi(dateSplit[1].c_str()) - 1;
+    tmDate.tm_mday = atoi(dateSplit[2].c_str());
+    tmDate.tm_isdst = 0;
+    iTimeStamp = mktime(&tmDate);
+
+    XBMC->Log(LOG_DEBUG, "%s: %s - %d\n", __FUNCTION__, strFMysql.c_str(), iTimeStamp);
+
+    // check if week is within range
+    if (!(iTimeStamp > iStart && iTimeStamp < iEnd)) {
+      continue;
+    }
+
+    // first page only. even though there may be multiple pages with all channels included,
+    // the pages only change when the ch_id changes. the requested ch_id is typically first but, check anyway.
+    // date_to is always ignored. only the next 24 hours are returned (hence for loop by day in week)
+    if (!SAPI::GetDataTable(channel.iChannelId, strFrom, strTo, 1, &parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: GetDataTable failed\n", __FUNCTION__);
+      return false;
+    }
+
+    int channelId;
+    for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
+      channelId = GetIntValue((*it)["ch_id"]);
+      if (channelId != channel.iChannelId) {
+        continue;
+      }
+
+      if (!ParseEPG((*it)["epg"], iStart, iEnd, channel.iChannelNumber, handle)) {
+        XBMC->Log(LOG_ERROR, "%s: ParseEPG failed\n", __FUNCTION__);
+        return false;
+      }
+
+      // epg loaded for channel. no need to look further
+      return true;
+    }
+  }
+
+  return true;
+}
+
+std::string SData::GetEPGCachePath()
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+  
+  return std::string(g_strUserPath + PATH_SEPARATOR_CHAR + "epg" + PATH_SEPARATOR_CHAR);
+}
+
+bool SData::DownloadEPG(time_t iStart, time_t iEnd, SChannel &channel)
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  struct tm *tm;
+  char buffer[30];
+  std::string strFrom;
+  std::string strTo;
+  uint32_t iCurrentPage = 1;
+  uint32_t iMaxPages = 1;
+  std::string strEpgCachePath;
+  std::string strFilePath;
+  Json::Value parsed;
+
+  m_epgDownloaded = false;
+
+  tm = gmtime(&iStart);
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm);
+  strFrom = buffer;
+
+  tm = gmtime(&iEnd);
+  strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm);
+  strTo = buffer;
+
+  XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %s - %s\n", __FUNCTION__, iStart, iEnd, strFrom.c_str(), strTo.c_str());
+  
+  strEpgCachePath = GetEPGCachePath();
+
+  if (!XBMC->DirectoryExists(strEpgCachePath.c_str()) && !XBMC->CreateDirectoryA(strEpgCachePath.c_str())) {
+    XBMC->Log(LOG_ERROR, "%s: CreateDirectoryA failed: %s\n", __FUNCTION__, strEpgCachePath.c_str());
+    return false;
+  }
+
+  while (iCurrentPage <= iMaxPages) {
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "%sepg-%d",
+      strEpgCachePath.c_str(), iCurrentPage);
+    strFilePath = buffer;
+
+    XBMC->Log(LOG_DEBUG, "%s: file path: %s\n", __FUNCTION__, strFilePath.c_str());
+
+    // don't download it if it's already cached
+    /*if (XBMC->FileExists(strFilePath.c_str(), false)) {
+      XBMC->Log(LOG_NOTICE, "%s: epg data already cached\n", __FUNCTION__);
+      continue;
+    }
+
+    if (!SAPI::GetDataTable(channel.iChannelId, strFrom, strTo, iCurrentPage, &parsed, strFilePath)) {
+      XBMC->Log(LOG_ERROR, "%s: GetDataTable failed\n", __FUNCTION__);
+      return false;
+    }*/
+
+    int iTotalItems = GetIntValue(parsed["js"]["total_items"]);
+    int iMaxPageItems = GetIntValue(parsed["js"]["max_page_items"]);
+    //iMaxPages = static_cast<uint32_t>(ceil((double)iTotalItems / iMaxPageItems));
+
+    iCurrentPage++;
+
+    XBMC->Log(LOG_DEBUG, "%s: iTotalItems: %d | iMaxPageItems: %d | iCurrentPage: %d | iMaxPages: %d\n",
+      __FUNCTION__, iTotalItems, iMaxPageItems, iCurrentPage, iMaxPages);
+  }
+
+  m_epgDownloaded = true;
+
+  return true;
+}
+
+bool SData::LoadEPGFromFile(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  int i = 1;
+  std::string strEpgCachePath;
+  std::string strFilePath;
+
+  strEpgCachePath = GetEPGCachePath();
+
+  while (true) {
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "%sepg-%d", strEpgCachePath.c_str(), i++);
+    strFilePath = buffer;
+
+    XBMC->Log(LOG_DEBUG, "%s: file path: %s\n", __FUNCTION__, strFilePath.c_str());
+
+    if (!XBMC->FileExists(strFilePath.c_str(), false)) {
+      break;
+    }
+
+    void* hFile = XBMC->OpenFile(strFilePath.c_str(), 0);
+    if (hFile == NULL) {
+      XBMC->Log(LOG_ERROR, "%s: OpenFile failed\n", __FUNCTION__);
+      return false;
+    }
+
+    std::string contents;
+    contents.clear();
+    while (XBMC->ReadFileString(hFile, buffer, 1023)) {
+      contents.append(buffer);
+    }
+
+    XBMC->CloseFile(hFile);
+
+    Json::Reader reader;
+    Json::Value parsed;
+    if (!reader.parse(contents, parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: parsing failed\n", __FUNCTION__);
+      return false;
+    }
+
+    int channelId;
+    for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
+      channelId = GetIntValue((*it)["ch_id"]);
+      if (channelId != channel.iChannelId) {
+        continue;
+      }
+
+      if (!ParseEPG((*it)["epg"], iStart, iEnd, channel.iChannelNumber, handle)) {
+        XBMC->Log(LOG_ERROR, "%s: ParseEPG failed\n", __FUNCTION__);
+        return false;
+      }
+
+      // epg loaded for channel. no need to look in other files
+      return true;
+    }
+  }
+
+  return true;
+}
+
+PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  SChannel *thisChannel = NULL;
+
+  for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++) {
+    thisChannel = &m_channels.at(iChannelPtr);
+
+    if (thisChannel->iUniqueId == (int)channel.iUniqueId) {
+      break;
+    }
+  }
+
+  if (!thisChannel) {
+    XBMC->Log(LOG_ERROR, "%s: channel not found\n", __FUNCTION__);
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
+  XBMC->Log(LOG_DEBUG, "%s: %d - %s\n", __FUNCTION__, thisChannel->iChannelNumber, thisChannel->strChannelName.c_str());
+
+  if (!LoadEPGForChannel(*thisChannel, iStart, iEnd, handle)) {
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
+  /*if (/*!m_epgDownloaded &&* !DownloadEPG(iStart, iEnd, *thisChannel)) {
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
+  if (!LoadEPGFromFile(*thisChannel, iStart, iEnd, handle)) {
+    return PVR_ERROR_SERVER_ERROR;
+  }*/
 
   return PVR_ERROR_NO_ERROR;
 }

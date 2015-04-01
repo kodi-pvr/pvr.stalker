@@ -64,7 +64,7 @@ namespace SAPI
 		return true;
 	}
 
-	bool StalkerCall(HTTPSocket *sock, std::string *resp_headers, std::string *resp_body, Json::Value *parsed)
+	bool StalkerCall(HTTPSocket *sock, std::string *resp_headers, std::string *resp_body, Json::Value *parsed, std::string *strFilePath)
 	{
     char buffer[256];
 		size_t pos;
@@ -91,13 +91,27 @@ namespace SAPI
 			return false;
 		}
 
-		if (!reader.parse(*resp_body, *parsed)) {
-			XBMC->Log(LOG_ERROR, "%s: parsing failed\n", __FUNCTION__);
-			if (resp_body->compare(AUTHORIZATION_FAILED) == 0) {
-				XBMC->Log(LOG_ERROR, "%s: authorization failed\n", __FUNCTION__);
-			}
-			return false;
-		}
+    if (parsed != NULL) {
+      if (!reader.parse(*resp_body, *parsed)) {
+        XBMC->Log(LOG_ERROR, "%s: parsing failed\n", __FUNCTION__);
+        if (resp_body->compare(AUTHORIZATION_FAILED) == 0) {
+          XBMC->Log(LOG_ERROR, "%s: not authorized\n", __FUNCTION__);
+        }
+        return false;
+      }
+    }
+
+    if (strFilePath != NULL && !strFilePath->empty()) {
+      FILE *f = fopen(strFilePath->c_str(), "w");
+      if (f == NULL) {
+        XBMC->Log(LOG_ERROR, "%s: failed to open \"%s\"\n", __FUNCTION__, strFilePath->c_str());
+        return false;
+      }
+
+      fprintf(f, resp_body->c_str());
+
+      fclose(f);
+    }
 
 		return true;
 	}
@@ -189,5 +203,68 @@ namespace SAPI
 		}
 
 		return true;
-	}
+  }
+
+  bool GetWeek(Json::Value *parsed)
+  {
+    char buffer[256];
+    HTTPSocket sock;
+    std::string resp_headers;
+    std::string resp_body;
+
+    snprintf(buffer, sizeof(buffer),
+      "%s?type=epg&action=get_week&JsHttpRequest=1-xml&",
+      g_api_endpoint.c_str());
+
+    sock.SetURL(std::string(buffer));
+
+    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      return false;
+    }
+
+    return true;
+  }
+
+  bool GetSimpleDataTable(uint32_t channelId, std::string &date, uint32_t page, Json::Value *parsed)
+  {
+    char buffer[256];
+    HTTPSocket sock;
+    std::string resp_headers;
+    std::string resp_body;
+
+    snprintf(buffer, sizeof(buffer),
+      "%s?type=epg&action=get_simple_data_table&ch_id=%d&date=%s&p=%d&JsHttpRequest=1-xml&",
+      g_api_endpoint.c_str(), channelId, date.c_str(), page);
+
+    sock.SetURL(std::string(buffer));
+
+    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      return false;
+    }
+
+    return true;
+  }
+
+  bool GetDataTable(uint32_t channelId, std::string &from, std::string &to, uint32_t page, Json::Value *parsed)
+  {
+    char buffer[256];
+    HTTPSocket sock;
+    std::string resp_headers;
+    std::string resp_body;
+
+    snprintf(buffer, sizeof(buffer),
+      "%s?type=epg&action=get_data_table&ch_id=%d&from=%s&to=%s&p=%d&JsHttpRequest=1-xml&",
+      g_api_endpoint.c_str(), channelId, from.c_str(), to.c_str(), page);
+
+    sock.SetURL(std::string(buffer));
+
+    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      return false;
+    }
+
+    return true;
+  }
 }

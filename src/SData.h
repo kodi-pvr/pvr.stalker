@@ -133,10 +133,18 @@ protected:
 	virtual bool Authenticate();
 	virtual bool ParseChannels(Json::Value &parsed);
 	virtual bool LoadChannels();
+  virtual bool ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
+  virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual bool LoadEPGForChannel2(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual std::string GetEPGCachePath();
+  virtual bool DownloadEPG(time_t iStart, time_t iEnd, SChannel &channel);
+  virtual bool LoadEPGFromFile(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
 
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 	virtual int GetIntValue(Json::Value &value);
 	virtual bool GetIntValueAsBool(Json::Value &value);
+
+  virtual std::vector<std::string> split(std::string str, char delimiter);
 private:
   std::vector<SChannelGroup> m_groups;
   std::vector<SChannel>      m_channels;
@@ -149,5 +157,7 @@ private:
   bool                        m_bApiInit;
   bool                        m_bAuthenticated;
   bool                        m_bProfileLoaded;
+  bool                        m_epgDownloaded;
+  Json::Value                 m_epgWeek;
   std::string                 m_PlaybackURL;
 };
