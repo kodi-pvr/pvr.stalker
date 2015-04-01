@@ -1,6 +1,7 @@
 #include "SAPI.h"
 
 #include <algorithm>
+#include <platform/os.h>
 
 #include "client.h"
 
@@ -43,7 +44,7 @@ namespace SAPI
 				XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint from meta refresh tag\n", __FUNCTION__);
 
 				// assume current url is the intended location
-				XBMC->Log(LOG_ERROR, "%s: assuming current url is the intended location\n", __FUNCTION__);
+				XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location\n", __FUNCTION__);
 				locationUrl = g_strServer;
 			}
 		}
@@ -57,21 +58,28 @@ namespace SAPI
 		g_api_endpoint = locationUrl.substr(0, pos - 1) + "server/load.php";
 		g_referer = locationUrl.substr(0, pos + 1);
 
-		XBMC->Log(LOG_ERROR, "api endpoint: %s\n", g_api_endpoint.c_str());
-		XBMC->Log(LOG_ERROR, "referer: %s\n", g_referer.c_str());
+		XBMC->Log(LOG_DEBUG, "api endpoint: %s\n", g_api_endpoint.c_str());
+		XBMC->Log(LOG_DEBUG, "referer: %s\n", g_referer.c_str());
 
 		return true;
 	}
 
 	bool StalkerCall(HTTPSocket *sock, std::string *resp_headers, std::string *resp_body, Json::Value *parsed)
 	{
+    char buffer[256];
 		size_t pos;
 		Json::Reader reader;
+    std::string cookie;
 
-		std::string cookie = "mac=" + g_strMac + "; stb_lang=en; timezone=Europe%2FKiev";
+    snprintf(buffer, sizeof(buffer), "mac=%s; stb_lang=en; timezone=%s", g_strMac.c_str(), g_strTimeZone.c_str());
+    cookie = buffer;
+    //TODO url encode
 		while ((pos = cookie.find(":")) != std::string::npos) {
-			cookie.replace(pos, 1, "%3A");
+      cookie.replace(pos, 1, "%3A");
 		}
+    while ((pos = cookie.find("/")) != std::string::npos) {
+      cookie.replace(pos, 1, "%2F");
+    }
 		sock->AddHeader("Cookie", cookie);
 
 		sock->AddHeader("Referer", g_referer);
@@ -87,7 +95,6 @@ namespace SAPI
 			XBMC->Log(LOG_ERROR, "%s: parsing failed\n", __FUNCTION__);
 			if (resp_body->compare(AUTHORIZATION_FAILED) == 0) {
 				XBMC->Log(LOG_ERROR, "%s: authorization failed\n", __FUNCTION__);
-				g_authorized = false;
 			}
 			return false;
 		}
@@ -110,7 +117,7 @@ namespace SAPI
 
 		g_token = (*parsed)["js"]["token"].asString();
 
-		XBMC->Log(LOG_ERROR, "token: %s\n", g_token.c_str());
+		XBMC->Log(LOG_DEBUG, "token: %s\n", g_token.c_str());
 
 		return true;
 	}
@@ -155,7 +162,7 @@ namespace SAPI
 		std::string resp_headers;
 		std::string resp_body;
 
-		sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=*&fav=0&sortby=number&p=" + std::to_string(page) +"&JsHttpRequest=1-xml&");
+		sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=10&fav=0&sortby=number&p=" + std::to_string(page) +"&JsHttpRequest=1-xml&");
 
 		if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
 			XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);

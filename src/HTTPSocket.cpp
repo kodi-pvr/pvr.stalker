@@ -1,5 +1,7 @@
 #include "HTTPSocket.h"
 
+#include <platform/sockets/tcp.h>
+
 #include "client.h"
 
 #define TEMP_BUFFER_SIZE 1024
@@ -23,6 +25,7 @@
 #endif
 
 using namespace ADDON;
+using namespace PLATFORM;
 
 HTTPSocket::HTTPSocket()
 {
@@ -151,27 +154,59 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
 		return false;
 	}
 
-	if (!OpenSocket(&sockfd)) {
+	/*if (!OpenSocket(&sockfd)) {
 		XBMC->Log(LOG_ERROR, "%s: failed to open socket\n", __FUNCTION__);
+		return false;
+	}*/
+
+	uint64_t iNow = GetTimeMs();
+	uint64_t iTarget = iNow + 5 * 1000;
+	m_socket = new CTcpConnection(m_host.c_str(), m_port);
+	//m_socket->Open();
+	while (!m_socket->IsOpen() && iNow < iTarget)
+	{
+		if (!m_socket->Open(iTarget - iNow))
+			CEvent::Sleep(100);
+		iNow = GetTimeMs();
+	}
+
+	if (!m_socket->IsOpen())
+	{
+		XBMC->Log(LOG_ERROR, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
 		return false;
 	}
 
-	if ((len = send(sockfd, request.c_str(), strlen(request.c_str()), 0)) < 0) {
+	/*if ((len = send(sockfd, request.c_str(), strlen(request.c_str()), 0)) < 0) {
+		XBMC->Log(LOG_ERROR, "%s: failed to write data\n", __FUNCTION__);
+		return false;
+	}*/
+
+	if ((len = m_socket->Write((void*)request.c_str(), strlen(request.c_str()))) < 0) {
 		XBMC->Log(LOG_ERROR, "%s: failed to write data\n", __FUNCTION__);
 		return false;
 	}
 
-	memset(buffer, 0, TEMP_BUFFER_SIZE);
+	/*memset(buffer, 0, TEMP_BUFFER_SIZE);
 	while ((len = recv(sockfd, buffer, TEMP_BUFFER_SIZE - 1, 0)) > 0) {
 		//buffer[len] = 0;
 		response.append(buffer, len);
 		memset(buffer, 0, TEMP_BUFFER_SIZE);
+	}*/
+
+	memset(buffer, 0, TEMP_BUFFER_SIZE);
+	while ((len = m_socket->Read(buffer, TEMP_BUFFER_SIZE - 1)) > 0) {
+		response.append(buffer, len);
+		memset(buffer, 0, TEMP_BUFFER_SIZE);
 	}
 
-	if (!CloseSocket(&sockfd)) {
+	/*if (!CloseSocket(&sockfd)) {
 		XBMC->Log(LOG_ERROR, "%s: failed to close socket\n", __FUNCTION__);
 		return false;
-	}
+	}*/
+
+	m_socket->Close();
+	delete m_socket;
+	m_socket = NULL;
 
 	if ((pos = response.find("\r\n\r\n")) == std::string::npos) {
 		XBMC->Log(LOG_ERROR, "%s: failed to split http response\n", __FUNCTION__);
@@ -181,8 +216,8 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
 	*resp_headers = response.substr(0, pos);
 	*resp_body = response.substr(pos + 4);
 
-	//XBMC->Log(LOG_ERROR, "%s\n", resp_headers->c_str());
-	//XBMC->Log(LOG_ERROR, "%s\n", resp_body->substr(0, 512).c_str()); // 512 is max
+	XBMC->Log(LOG_DEBUG, "%s\n", resp_headers->c_str());
+	XBMC->Log(LOG_DEBUG, "%s\n", resp_body->substr(0, 512).c_str()); // 512 is max
 
 	return true;
 }

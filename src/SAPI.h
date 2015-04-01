@@ -1,8 +1,8 @@
 #pragma once
 
 #include <string>
-#include <jsoncpp/include/json/json.h>
 #include <stdint.h>
+#include <jsoncpp/include/json/json.h>
 
 #include "HTTPSocket.h"
 

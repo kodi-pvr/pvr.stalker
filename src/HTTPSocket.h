@@ -3,6 +3,11 @@
 #include <string>
 #include <vector>
 
+namespace PLATFORM
+{
+	class CTcpConnection;
+}
+
 class HTTPSocket
 {
 public:
@@ -25,5 +30,6 @@ private:
 	std::string m_user_agent;
 	std::vector<std::string> m_headers;
 	std::string m_req_body;
+	PLATFORM::CTcpConnection *m_socket;
 };
 

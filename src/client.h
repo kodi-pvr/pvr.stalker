@@ -28,12 +28,11 @@
 extern bool                          m_bCreated;
 extern std::string                   g_strUserPath;
 extern std::string                   g_strClientPath;
-extern std::string					g_strMac;
+extern std::string                  g_strMac;
 extern std::string                  g_strServer;
+extern std::string                  g_strTimeZone;
 extern std::string					g_api_endpoint;
 extern std::string					g_referer;
-extern bool							g_authorized;
 extern std::string					g_token;
-extern int							g_iUniqueChannelId;
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr          *PVR;

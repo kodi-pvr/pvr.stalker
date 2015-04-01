@@ -24,11 +24,13 @@
 
 #include "xbmc_pvr_dll.h"
 #include "platform/util/util.h"
+#include "../../../lib/platform/sockets/tcp.h"
 
 #include "SData.h"
 
 using namespace std;
 using namespace ADDON;
+using namespace PLATFORM;
 
 //#ifdef TARGET_WINDOWS
 //#define snprintf _snprintf
@@ -39,24 +41,25 @@ ADDON_STATUS   m_CurStatus      = ADDON_STATUS_UNKNOWN;
 SData   *m_data           = NULL;
 bool           m_bIsPlaying     = false;
 SChannel m_currentChannel;
+CTcpConnection *m_socket;
+PLATFORM::CMutex communication_mutex;
 
 /* User adjustable settings are saved here.
  * Default values are defined inside client.h
  * and exported to the other source files.
  */
-std::string g_strUserPath             = "";
-std::string g_strClientPath           = "";
+std::string g_strUserPath     = "";
+std::string g_strClientPath   = "";
 
-std::string g_strMac = "";
-std::string g_strServer = "";
-std::string g_api_endpoint = "";
-std::string g_referer = "";
-bool g_authorized = false;
-std::string g_token = "";
-int g_iUniqueChannelId = 0;
+std::string g_strMac          = "";
+std::string g_strServer       = "";
+std::string g_strTimeZone     = "";
+std::string g_api_endpoint    = "";
+std::string g_referer         = "";
+std::string g_token           = "";
 
-CHelper_libXBMC_addon *XBMC           = NULL;
-CHelper_libXBMC_pvr   *PVR            = NULL;
+CHelper_libXBMC_addon *XBMC   = NULL;
+CHelper_libXBMC_pvr   *PVR    = NULL;
 
 extern "C" {
 
@@ -85,6 +88,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   XBMC->Log(LOG_DEBUG, "%s - Creating the Stalker Client PVR Add-on", __FUNCTION__);
 
   m_CurStatus     = ADDON_STATUS_UNKNOWN;
+  m_data = new SData;
   g_strUserPath   = pvrprops->strUserPath;
   g_strClientPath = pvrprops->strClientPath;
 
@@ -99,7 +103,7 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   char buffer[1024];
 
   if (!XBMC->GetSetting("mac", &buffer)) {
-	  XBMC->Log(LOG_ERROR, "mac address not set\n");
+	  XBMC->Log(LOG_DEBUG, "mac address not set\n");
 	  g_strMac = "00:1A:79:00:00:00";
   }
   else {
@@ -107,16 +111,69 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   }
 
   if (!XBMC->GetSetting("server", &buffer)) {
-	  XBMC->Log(LOG_ERROR, "server address not set\n");
+	  XBMC->Log(LOG_DEBUG, "server address not set\n");
 	  g_strServer = "127.0.0.1";
   }
   else {
 	  g_strServer = buffer;
   }
 
-  m_data = new SData();
-  m_CurStatus = ADDON_STATUS_OK;
+  if (!XBMC->GetSetting("time_zone", &buffer)) {
+    XBMC->Log(LOG_DEBUG, "time zone not set\n");
+    g_strTimeZone = "Europe/Kiev";
+  }
+  else {
+    g_strTimeZone = buffer;
+  }
+
+  if (!m_data->LoadData()) {
+    XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
+	  ADDON_Destroy();
+	  m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+  }
+  else {
+	  m_CurStatus = ADDON_STATUS_OK;
+  }
+
+  /*uint64_t iNow = GetTimeMs();
+  uint64_t iTarget = iNow + 5 * 1000;
+  m_socket = new CTcpConnection("1.iptvprivateserver.tv", 80);
+  m_socket->Open();
+
+
+
+  m_socket->Close();
+  delete m_socket;
+  m_socket = NULL;
+
+  PLATFORM::CLockObject critsec(communication_mutex);
+  void* hFile = XBMC->OpenFileForWrite("http://192.168.1.17/", 0);
+  if (hFile != NULL)
+  {
+	  int rc = XBMC->WriteFile(hFile, "", 0);
+	  if (rc >= 0)
+	  {
+		  std::string result;
+		  result.clear();
+		  char bufferd[1024];
+		  while (XBMC->ReadFileString(hFile, bufferd, 1023))
+			  result.append(bufferd);
+		  //json_response = result;
+		  //retval = 0;
+	  }
+	  else
+	  {
+		  XBMC->Log(LOG_ERROR, "can not write to %s", g_strServer.c_str());
+	  }
+	  XBMC->CloseFile(hFile);
+  }
+  else
+  {
+	  XBMC->Log(LOG_ERROR, "can not open %s for write", g_strServer.c_str());
+  }*/
+
   m_bCreated = true;
+
   return m_CurStatus;
 }
 
@@ -197,69 +254,61 @@ const char* GetMininumGUIAPIVersion(void)
 
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
 {
-  //pCapabilities->bSupportsEPG             = true;
-  pCapabilities->bSupportsTV              = true;
-  /*pCapabilities->bSupportsRadio           = true;
-  pCapabilities->bSupportsChannelGroups   = true;
-  pCapabilities->bSupportsRecordings      = true;
-  pCapabilities->bSupportsTimers          = true;*/
+  pCapabilities->bSupportsTV  = true;
 
   return PVR_ERROR_NO_ERROR;
 }
 
-const char *GetBackendName(void)
+const char* GetBackendName(void)
 {
   static const char *strBackendName = "Stalker Middleware";
   return strBackendName;
 }
 
-const char *GetBackendVersion(void)
+const char* GetBackendVersion(void)
 {
   static CStdString strBackendVersion = "0.1";
   return strBackendVersion.c_str();
 }
 
-const char *GetConnectionString(void)
+const char* GetConnectionString(void)
 {
   static CStdString strConnectionString = "connected";
   return strConnectionString.c_str();
 }
 
-const char *GetBackendHostname(void)
+const char* GetBackendHostname(void)
 {
   return "";
 }
 
 PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
 {
-  *iTotal = 1024 * 1024 * 1024;
-  *iUsed  = 0;
-  return PVR_ERROR_NO_ERROR;
+	return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
 PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
-  if (m_data)
-    return m_data->GetEPGForChannel(handle, channel, iStart, iEnd);
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
 
-  return PVR_ERROR_SERVER_ERROR;
+  return m_data->GetEPGForChannel(handle, channel, iStart, iEnd);
 }
 
 int GetChannelsAmount(void)
 {
-  if (m_data)
-    return m_data->GetChannelsAmount();
+  if (!m_data)
+    return 0;
 
-  return -1;
+  return m_data->GetChannelsAmount();
 }
 
 PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
-  if (m_data)
-    return m_data->GetChannels(handle, bRadio);
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
 
-  return PVR_ERROR_SERVER_ERROR;
+  return m_data->GetChannels(handle, bRadio);
 }
 
 bool OpenLiveStream(const PVR_CHANNEL &channel)

@@ -23,7 +23,7 @@
 
 #include <vector>
 #include <jsoncpp/include/json/json.h>
-#include "platform/util/StdString.h"
+#include <platform/util/StdString.h>
 
 #include "client.h"
 
@@ -59,6 +59,7 @@ struct SChannel
   std::string             strChannelName;
   std::string             strIconPath;
   std::string             strStreamURL;
+  int                     iChannelId;
   std::string             cmd;
   bool                    use_http_tmp_link;
   bool                    use_load_balancing;
@@ -103,6 +104,8 @@ class SData
 public:
   SData(void);
   virtual ~SData(void);
+  
+  virtual bool LoadData(void);
 
   virtual int GetChannelsAmount(void);
   virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
@@ -125,11 +128,13 @@ public:
 protected:
 	virtual bool LoadCache();
 	virtual bool SaveCache();
+  virtual bool InitAPI();
+  virtual bool LoadProfile();
 	virtual bool Authenticate();
 	virtual bool ParseChannels(Json::Value &parsed);
 	virtual bool LoadChannels();
-	virtual bool LoadDemoData(void);
 
+  virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 	virtual int GetIntValue(Json::Value &value);
 	virtual bool GetIntValueAsBool(Json::Value &value);
 private:
@@ -141,5 +146,8 @@ private:
   CStdString                       m_strDefaultIcon;
   CStdString                       m_strDefaultMovie;
 
-  std::string m_PlaybackURL;
+  bool                        m_bApiInit;
+  bool                        m_bAuthenticated;
+  bool                        m_bProfileLoaded;
+  std::string                 m_PlaybackURL;
 };
