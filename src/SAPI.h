@@ -17,6 +17,7 @@ namespace SAPI
 	bool GetAllChannels(Json::Value *parsed);
 	bool GetOrderedList(uint32_t page, Json::Value *parsed);
 	bool CreateLink(std::string &cmd, Json::Value *parsed);
+	bool GetEPGInfo(uint32_t period, Json::Value *parsed);
   bool GetWeek(Json::Value *parsed);
   bool GetSimpleDataTable(uint32_t channelId, std::string &date, uint32_t page, Json::Value *parsed);
   bool GetDataTable(uint32_t channelId, std::string &from, std::string &to, uint32_t page, Json::Value *parsed);

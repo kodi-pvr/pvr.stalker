@@ -378,7 +378,7 @@ int SData::GetChannelsAmount(void)
 
 PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
-	XBMC->Log(LOG_NOTICE, "%s\n", __FUNCTION__);
+	XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
 	if (!LoadChannels()) {
 		XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");
@@ -565,21 +565,21 @@ PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_G
 
 bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle)
 {
-  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+	XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
   time_t iStartTimestamp;
-  time_t iStopTimestamp;
+	time_t iStopTimestamp;
 
   for (Json::Value::iterator it = parsed.begin(); it != parsed.end(); ++it) {
     iStartTimestamp = GetIntValue((*it)["start_timestamp"]);
-    iStopTimestamp = GetIntValue((*it)["stop_timestamp"]);
+		iStopTimestamp = GetIntValue((*it)["stop_timestamp"]);
 
     if (!(iStartTimestamp > iStart && iStopTimestamp < iEnd)) {
       continue;
     }
 
     EPG_TAG tag;
-    memset(&tag, 0, sizeof(EPG_TAG));
+		memset(&tag, 0, sizeof(EPG_TAG));
 
     tag.iUniqueBroadcastId = GetIntValue((*it)["id"]);
     tag.strTitle = (*it)["name"].asCString();
@@ -731,9 +731,9 @@ bool SData::LoadEPGForChannel2(SChannel &channel, time_t iStart, time_t iEnd, AD
       continue;
     }
 
-    // first page only. even though there may be multiple pages with all channels included,
-    // the pages only change when the ch_id changes. the requested ch_id is typically first but, check anyway.
-    // date_to is always ignored. only the next 24 hours are returned (hence for loop by day in week)
+    // 1) requires ch_id but returns other ch_ids in the result
+		// 2) all pages for the same ch_id return the same result
+		// 3) ch_ids seem to be in specific groups
     if (!SAPI::GetDataTable(channel.iChannelId, strFrom, strTo, 1, &parsed)) {
       XBMC->Log(LOG_ERROR, "%s: GetDataTable failed\n", __FUNCTION__);
       return false;
@@ -895,9 +895,33 @@ bool SData::LoadEPGFromFile(SChannel &channel, time_t iStart, time_t iEnd, ADDON
   return true;
 }
 
+bool SData::LoadEPGForChannel3(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+{
+	XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+	uint32_t iPeriod;
+	char strChannelId[25];
+
+	iPeriod = (iEnd - iStart) / 3600;
+
+	if (m_epgData.empty() && !SAPI::GetEPGInfo(iPeriod, &m_epgData)) {
+		XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed\n", __FUNCTION__);
+		return false;
+	}
+
+	sprintf(strChannelId, "%d", channel.iChannelId);
+
+	if (!ParseEPG(m_epgData["js"]["data"][strChannelId], iStart, iEnd, channel.iChannelNumber, handle)) {
+		XBMC->Log(LOG_ERROR, "%s: ParseEPG failed\n", __FUNCTION__);
+		return false;
+	}
+
+	return true;
+}
+
 PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
-  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+	XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
   SChannel *thisChannel = NULL;
 
@@ -914,11 +938,12 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: %d - %s\n", __FUNCTION__, thisChannel->iChannelNumber, thisChannel->strChannelName.c_str());
+	XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s\n",
+		__FUNCTION__, iStart, iEnd, thisChannel->iChannelNumber, thisChannel->strChannelName.c_str());
 
-  if (!LoadEPGForChannel(*thisChannel, iStart, iEnd, handle)) {
+  /*if (!LoadEPGForChannel(*thisChannel, iStart, iEnd, handle)) {
     return PVR_ERROR_SERVER_ERROR;
-  }
+  }*/
 
   /*if (/*!m_epgDownloaded &&* !DownloadEPG(iStart, iEnd, *thisChannel)) {
     return PVR_ERROR_SERVER_ERROR;
@@ -927,6 +952,14 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
   if (!LoadEPGFromFile(*thisChannel, iStart, iEnd, handle)) {
     return PVR_ERROR_SERVER_ERROR;
   }*/
+
+	/*if (!LoadEPGForChannel2(*thisChannel, iStart, iEnd, handle)) {
+		return PVR_ERROR_SERVER_ERROR;
+	}*/
+
+	if (!LoadEPGForChannel3(*thisChannel, iStart, iEnd, handle)) {
+		return PVR_ERROR_SERVER_ERROR;
+	}
 
   return PVR_ERROR_NO_ERROR;
 }
