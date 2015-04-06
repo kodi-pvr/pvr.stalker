@@ -54,6 +54,7 @@ std::string g_strClientPath   = "";
 std::string g_strMac          = "";
 std::string g_strServer       = "";
 std::string g_strTimeZone     = "";
+std::string g_strApiBasePath  = "";
 std::string g_api_endpoint    = "";
 std::string g_referer         = "";
 std::string g_token           = "";

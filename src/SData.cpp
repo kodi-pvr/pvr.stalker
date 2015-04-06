@@ -240,7 +240,7 @@ bool SData::ParseChannels(Json::Value &parsed)
   XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
   Json::Value tempValue;
-  const char *tempChar = NULL;
+  const char *strTemp = NULL;
 
   for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
     SChannel channel;
@@ -255,8 +255,8 @@ bool SData::ParseChannels(Json::Value &parsed)
     channel.bRadio = false;
 
     /* channel number */
-    tempChar = (*it)["number"].asCString();
-    channel.iChannelNumber = atoi(tempChar);
+    strTemp = (*it)["number"].asCString();
+    channel.iChannelNumber = atoi(strTemp);
 
     /* sub channel number */
     channel.iSubChannelNumber = 0;
@@ -265,7 +265,8 @@ bool SData::ParseChannels(Json::Value &parsed)
     channel.iEncryptionSystem = 0;
 
     /* icon path */
-    channel.strIconPath = "";
+    strTemp = (*it)["logo"].asCString();
+    channel.strIconPath = strlen(strTemp) == 0 ? "" : std::string(g_strApiBasePath + "misc/logos/120/" + strTemp).c_str();
 
     channel.cmd = (*it)["cmd"].asString();
     channel.use_http_tmp_link = GetIntValueAsBool((*it)["use_http_tmp_link"]);

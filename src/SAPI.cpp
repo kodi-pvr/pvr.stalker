@@ -77,7 +77,8 @@ namespace SAPI
     }
 
     // strip tail from url path and set api endpoint and referer
-    g_api_endpoint = locationUrl.substr(0, pos - 1) + "server/load.php";
+    g_strApiBasePath = locationUrl.substr(0, pos - 1);
+    g_api_endpoint = g_strApiBasePath + "server/load.php";
     g_referer = locationUrl.substr(0, pos + 1);
 
     XBMC->Log(LOG_DEBUG, "api endpoint: %s\n", g_api_endpoint.c_str());

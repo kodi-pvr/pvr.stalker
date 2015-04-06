@@ -32,6 +32,7 @@ extern std::string                   g_strClientPath;
 extern std::string                  g_strMac;
 extern std::string                  g_strServer;
 extern std::string                  g_strTimeZone;
+extern std::string                  g_strApiBasePath;
 extern std::string          g_api_endpoint;
 extern std::string          g_referer;
 extern std::string          g_token;
