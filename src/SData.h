@@ -1,23 +1,24 @@
 #pragma once
+
 /*
- *      Copyright (C) 2011 Pulse-Eight
- *      http://www.pulse-eight.com/
+ *      Copyright (C) 2015  Jamal Edey
+ *      http://www.kenshisoft.com/
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
  *
- *  This Program is distributed in the hope that it will be useful,
+ *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
- *  http://www.gnu.org/copyleft/gpl.html
+ *  along with Kodi; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ *  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
  */
 
@@ -126,17 +127,17 @@ public:
   virtual std::string GetSettingsFile(std::string settingFile) const;
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
 protected:
-	virtual bool LoadCache();
-	virtual bool SaveCache();
+  virtual bool LoadCache();
+  virtual bool SaveCache();
   virtual bool InitAPI();
   virtual bool LoadProfile();
-	virtual bool Authenticate();
-	virtual bool ParseChannels(Json::Value &parsed);
-	virtual bool LoadChannels();
+  virtual bool Authenticate();
+  virtual bool ParseChannels(Json::Value &parsed);
+  virtual bool LoadChannels();
 
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
-	virtual int GetIntValue(Json::Value &value);
-	virtual bool GetIntValueAsBool(Json::Value &value);
+  virtual int GetIntValue(Json::Value &value);
+  virtual bool GetIntValueAsBool(Json::Value &value);
 private:
   std::vector<SChannelGroup> m_groups;
   std::vector<SChannel>      m_channels;
