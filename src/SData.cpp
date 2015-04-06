@@ -377,7 +377,7 @@ int SData::GetChannelsAmount(void)
 
 PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
-	XBMC->Log(LOG_NOTICE, "%s\n", __FUNCTION__);
+	XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
 	if (!LoadChannels()) {
 		XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");

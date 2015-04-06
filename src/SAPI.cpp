@@ -31,7 +31,7 @@ namespace SAPI
 			locationUrl = resp_headers.substr(pos + 10, resp_headers.find("\r\n", pos) - (pos + 10));
 		}
 		else {
-			XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint from location header\n", __FUNCTION__);
+			XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from location header\n", __FUNCTION__);
 			
 			// convert to lower case
 			std::transform(resp_body.begin(), resp_body.end(), resp_body.begin(), ::tolower);
@@ -41,7 +41,7 @@ namespace SAPI
 				locationUrl = g_strServer + "/" + resp_body.substr(pos + 4, resp_body.find("\"", pos) - (pos + 4));
 			}
 			else {
-				XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint from meta refresh tag\n", __FUNCTION__);
+				XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from meta refresh tag\n", __FUNCTION__);
 
 				// assume current url is the intended location
 				XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location\n", __FUNCTION__);
