@@ -39,4 +39,5 @@ namespace SAPI
   bool GetAllChannels(Json::Value *parsed);
   bool GetOrderedList(uint32_t page, Json::Value *parsed);
   bool CreateLink(std::string &cmd, Json::Value *parsed);
+  bool GetGenres(Json::Value *parsed);
 };

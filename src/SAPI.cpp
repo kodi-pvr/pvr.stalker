@@ -213,4 +213,20 @@ namespace SAPI
 
     return true;
   }
+
+  bool GetGenres(Json::Value *parsed)
+  {
+    HTTPSocket sock;
+    std::string resp_headers;
+    std::string resp_body;
+
+    sock.SetURL(g_api_endpoint + "?type=itv&action=get_genres&JsHttpRequest=1-xml&");
+
+    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      return false;
+    }
+
+    return true;
+  }
 }

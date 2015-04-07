@@ -37,17 +37,18 @@ SData::SData(void)
   m_strDefaultIcon =  "http://www.royalty-free.tv/news/wp-content/uploads/2011/06/cc-logo1.jpg";
   m_strDefaultMovie = "";
 
-  m_bApiInit = false;
-  m_bAuthenticated = false;
-  m_bProfileLoaded = false;
+  m_bInitialized    = false;
+  m_bApiInit        = false;
+  m_bAuthenticated  = false;
+  m_bProfileLoaded  = false;
 }
 
 SData::~SData(void)
 {
-  XBMC->Log(LOG_NOTICE, "->~SData()");
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
   m_channels.clear();
-  m_groups.clear();
+  m_channelGroups.clear();
 }
 
 std::string SData::GetSettingsFile(std::string settingFile) const
@@ -221,6 +222,27 @@ bool SData::Authenticate()
   return true;
 }
 
+bool SData::Initialize()
+{
+  m_bInitialized = false;
+
+  if (!m_bApiInit && !InitAPI()) {
+    return m_bInitialized;
+  }
+
+  if (!m_bAuthenticated && !Authenticate()) {
+    return m_bInitialized;
+  }
+
+  if (!m_bProfileLoaded && !LoadProfile()) {
+    return m_bInitialized;
+  }
+
+  m_bInitialized = true;
+
+  return m_bInitialized;
+}
+
 int SData::GetChannelId(const char * strChannelName, const char * strNumber)
 {
   std::string concat(strChannelName);
@@ -269,6 +291,7 @@ bool SData::ParseChannels(Json::Value &parsed)
     channel.strIconPath = strlen(strTemp) == 0 ? "" : std::string(g_strApiBasePath + "misc/logos/120/" + strTemp).c_str();
 
     channel.cmd = (*it)["cmd"].asString();
+    channel.tv_genre_id = (*it)["tv_genre_id"].asString();
     channel.use_http_tmp_link = GetIntValueAsBool((*it)["use_http_tmp_link"]);
     channel.use_load_balancing = GetIntValueAsBool((*it)["use_load_balancing"]);
 
@@ -287,15 +310,7 @@ bool SData::LoadChannels()
 {
   XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
-  if (!m_bApiInit && !InitAPI()) {
-    return false;
-  }
-
-  if (!m_bAuthenticated && !Authenticate()) {
-    return false;
-  }
-
-  if (!m_bProfileLoaded && !LoadProfile()) {
+  if (!m_bInitialized && !Initialize()) {
     return false;
   }
 
@@ -304,7 +319,7 @@ bool SData::LoadChannels()
   uint32_t iMaxPages = 1;
 
   if (!SAPI::GetAllChannels(&parsed) || !ParseChannels(parsed)) {
-    XBMC->Log(LOG_NOTICE, "%s: GetAllChannels failed\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: GetAllChannels failed\n", __FUNCTION__);
     return false;
   }
 
@@ -312,7 +327,7 @@ bool SData::LoadChannels()
 
   while (iCurrentPage <= iMaxPages) {
     if (!SAPI::GetOrderedList(iCurrentPage, &parsed) || !ParseChannels(parsed)) {
-      XBMC->Log(LOG_NOTICE, "%s: GetOrderedList failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: GetOrderedList failed\n", __FUNCTION__);
       return false;
     }
 
@@ -324,6 +339,50 @@ bool SData::LoadChannels()
 
     XBMC->Log(LOG_DEBUG, "%s: iTotalItems: %d | iMaxPageItems: %d | iCurrentPage: %d | iMaxPages: %d\n",
       __FUNCTION__, iTotalItems, iMaxPageItems, iCurrentPage, iMaxPages);
+  }
+
+  return true;
+}
+
+bool SData::ParseChannelGroups(Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  try {
+    for (Json::Value::iterator it = parsed["js"].begin(); it != parsed["js"].end(); ++it) {
+      SChannelGroup channelGroup;
+      channelGroup.strGroupName = (*it)["title"].asString();
+      channelGroup.strGroupName[0] = toupper(channelGroup.strGroupName[0]);
+      channelGroup.bRadio = false;
+      channelGroup.strId = (*it)["id"].asString();
+      channelGroup.strAlias = (*it)["alias"].asString();
+
+      m_channelGroups.push_back(channelGroup);
+
+      XBMC->Log(LOG_DEBUG, "%s: %s - %s\n", __FUNCTION__, channelGroup.strId.c_str(), channelGroup.strGroupName.c_str());
+    }
+  }
+  catch (...) {
+    return false;
+  }
+
+  return true;
+}
+
+bool SData::LoadChannelGroups()
+{
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
+
+  if (!m_bInitialized && !Initialize()) {
+    return false;
+  }
+
+  Json::Value parsed;
+
+  // genres are channel groups
+  if (!SAPI::GetGenres(&parsed) || !ParseChannelGroups(parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: GetGenres|ParseChannelGroups failed\n", __FUNCTION__);
+    return false;
   }
 
   return true;
@@ -512,24 +571,31 @@ bool SData::GetChannel(const PVR_CHANNEL &channel, SChannel &myChannel)
 
 int SData::GetChannelGroupsAmount(void)
 {
-  return m_groups.size();
+  return m_channelGroups.size();
 }
 
 PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
-  for (unsigned int iGroupPtr = 0; iGroupPtr < m_groups.size(); iGroupPtr++)
-  {
-    SChannelGroup &group = m_groups.at(iGroupPtr);
-    if (group.bRadio == bRadio)
-    {
-      PVR_CHANNEL_GROUP xbmcGroup;
-      memset(&xbmcGroup, 0, sizeof(PVR_CHANNEL_GROUP));
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
-      xbmcGroup.bIsRadio = bRadio;
-      strncpy(xbmcGroup.strGroupName, group.strGroupName.c_str(), sizeof(xbmcGroup.strGroupName) - 1);
+  if (!LoadChannelGroups()) {
+    XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channel groups.");
+    return PVR_ERROR_SERVER_ERROR;
+  }
 
-      PVR->TransferChannelGroup(handle, &xbmcGroup);
+  for (std::vector<SChannelGroup>::iterator group = m_channelGroups.begin(); group != m_channelGroups.end(); ++group) {
+    // exclude group id '*' (all)
+    if (group->strId.compare("*") == 0) {
+      continue;
     }
+
+    PVR_CHANNEL_GROUP tag;
+    memset(&tag, 0, sizeof(tag));
+
+    strncpy(tag.strGroupName, group->strGroupName.c_str(), sizeof(tag.strGroupName) - 1);
+    tag.bIsRadio = group->bRadio;
+
+    PVR->TransferChannelGroup(handle, &tag);
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -537,26 +603,32 @@ PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 
 PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
 {
-  for (unsigned int iGroupPtr = 0; iGroupPtr < m_groups.size(); iGroupPtr++)
-  {
-    SChannelGroup &myGroup = m_groups.at(iGroupPtr);
-    if (!strcmp(myGroup.strGroupName.c_str(),group.strGroupName))
-    {
-      for (unsigned int iChannelPtr = 0; iChannelPtr < myGroup.members.size(); iChannelPtr++)
-      {
-        int iId = myGroup.members.at(iChannelPtr) - 1;
-        if (iId < 0 || iId > (int)m_channels.size() - 1)
-          continue;
-        SChannel &channel = m_channels.at(iId);
-        PVR_CHANNEL_GROUP_MEMBER xbmcGroupMember;
-        memset(&xbmcGroupMember, 0, sizeof(PVR_CHANNEL_GROUP_MEMBER));
+  XBMC->Log(LOG_DEBUG, "%s\n", __FUNCTION__);
 
-        strncpy(xbmcGroupMember.strGroupName, group.strGroupName, sizeof(xbmcGroupMember.strGroupName) - 1);
-        xbmcGroupMember.iChannelUniqueId  = channel.iUniqueId;
-        xbmcGroupMember.iChannelNumber    = channel.iChannelNumber;
+  SChannelGroup *channelGroup = NULL;
 
-        PVR->TransferChannelGroupMember(handle, &xbmcGroupMember);
-      }
+  for (std::vector<SChannelGroup>::iterator it = m_channelGroups.begin(); it != m_channelGroups.end(); ++it) {
+    if (strcmp(it->strGroupName.c_str(), group.strGroupName) == 0) {
+      channelGroup = &(*it);
+      break;
+    }
+  }
+
+  if (!channelGroup) {
+    XBMC->Log(LOG_ERROR, "%s: channel not found\n", __FUNCTION__);
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
+  for (std::vector<SChannel>::iterator channel = m_channels.begin(); channel != m_channels.end(); ++channel) {
+    if (channel->tv_genre_id.compare(channelGroup->strId) == 0) {
+      PVR_CHANNEL_GROUP_MEMBER tag;
+      memset(&tag, 0, sizeof(tag));
+
+      strncpy(tag.strGroupName, channelGroup->strGroupName.c_str(), sizeof(tag.strGroupName) - 1);
+      tag.iChannelUniqueId = channel->iUniqueId;
+      tag.iChannelNumber = channel->iChannelNumber;
+
+      PVR->TransferChannelGroupMember(handle, &tag);
     }
   }
 

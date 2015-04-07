@@ -62,9 +62,18 @@ struct SChannel
   std::string             strStreamURL;
   int                     iChannelId;
   std::string             cmd;
+  std::string             tv_genre_id;
   bool                    use_http_tmp_link;
   bool                    use_load_balancing;
   std::vector<SEpgEntry> epg;
+};
+
+struct SChannelGroup
+{
+  std::string strGroupName;
+  bool        bRadio;
+  std::string strId;
+  std::string strAlias;
 };
 
 struct SRecording
@@ -90,14 +99,6 @@ struct STimer
   PVR_TIMER_STATE state;
   std::string     strTitle;
   std::string     strSummary;
-};
-
-struct SChannelGroup
-{
-  bool             bRadio;
-  int              iGroupId;
-  std::string      strGroupName;
-  std::vector<int> members;
 };
 
 class SData
@@ -132,14 +133,17 @@ protected:
   virtual bool InitAPI();
   virtual bool LoadProfile();
   virtual bool Authenticate();
+  virtual bool Initialize();
   virtual bool ParseChannels(Json::Value &parsed);
   virtual bool LoadChannels();
+  virtual bool ParseChannelGroups(Json::Value &parsed);
+  virtual bool LoadChannelGroups();
 
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
   virtual int GetIntValue(Json::Value &value);
   virtual bool GetIntValueAsBool(Json::Value &value);
 private:
-  std::vector<SChannelGroup> m_groups;
+  std::vector<SChannelGroup> m_channelGroups;
   std::vector<SChannel>      m_channels;
   std::vector<SRecording>    m_recordings;
   std::vector<STimer>        m_timers;
@@ -147,6 +151,7 @@ private:
   CStdString                       m_strDefaultIcon;
   CStdString                       m_strDefaultMovie;
 
+  bool                        m_bInitialized;
   bool                        m_bApiInit;
   bool                        m_bAuthenticated;
   bool                        m_bProfileLoaded;

@@ -255,7 +255,8 @@ const char* GetMininumGUIAPIVersion(void)
 
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
 {
-  pCapabilities->bSupportsTV  = true;
+  pCapabilities->bSupportsTV            = true;
+  pCapabilities->bSupportsChannelGroups = true;
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -352,29 +353,26 @@ PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties)
 
 int GetChannelGroupsAmount(void)
 {
-  return -1;
-  if (m_data)
-    return m_data->GetChannelGroupsAmount();
-
-  return -1;
+  if (!m_data)
+    return -1;
+  
+  return m_data->GetChannelGroupsAmount();
 }
 
 PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
-  return PVR_ERROR_NOT_IMPLEMENTED;
-  if (m_data)
-    return m_data->GetChannelGroups(handle, bRadio);
-
-  return PVR_ERROR_SERVER_ERROR;
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
+  
+  return m_data->GetChannelGroups(handle, bRadio);
 }
 
 PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
 {
-  return PVR_ERROR_NOT_IMPLEMENTED;
-  if (m_data)
-    return m_data->GetChannelGroupMembers(handle, group);
-
-  return PVR_ERROR_SERVER_ERROR;
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
+  
+  return m_data->GetChannelGroupMembers(handle, group);
 }
 
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
