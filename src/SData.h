@@ -1,23 +1,24 @@
 #pragma once
+
 /*
- *      Copyright (C) 2011 Pulse-Eight
- *      http://www.pulse-eight.com/
+ *      Copyright (C) 2015  Jamal Edey
+ *      http://www.kenshisoft.com/
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
  *
- *  This Program is distributed in the hope that it will be useful,
+ *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
- *  http://www.gnu.org/copyleft/gpl.html
+ *  along with Kodi; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ *  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
  */
 
@@ -61,9 +62,18 @@ struct SChannel
   std::string             strStreamURL;
   int                     iChannelId;
   std::string             cmd;
+  std::string             tv_genre_id;
   bool                    use_http_tmp_link;
   bool                    use_load_balancing;
   std::vector<SEpgEntry> epg;
+};
+
+struct SChannelGroup
+{
+  std::string strGroupName;
+  bool        bRadio;
+  std::string strId;
+  std::string strAlias;
 };
 
 struct SRecording
@@ -89,14 +99,6 @@ struct STimer
   PVR_TIMER_STATE state;
   std::string     strTitle;
   std::string     strSummary;
-};
-
-struct SChannelGroup
-{
-  bool             bRadio;
-  int              iGroupId;
-  std::string      strGroupName;
-  std::vector<int> members;
 };
 
 class SData
@@ -126,28 +128,31 @@ public:
   virtual std::string GetSettingsFile(std::string settingFile) const;
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
 protected:
-	virtual bool LoadCache();
-	virtual bool SaveCache();
+  virtual bool LoadCache();
+  virtual bool SaveCache();
   virtual bool InitAPI();
   virtual bool LoadProfile();
-	virtual bool Authenticate();
-	virtual bool ParseChannels(Json::Value &parsed);
-	virtual bool LoadChannels();
+  virtual bool Authenticate();
+  virtual bool Initialize();
+  virtual bool ParseChannels(Json::Value &parsed);
+  virtual bool LoadChannels();
+  virtual bool ParseChannelGroups(Json::Value &parsed);
+  virtual bool LoadChannelGroups();
   virtual bool ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
   virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
   virtual bool LoadEPGForChannel2(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
   virtual std::string GetEPGCachePath();
   virtual bool DownloadEPG(time_t iStart, time_t iEnd, SChannel &channel);
   virtual bool LoadEPGFromFile(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-	virtual bool LoadEPGForChannel3(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual bool LoadEPGForChannel3(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
 
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
-	virtual int GetIntValue(Json::Value &value);
-	virtual bool GetIntValueAsBool(Json::Value &value);
+  virtual int GetIntValue(Json::Value &value);
+  virtual bool GetIntValueAsBool(Json::Value &value);
 
   virtual std::vector<std::string> split(std::string str, char delimiter);
 private:
-  std::vector<SChannelGroup> m_groups;
+  std::vector<SChannelGroup> m_channelGroups;
   std::vector<SChannel>      m_channels;
   std::vector<SRecording>    m_recordings;
   std::vector<STimer>        m_timers;
@@ -155,11 +160,12 @@ private:
   CStdString                       m_strDefaultIcon;
   CStdString                       m_strDefaultMovie;
 
+  bool                        m_bInitialized;
   bool                        m_bApiInit;
   bool                        m_bAuthenticated;
   bool                        m_bProfileLoaded;
   bool                        m_epgDownloaded;
-	Json::Value                 m_epgWeek;
-	Json::Value                 m_epgData;
+  Json::Value                 m_epgWeek;
+  Json::Value                 m_epgData;
   std::string                 m_PlaybackURL;
 };

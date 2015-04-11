@@ -1,22 +1,22 @@
 /*
- *      Copyright (C) 2011 Pulse-Eight
- *      http://www.pulse-eight.com/
+ *      Copyright (C) 2015  Jamal Edey
+ *      http://www.kenshisoft.com/
  *
- *  This Program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2, or (at your option)
- *  any later version.
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
  *
- *  This Program is distributed in the hope that it will be useful,
+ *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, write to
- *  the Free Software Foundation, 51 Franklin Street, Fifth Floor, Boston,
- *  MA 02110-1301  USA
- *  http://www.gnu.org/copyleft/gpl.html
+ *  along with Kodi; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ *  http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
  */
 
@@ -54,6 +54,7 @@ std::string g_strClientPath   = "";
 std::string g_strMac          = "";
 std::string g_strServer       = "";
 std::string g_strTimeZone     = "";
+std::string g_strApiBasePath  = "";
 std::string g_api_endpoint    = "";
 std::string g_referer         = "";
 std::string g_token           = "";
@@ -94,28 +95,28 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   if (!XBMC->DirectoryExists(g_strUserPath.c_str())) {
 #ifdef TARGET_WINDOWS
-	  CreateDirectory(g_strUserPath.c_str(), NULL);
+    CreateDirectory(g_strUserPath.c_str(), NULL);
 #else
-	  XBMC->CreateDirectory(g_strUserPath.c_str());
+    XBMC->CreateDirectory(g_strUserPath.c_str());
 #endif
   }
 
   char buffer[1024];
 
   if (!XBMC->GetSetting("mac", &buffer)) {
-	  XBMC->Log(LOG_DEBUG, "mac address not set\n");
-	  g_strMac = "00:1A:79:00:00:00";
+    XBMC->Log(LOG_DEBUG, "mac address not set\n");
+    g_strMac = "00:1A:79:00:00:00";
   }
   else {
-	  g_strMac = buffer;
+    g_strMac = buffer;
   }
 
   if (!XBMC->GetSetting("server", &buffer)) {
-	  XBMC->Log(LOG_DEBUG, "server address not set\n");
-	  g_strServer = "127.0.0.1";
+    XBMC->Log(LOG_DEBUG, "server address not set\n");
+    g_strServer = "127.0.0.1";
   }
   else {
-	  g_strServer = buffer;
+    g_strServer = buffer;
   }
 
   if (!XBMC->GetSetting("time_zone", &buffer)) {
@@ -128,11 +129,11 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
 
   if (!m_data->LoadData()) {
     XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
-	  ADDON_Destroy();
-	  m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
+    ADDON_Destroy();
+    m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
   }
   else {
-	  m_CurStatus = ADDON_STATUS_OK;
+    m_CurStatus = ADDON_STATUS_OK;
   }
 
   /*uint64_t iNow = GetTimeMs();
@@ -150,26 +151,26 @@ ADDON_STATUS ADDON_Create(void* hdl, void* props)
   void* hFile = XBMC->OpenFileForWrite("http://192.168.1.17/", 0);
   if (hFile != NULL)
   {
-	  int rc = XBMC->WriteFile(hFile, "", 0);
-	  if (rc >= 0)
-	  {
-		  std::string result;
-		  result.clear();
-		  char bufferd[1024];
-		  while (XBMC->ReadFileString(hFile, bufferd, 1023))
-			  result.append(bufferd);
-		  //json_response = result;
-		  //retval = 0;
-	  }
-	  else
-	  {
-		  XBMC->Log(LOG_ERROR, "can not write to %s", g_strServer.c_str());
-	  }
-	  XBMC->CloseFile(hFile);
+    int rc = XBMC->WriteFile(hFile, "", 0);
+    if (rc >= 0)
+    {
+      std::string result;
+      result.clear();
+      char bufferd[1024];
+      while (XBMC->ReadFileString(hFile, bufferd, 1023))
+        result.append(bufferd);
+      //json_response = result;
+      //retval = 0;
+    }
+    else
+    {
+      XBMC->Log(LOG_ERROR, "can not write to %s", g_strServer.c_str());
+    }
+    XBMC->CloseFile(hFile);
   }
   else
   {
-	  XBMC->Log(LOG_ERROR, "can not open %s for write", g_strServer.c_str());
+    XBMC->Log(LOG_ERROR, "can not open %s for write", g_strServer.c_str());
   }*/
 
   m_bCreated = true;
@@ -184,14 +185,14 @@ ADDON_STATUS ADDON_GetStatus()
 
 void ADDON_Destroy()
 {
-	if (m_data)
-		SAFE_DELETE(m_data);
-	
-	if (PVR)
-		SAFE_DELETE(PVR);
-	
-	if (XBMC)
-		SAFE_DELETE(XBMC);
+  if (m_data)
+    SAFE_DELETE(m_data);
+  
+  if (PVR)
+    SAFE_DELETE(PVR);
+  
+  if (XBMC)
+    SAFE_DELETE(XBMC);
 
   m_bCreated = false;
   m_CurStatus = ADDON_STATUS_UNKNOWN;
@@ -209,7 +210,7 @@ unsigned int ADDON_GetSettings(ADDON_StructSetting ***sSet)
 
 ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
 {
-	return ADDON_STATUS_NEED_RESTART;
+  return ADDON_STATUS_NEED_RESTART;
 }
 
 void ADDON_Stop()
@@ -254,9 +255,10 @@ const char* GetMininumGUIAPIVersion(void)
 
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
 {
-  pCapabilities->bSupportsEPG = true;
-  pCapabilities->bSupportsTV  = true;
-
+  pCapabilities->bSupportsEPG           = true;
+  pCapabilities->bSupportsTV            = true;
+  pCapabilities->bSupportsChannelGroups = true;
+  
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -285,7 +287,7 @@ const char* GetBackendHostname(void)
 
 PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
+  return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
 PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
@@ -335,7 +337,7 @@ void CloseLiveStream(void)
 
 int GetCurrentClientChannel(void)
 {
-	return m_currentChannel.iUniqueId;
+  return m_currentChannel.iUniqueId;
 }
 
 bool SwitchChannel(const PVR_CHANNEL &channel)
@@ -352,29 +354,26 @@ PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties)
 
 int GetChannelGroupsAmount(void)
 {
-	return -1;
-  if (m_data)
-    return m_data->GetChannelGroupsAmount();
-
-  return -1;
+  if (!m_data)
+    return -1;
+  
+  return m_data->GetChannelGroupsAmount();
 }
 
 PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
-  if (m_data)
-    return m_data->GetChannelGroups(handle, bRadio);
-
-  return PVR_ERROR_SERVER_ERROR;
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
+  
+  return m_data->GetChannelGroups(handle, bRadio);
 }
 
 PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
-  if (m_data)
-    return m_data->GetChannelGroupMembers(handle, group);
-
-  return PVR_ERROR_SERVER_ERROR;
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
+  
+  return m_data->GetChannelGroupMembers(handle, group);
 }
 
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
@@ -387,18 +386,18 @@ PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus)
 
 const char* GetLiveStreamURL(const PVR_CHANNEL& channel)
 {
-	const char* url = m_data->GetChannelStreamURL(channel);
+  const char* url = m_data->GetChannelStreamURL(channel);
 
-	if (strcmp(url, "") == 0) {
-		XBMC->QueueNotification(QUEUE_ERROR, "Failed to get stream URL.");
-	}
+  if (strcmp(url, "") == 0) {
+    XBMC->QueueNotification(QUEUE_ERROR, "Failed to get stream URL.");
+  }
 
-	return url;
+  return url;
 }
 
 int GetRecordingsAmount(void)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
+  return PVR_ERROR_NOT_IMPLEMENTED;
   if (m_data)
     return m_data->GetRecordingsAmount();
 
@@ -407,7 +406,7 @@ int GetRecordingsAmount(void)
 
 PVR_ERROR GetRecordings(ADDON_HANDLE handle)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
+  return PVR_ERROR_NOT_IMPLEMENTED;
   if (m_data)
     return m_data->GetRecordings(handle);
 
@@ -416,7 +415,7 @@ PVR_ERROR GetRecordings(ADDON_HANDLE handle)
 
 int GetTimersAmount(void)
 {
-	return -1;
+  return -1;
   if (m_data)
     return m_data->GetTimersAmount();
 
@@ -425,7 +424,7 @@ int GetTimersAmount(void)
 
 PVR_ERROR GetTimers(ADDON_HANDLE handle)
 {
-	return PVR_ERROR_NOT_IMPLEMENTED;
+  return PVR_ERROR_NOT_IMPLEMENTED;
   if (m_data)
     return m_data->GetTimers(handle);
 
