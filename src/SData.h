@@ -140,32 +140,20 @@ protected:
   virtual bool LoadChannelGroups();
   virtual bool ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
   virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual bool LoadEPGForChannel2(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual std::string GetEPGCachePath();
-  virtual bool DownloadEPG(time_t iStart, time_t iEnd, SChannel &channel);
-  virtual bool LoadEPGFromFile(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual bool LoadEPGForChannel3(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
 
-  virtual int GetChannelId(const char * strChannelName, const char * strNumber);
   virtual int GetIntValue(Json::Value &value);
   virtual bool GetIntValueAsBool(Json::Value &value);
-
-  virtual std::vector<std::string> split(std::string str, char delimiter);
+  virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 private:
   std::vector<SChannelGroup> m_channelGroups;
   std::vector<SChannel>      m_channels;
   std::vector<SRecording>    m_recordings;
   std::vector<STimer>        m_timers;
-  time_t                           m_iEpgStart;
-  CStdString                       m_strDefaultIcon;
-  CStdString                       m_strDefaultMovie;
 
   bool                        m_bInitialized;
   bool                        m_bApiInit;
   bool                        m_bAuthenticated;
   bool                        m_bProfileLoaded;
-  bool                        m_epgDownloaded;
-  Json::Value                 m_epgWeek;
   Json::Value                 m_epgData;
   std::string                 m_PlaybackURL;
 };
