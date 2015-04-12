@@ -26,15 +26,20 @@
 #include "libXBMC_pvr.h"
 #include "libXBMC_gui.h"
 
-extern bool                          m_bCreated;
-extern std::string                   g_strUserPath;
-extern std::string                   g_strClientPath;
-extern std::string                  g_strMac;
-extern std::string                  g_strServer;
-extern std::string                  g_strTimeZone;
-extern std::string                  g_strApiBasePath;
-extern std::string          g_api_endpoint;
-extern std::string          g_referer;
-extern std::string          g_token;
+#define DEFAULT_MAC       "00:1A:79:00:00:00"
+#define DEFAULT_SERVER    "127.0.0.1"
+#define DEFAULT_TIME_ZONE "Europe/Kiev"
+
+extern std::string  g_strUserPath;
+extern std::string  g_strClientPath;
+
+extern std::string  g_strMac;
+extern std::string  g_strServer;
+extern std::string  g_strTimeZone;
+extern std::string  g_strApiBasePath;
+extern std::string  g_api_endpoint;
+extern std::string  g_referer;
+extern std::string  g_token;
+
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr          *PVR;

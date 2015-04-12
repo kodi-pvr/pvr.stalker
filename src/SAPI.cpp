@@ -42,7 +42,7 @@ namespace SAPI
     sock.SetURL(g_strServer);
 
     if (!sock.Execute(&resp_headers, &resp_body)) {
-      XBMC->Log(LOG_ERROR, "%s: api init failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api init failed", __FUNCTION__);
       return false;
     }
 
@@ -53,7 +53,7 @@ namespace SAPI
       locationUrl = resp_headers.substr(pos + 10, resp_headers.find("\r\n", pos) - (pos + 10));
     }
     else {
-      XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from location header\n", __FUNCTION__);
+      XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from location header", __FUNCTION__);
       
       // convert to lower case
       std::transform(resp_body.begin(), resp_body.end(), resp_body.begin(), ::tolower);
@@ -63,16 +63,16 @@ namespace SAPI
         locationUrl = g_strServer + "/" + resp_body.substr(pos + 4, resp_body.find("\"", pos) - (pos + 4));
       }
       else {
-        XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from meta refresh tag\n", __FUNCTION__);
+        XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from meta refresh tag", __FUNCTION__);
 
         // assume current url is the intended location
-        XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location\n", __FUNCTION__);
+        XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location", __FUNCTION__);
         locationUrl = g_strServer;
       }
     }
 
     if ((pos = locationUrl.find_last_of("/")) == std::string::npos || locationUrl.substr(pos - 2, 3).compare("/c/") != 0) {
-      XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
       return false;
     }
 
@@ -81,8 +81,8 @@ namespace SAPI
     g_api_endpoint = g_strApiBasePath + "server/load.php";
     g_referer = locationUrl.substr(0, pos + 1);
 
-    XBMC->Log(LOG_DEBUG, "api endpoint: %s\n", g_api_endpoint.c_str());
-    XBMC->Log(LOG_DEBUG, "referer: %s\n", g_referer.c_str());
+    XBMC->Log(LOG_DEBUG, "api endpoint: %s", g_api_endpoint.c_str());
+    XBMC->Log(LOG_DEBUG, "referer: %s", g_referer.c_str());
 
     return true;
   }
@@ -110,14 +110,14 @@ namespace SAPI
     sock->AddHeader("Authorization", "Bearer " + g_token);
 
     if (!sock->Execute(resp_headers, resp_body)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
     if (!reader.parse(*resp_body, *parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: parsing failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: parsing failed", __FUNCTION__);
       if (resp_body->compare(AUTHORIZATION_FAILED) == 0) {
-        XBMC->Log(LOG_ERROR, "%s: authorization failed\n", __FUNCTION__);
+        XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
       }
       return false;
     }
@@ -134,13 +134,13 @@ namespace SAPI
     sock.SetURL(g_api_endpoint + "?type=stb&action=handshake&JsHttpRequest=1-xml&");
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
     g_token = (*parsed)["js"]["token"].asString();
 
-    XBMC->Log(LOG_DEBUG, "token: %s\n", g_token.c_str());
+    XBMC->Log(LOG_DEBUG, "token: %s", g_token.c_str());
 
     return true;
   }
@@ -156,7 +156,7 @@ namespace SAPI
       "&num_banks=1&sn=0000000000000&stb_type=MAG250&image_version=216&auth_second_step=0&hw_version=1.7-BD-00&not_valid_token=0&JsHttpRequest=1-xml&");
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
@@ -172,7 +172,7 @@ namespace SAPI
     sock.SetURL(g_api_endpoint + "?type=itv&action=get_all_channels&JsHttpRequest=1-xml&");
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
@@ -188,7 +188,7 @@ namespace SAPI
     sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=10&fav=0&sortby=number&p=" + std::to_string(page) +"&JsHttpRequest=1-xml&");
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
@@ -207,7 +207,7 @@ namespace SAPI
     sock.SetURL(g_api_endpoint + "?type=itv&action=create_link&cmd=" + tmp + "&forced_storage=undefined&disable_ad=0&JsHttpRequest=1-xml&");
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
@@ -223,7 +223,7 @@ namespace SAPI
     sock.SetURL(g_api_endpoint + "?type=itv&action=get_genres&JsHttpRequest=1-xml&");
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 
@@ -244,7 +244,7 @@ namespace SAPI
     sock.SetURL(std::string(buffer));
 
     if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed\n", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
 

@@ -132,12 +132,12 @@ bool HTTPSocket::OpenSocket(int *sockfd)
   struct hostent *server;
 
   if ((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    XBMC->Log(LOG_ERROR, "failed to create socket\n");
+    XBMC->Log(LOG_ERROR, "failed to create socket");
     return false;
   }
 
   if ((server = gethostbyname(m_host.c_str())) == NULL) {
-    XBMC->Log(LOG_ERROR, "failed to resolve host\n");
+    XBMC->Log(LOG_ERROR, "failed to resolve host");
     return false;
   }
 
@@ -146,7 +146,7 @@ bool HTTPSocket::OpenSocket(int *sockfd)
   servaddr.sin_port = htons(m_port);
 
   if (connect(*sockfd, (const sockaddr *)&servaddr, sizeof(sockaddr_in)) < 0) {
-    XBMC->Log(LOG_ERROR, "failed to connect\n");
+    XBMC->Log(LOG_ERROR, "failed to connect");
     return false;
   }
 
@@ -172,12 +172,12 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
   size_t pos;
 
   if (!BuildRequest(&request)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to build request\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to build request", __FUNCTION__);
     return false;
   }
 
   /*if (!OpenSocket(&sockfd)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to open socket\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to open socket", __FUNCTION__);
     return false;
   }*/
 
@@ -199,12 +199,12 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
   }
 
   /*if ((len = send(sockfd, request.c_str(), strlen(request.c_str()), 0)) < 0) {
-    XBMC->Log(LOG_ERROR, "%s: failed to write data\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to write data", __FUNCTION__);
     return false;
   }*/
 
   if ((len = m_socket->Write((void*)request.c_str(), strlen(request.c_str()))) < 0) {
-    XBMC->Log(LOG_ERROR, "%s: failed to write data\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to write data", __FUNCTION__);
     return false;
   }
 
@@ -222,7 +222,7 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
   }
 
   /*if (!CloseSocket(&sockfd)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to close socket\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to close socket", __FUNCTION__);
     return false;
   }*/
 
@@ -231,15 +231,15 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
   m_socket = NULL;
 
   if ((pos = response.find("\r\n\r\n")) == std::string::npos) {
-    XBMC->Log(LOG_ERROR, "%s: failed to split http response\n", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to split http response", __FUNCTION__);
     return false;
   }
 
   *resp_headers = response.substr(0, pos);
   *resp_body = response.substr(pos + 4);
 
-  XBMC->Log(LOG_DEBUG, "%s\n", resp_headers->c_str());
-  XBMC->Log(LOG_DEBUG, "%s\n", resp_body->substr(0, 512).c_str()); // 512 is max
+  XBMC->Log(LOG_DEBUG, "%s", resp_headers->c_str());
+  XBMC->Log(LOG_DEBUG, "%s", resp_body->substr(0, 512).c_str()); // 512 is max
 
   return true;
 }
