@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <jsoncpp/include/json/json.h>
 
+#include "libstalkerclient/identity.h"
+#include "libstalkerclient/request.h"
 #include "HTTPSocket.h"
 
 #define AUTHORIZATION_FAILED "Authorization failed."
@@ -33,12 +35,12 @@
 namespace SAPI
 {
   bool Init();
-  bool StalkerCall(HTTPSocket *sock, std::string *resp_headers, std::string *resp_body, Json::Value *parsed);
-  bool Handshake(Json::Value *parsed);
-  bool GetProfile(Json::Value *parsed);
-  bool GetAllChannels(Json::Value *parsed);
-  bool GetOrderedList(uint32_t page, Json::Value *parsed);
-  bool CreateLink(std::string &cmd, Json::Value *parsed);
-  bool GetGenres(Json::Value *parsed);
-  bool GetEPGInfo(uint32_t period, Json::Value *parsed);
+  bool StalkerCall(sc_identity_t *identity, sc_param_request_t *params, std::string *resp_headers, std::string *resp_body, Json::Value *parsed);
+  bool Handshake(sc_identity_t *identity, Json::Value *parsed);
+  bool GetProfile(sc_identity_t *identity, Json::Value *parsed);
+  bool GetAllChannels(sc_identity_t *identity, Json::Value *parsed);
+  bool GetOrderedList(std::string &genre, uint32_t page, sc_identity_t *identity, Json::Value *parsed);
+  bool CreateLink(std::string &cmd, sc_identity_t *identity, Json::Value *parsed);
+  bool GetGenres(sc_identity_t *identity, Json::Value *parsed);
+  bool GetEPGInfo(uint32_t period, sc_identity_t *identity, Json::Value *parsed);
 };

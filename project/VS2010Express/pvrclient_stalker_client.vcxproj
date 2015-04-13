@@ -74,7 +74,7 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\..\xbmc;..\..\..\..\lib;..\..\..\..\lib\platform\windows</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\xbmc;..\..\..\..\lib;..\..\..\..\lib\platform\windows;..\..\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDLL;TARGET_WINDOWS;_CRT_SECURE_NO_WARNINGS;_USE_32BIT_TIME_T;_WINSOCKAPI_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
@@ -92,12 +92,24 @@ if errorlevel 1 exit 0 else exit %errorlevel%</Command>
   <ItemGroup>
     <ClCompile Include="..\..\src\client.cpp" />
     <ClCompile Include="..\..\src\HTTPSocket.cpp" />
+    <ClCompile Include="..\..\src\libstalkerclient\itv.c" />
+    <ClCompile Include="..\..\src\libstalkerclient\param.c" />
+    <ClCompile Include="..\..\src\libstalkerclient\request.c" />
+    <ClCompile Include="..\..\src\libstalkerclient\stb.c" />
+    <ClCompile Include="..\..\src\libstalkerclient\util.c" />
     <ClCompile Include="..\..\src\SAPI.cpp" />
     <ClCompile Include="..\..\src\SData.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\client.h" />
     <ClInclude Include="..\..\src\HTTPSocket.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\action.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\identity.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\itv.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\param.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\request.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\stb.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\type.h" />
+    <ClInclude Include="..\..\src\libstalkerclient\util.h" />
     <ClInclude Include="..\..\src\SAPI.h" />
     <ClInclude Include="..\..\src\SData.h" />
   </ItemGroup>

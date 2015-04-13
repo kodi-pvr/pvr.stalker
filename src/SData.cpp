@@ -163,6 +163,12 @@ bool SData::InitAPI()
     return false;
   }
 
+  memset(&m_identity, 0, sizeof(m_identity));
+  m_identity.mac = g_strMac.c_str();
+  m_identity.lang = "en";
+  m_identity.time_zone = g_strTimeZone.c_str();
+  m_identity.auth_token = g_token.c_str();
+
   m_bApiInit = true;
 
   return true;
@@ -176,7 +182,7 @@ bool SData::LoadProfile()
 
   m_bProfileLoaded = false;
 
-  if (!SAPI::GetProfile(&parsed)) {
+  if (!SAPI::GetProfile(&m_identity, &parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetProfile failed", __FUNCTION__);
     return false;
   }
@@ -194,7 +200,7 @@ bool SData::Authenticate()
 
   m_bAuthenticated = false;
 
-  if (!SAPI::Handshake(&parsed) || !LoadProfile()) {
+  if (!SAPI::Handshake(&m_identity, &parsed) || !LoadProfile()) {
     XBMC->Log(LOG_ERROR, "%s: authentication failed", __FUNCTION__);
     return false;
   }
@@ -273,7 +279,7 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
 
   iPeriod = (iEnd - iStart) / 3600;
 
-  if (m_epgData.empty() && !SAPI::GetEPGInfo(iPeriod, &m_epgData)) {
+  if (m_epgData.empty() && !SAPI::GetEPGInfo(iPeriod, &m_identity, &m_epgData)) {
     XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
     return false;
   }
@@ -324,7 +330,7 @@ bool SData::LoadChannelGroups()
   Json::Value parsed;
 
   // genres are channel groups
-  if (!SAPI::GetGenres(&parsed) || !ParseChannelGroups(parsed)) {
+  if (!SAPI::GetGenres(&m_identity, &parsed) || !ParseChannelGroups(parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetGenres|ParseChannelGroups failed", __FUNCTION__);
     return false;
   }
@@ -392,10 +398,11 @@ bool SData::LoadChannels()
   }
 
   Json::Value parsed;
+  std::string genre = "10";
   uint32_t iCurrentPage = 1;
   uint32_t iMaxPages = 1;
 
-  if (!SAPI::GetAllChannels(&parsed) || !ParseChannels(parsed)) {
+  if (!SAPI::GetAllChannels(&m_identity, &parsed) || !ParseChannels(parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetAllChannels failed", __FUNCTION__);
     return false;
   }
@@ -403,7 +410,7 @@ bool SData::LoadChannels()
   parsed.clear();
 
   while (iCurrentPage <= iMaxPages) {
-    if (!SAPI::GetOrderedList(iCurrentPage, &parsed) || !ParseChannels(parsed)) {
+    if (!SAPI::GetOrderedList(genre, iCurrentPage, &m_identity, &parsed) || !ParseChannels(parsed)) {
       XBMC->Log(LOG_ERROR, "%s: GetOrderedList failed", __FUNCTION__);
       return false;
     }
@@ -619,7 +626,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
     Json::Value parsed;
 
-    if (!SAPI::CreateLink(thisChannel->strCmd, &parsed)) {
+    if (!SAPI::CreateLink(thisChannel->strCmd, &m_identity, &parsed)) {
       XBMC->Log(LOG_ERROR, "%s: CreateLink failed", __FUNCTION__);
       return "";
     }

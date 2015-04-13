@@ -27,6 +27,11 @@
 
 #include "client.h"
 
+#include <libstalkerclient/param.h>
+#include <libstalkerclient/stb.h>
+#include <libstalkerclient/itv.h>
+#include <libstalkerclient/util.h>
+
 using namespace ADDON;
 
 namespace SAPI
@@ -87,29 +92,54 @@ namespace SAPI
     return true;
   }
 
-  bool StalkerCall(HTTPSocket *sock, std::string *resp_headers, std::string *resp_body, Json::Value *parsed)
+  bool StalkerCall(sc_identity_t *identity, sc_param_request_t *params, std::string *resp_headers, std::string *resp_body, Json::Value *parsed)
   {
-    char buffer[256];
+    sc_request_t request;
+    sc_request_header_t *header;
+    HTTPSocket sock;
     size_t pos;
     Json::Reader reader;
-    std::string cookie;
 
-    snprintf(buffer, sizeof(buffer), "mac=%s; stb_lang=en; timezone=%s", g_strMac.c_str(), g_strTimeZone.c_str());
-    cookie = buffer;
+    memset(&request, 0, sizeof(request));
+    if (!sc_request_build(identity, params, &request)) {
+      XBMC->Log(LOG_ERROR, "sc_request_build failed");
+    }
+
+    header = request.headers;
+    while (header) {
+      std::string strValue;
+
+      strValue = header->value;
+
+      //TODO url encode
+      while ((pos = strValue.find(":")) != std::string::npos) {
+        strValue.replace(pos, 1, "%3A");
+      }
+      while ((pos = strValue.find("/")) != std::string::npos) {
+        strValue.replace(pos, 1, "%2F");
+      }
+
+      sock.AddHeader(header->name, strValue);
+
+      header = header->next;
+    }
+
+    sock.AddHeader("Referer", g_referer);
+    sock.AddHeader("X-User-Agent", "Model: MAG250; Link: WiFi");
+
     //TODO url encode
-    while ((pos = cookie.find(":")) != std::string::npos) {
-      cookie.replace(pos, 1, "%3A");
+    std::string query;
+    query = request.query;
+    while ((pos = query.find(" ")) != std::string::npos) {
+      query.replace(pos, 1, "%20");
     }
-    while ((pos = cookie.find("/")) != std::string::npos) {
-      cookie.replace(pos, 1, "%2F");
-    }
-    sock->AddHeader("Cookie", cookie);
 
-    sock->AddHeader("Referer", g_referer);
-    sock->AddHeader("X-User-Agent", "Model: MAG250; Link: WiFi");
-    sock->AddHeader("Authorization", "Bearer " + g_token);
+    sock.SetURL(g_api_endpoint + "?" + query);
 
-    if (!sock->Execute(resp_headers, resp_body)) {
+    sc_request_free_headers(request.headers);
+    sc_param_free_params(params->param);
+
+    if (!sock.Execute(resp_headers, resp_body)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -125,15 +155,21 @@ namespace SAPI
     return true;
   }
 
-  bool Handshake(Json::Value *parsed)
+  bool Handshake(sc_identity_t *identity, Json::Value *parsed)
   {
-    HTTPSocket sock;
+    sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
 
-    sock.SetURL(g_api_endpoint + "?type=stb&action=handshake&JsHttpRequest=1-xml&");
+    memset(&params, 0, sizeof(params));
+    params.action = STB_HANDSHAKE;
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if (!sc_stb_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+      return false;
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -145,17 +181,21 @@ namespace SAPI
     return true;
   }
 
-  bool GetProfile(Json::Value *parsed)
+  bool GetProfile(sc_identity_t *identity, Json::Value *parsed)
   {
-    HTTPSocket sock;
+    sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
 
-    sock.SetURL(g_api_endpoint + "?type=stb&action=get_profile"
-      "&hd=1&ver=ImageDescription:%200.2.16-250;%20ImageDate:%2018%20Mar%202013%2019:56:53%20GMT+0200;%20PORTAL%20version:%204.9.9;%20API%20Version:%20JS%20API%20version:%20328;%20STB%20API%20version:%20134;%20Player%20Engine%20version:%200x560"
-      "&num_banks=1&sn=0000000000000&stb_type=MAG250&image_version=216&auth_second_step=0&hw_version=1.7-BD-00&not_valid_token=0&JsHttpRequest=1-xml&");
+    memset(&params, 0, sizeof(params));
+    params.action = STB_GET_PROFILE;
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if (!sc_stb_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+      return false;
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -163,15 +203,21 @@ namespace SAPI
     return true;
   }
 
-  bool GetAllChannels(Json::Value *parsed)
+  bool GetAllChannels(sc_identity_t *identity, Json::Value *parsed)
   {
-    HTTPSocket sock;
+    sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
 
-    sock.SetURL(g_api_endpoint + "?type=itv&action=get_all_channels&JsHttpRequest=1-xml&");
+    memset(&params, 0, sizeof(params));
+    params.action = ITV_GET_ALL_CHANNELS;
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if (!sc_itv_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+      return false;
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -179,15 +225,30 @@ namespace SAPI
     return true;
   }
 
-  bool GetOrderedList(uint32_t page, Json::Value *parsed)
+  bool GetOrderedList(std::string &genre, uint32_t page, sc_identity_t *identity, Json::Value *parsed)
   {
-    HTTPSocket sock;
+    sc_param_request_t params;
+    sc_param_t *param;
     std::string resp_headers;
     std::string resp_body;
 
-    sock.SetURL(g_api_endpoint + "?type=itv&action=get_ordered_list&genre=10&fav=0&sortby=number&p=" + std::to_string(page) +"&JsHttpRequest=1-xml&");
+    memset(&params, 0, sizeof(params));
+    params.action = ITV_GET_ORDERED_LIST;
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if (!sc_itv_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+      return false;
+    }
+
+    if ((param = sc_param_get(&params, "genre"))) {
+      param->value.string = sc_util_strcpy((char *)genre.c_str());
+    }
+
+    if ((param = sc_param_get(&params, "p"))) {
+      param->value.integer = page;
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -195,18 +256,26 @@ namespace SAPI
     return true;
   }
 
-  bool CreateLink(std::string &cmd, Json::Value *parsed)
+  bool CreateLink(std::string &cmd, sc_identity_t *identity, Json::Value *parsed)
   {
-    HTTPSocket sock;
+    sc_param_request_t params;
+    sc_param_t *param;
     std::string resp_headers;
     std::string resp_body;
 
-    std::string tmp = cmd;
-    tmp.replace(tmp.find(" "), 1, "%20");
+    memset(&params, 0, sizeof(params));
+    params.action = ITV_CREATE_LINK;
 
-    sock.SetURL(g_api_endpoint + "?type=itv&action=create_link&cmd=" + tmp + "&forced_storage=undefined&disable_ad=0&JsHttpRequest=1-xml&");
+    if (!sc_itv_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+      return false;
+    }
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if ((param = sc_param_get(&params, "cmd"))) {
+      param->value.string = sc_util_strcpy((char *)cmd.c_str());
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -214,15 +283,21 @@ namespace SAPI
     return true;
   }
 
-  bool GetGenres(Json::Value *parsed)
+  bool GetGenres(sc_identity_t *identity, Json::Value *parsed)
   {
-    HTTPSocket sock;
+    sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
 
-    sock.SetURL(g_api_endpoint + "?type=itv&action=get_genres&JsHttpRequest=1-xml&");
+    memset(&params, 0, sizeof(params));
+    params.action = ITV_GET_GENRES;
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if (!sc_itv_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+      return false;
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -230,20 +305,26 @@ namespace SAPI
     return true;
   }
 
-  bool GetEPGInfo(uint32_t period, Json::Value *parsed)
+  bool GetEPGInfo(uint32_t period, sc_identity_t *identity, Json::Value *parsed)
   {
-    char buffer[256];
-    HTTPSocket sock;
+    sc_param_request_t params;
+    sc_param_t *param;
     std::string resp_headers;
     std::string resp_body;
 
-    snprintf(buffer, sizeof(buffer),
-      "%s?type=itv&action=get_epg_info&period=%d&JsHttpRequest=1-xml&",
-      g_api_endpoint.c_str(), period);
+    memset(&params, 0, sizeof(params));
+    params.action = ITV_GET_EPG_INFO;
 
-    sock.SetURL(std::string(buffer));
+    if (!sc_itv_defaults(&params)) {
+      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+      return false;
+    }
 
-    if (!StalkerCall(&sock, &resp_headers, &resp_body, parsed)) {
+    if ((param = sc_param_get(&params, "period"))) {
+      param->value.integer = period;
+    }
+
+    if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }

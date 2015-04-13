@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="libstalkerclient">
+      <UniqueIdentifier>{a5bcc78e-dc83-4f55-89f9-bafac3f64be7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\client.cpp">
@@ -27,11 +30,23 @@
     <ClCompile Include="..\..\src\SAPI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\libstalkerclient\itv.c">
+      <Filter>libstalkerclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libstalkerclient\param.c">
+      <Filter>libstalkerclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libstalkerclient\request.c">
+      <Filter>libstalkerclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libstalkerclient\stb.c">
+      <Filter>libstalkerclient</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\libstalkerclient\util.c">
+      <Filter>libstalkerclient</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\client.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\SData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -40,6 +55,30 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SAPI.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\action.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\identity.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\itv.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\param.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\request.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\stb.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\type.h">
+      <Filter>libstalkerclient</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\libstalkerclient\util.h">
+      <Filter>libstalkerclient</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

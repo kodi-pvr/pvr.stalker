@@ -25,6 +25,7 @@
 #include <vector>
 #include <jsoncpp/include/json/json.h>
 
+#include "libstalkerclient/identity.h"
 #include "client.h"
 
 struct SChannelGroup
@@ -83,6 +84,7 @@ protected:
   virtual bool GetIntValueAsBool(Json::Value &value);
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 private:
+  sc_identity_t               m_identity;
   bool                        m_bInitialized;
   bool                        m_bApiInit;
   bool                        m_bAuthenticated;
