@@ -37,6 +37,8 @@ namespace SAPI
 {
   bool Init()
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     HTTPSocket sock;
     std::string resp_headers;
     std::string resp_body;
@@ -93,6 +95,8 @@ namespace SAPI
 
   bool StalkerCall(sc_identity_t *identity, sc_param_request_t *params, std::string *resp_headers, std::string *resp_body, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_request_t request;
     sc_request_header_t *header;
     HTTPSocket sock;
@@ -136,7 +140,6 @@ namespace SAPI
     sock.SetURL(g_api_endpoint + "?" + query);
 
     sc_request_free_headers(request.headers);
-    sc_param_free_params(params->param);
 
     if (!sock.Execute(resp_headers, resp_body)) {
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
@@ -156,6 +159,8 @@ namespace SAPI
 
   bool Handshake(sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
@@ -169,6 +174,7 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
@@ -177,11 +183,15 @@ namespace SAPI
 
     XBMC->Log(LOG_DEBUG, "token: %s", g_token.c_str());
 
+    sc_param_free_params(params.param);
+
     return true;
   }
 
   bool GetProfile(sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
@@ -195,15 +205,20 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
+
+    sc_param_free_params(params.param);
 
     return true;
   }
 
   bool GetAllChannels(sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
@@ -217,15 +232,20 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
+
+    sc_param_free_params(params.param);
 
     return true;
   }
 
   bool GetOrderedList(std::string &genre, uint32_t page, sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     sc_param_t *param;
     std::string resp_headers;
@@ -249,15 +269,20 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
+
+    sc_param_free_params(params.param);
 
     return true;
   }
 
   bool CreateLink(std::string &cmd, sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     sc_param_t *param;
     std::string resp_headers;
@@ -277,15 +302,20 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
+
+    sc_param_free_params(params.param);
 
     return true;
   }
 
   bool GetGenres(sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     std::string resp_headers;
     std::string resp_body;
@@ -299,15 +329,20 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
+
+    sc_param_free_params(params.param);
 
     return true;
   }
 
   bool GetEPGInfo(uint32_t period, sc_identity_t *identity, Json::Value *parsed)
   {
+    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
     sc_param_request_t params;
     sc_param_t *param;
     std::string resp_headers;
@@ -326,9 +361,12 @@ namespace SAPI
     }
 
     if (!StalkerCall(identity, &params, &resp_headers, &resp_body, parsed)) {
+      sc_param_free_params(params.param);
       XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
       return false;
     }
+
+    sc_param_free_params(params.param);
 
     return true;
   }

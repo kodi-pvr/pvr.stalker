@@ -60,15 +60,13 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   PVR_PROPERTIES* pvrProps = (PVR_PROPERTIES*)props;
 
   XBMC = new CHelper_libXBMC_addon;
-  if (!XBMC->RegisterMe(callbacks))
-  {
+  if (!XBMC->RegisterMe(callbacks)) {
     SAFE_DELETE(XBMC);
     return ADDON_STATUS_PERMANENT_FAILURE;
   }
 
   PVR = new CHelper_libXBMC_pvr;
-  if (!PVR->RegisterMe(callbacks))
-  {
+  if (!PVR->RegisterMe(callbacks)) {
     SAFE_DELETE(PVR);
     SAFE_DELETE(XBMC);
     return ADDON_STATUS_PERMANENT_FAILURE;
@@ -296,7 +294,8 @@ const char* GetLiveStreamURL(const PVR_CHANNEL& channel)
   return url;
 }
 
-unsigned int GetChannelSwitchDelay(void) {
+unsigned int GetChannelSwitchDelay(void)
+{
   return 0;
 }
 

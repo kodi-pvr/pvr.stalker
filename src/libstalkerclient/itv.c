@@ -3,6 +3,8 @@
 #include <string.h>
 
 bool sc_itv_get_all_channels_defaults(sc_param_request_t *params) {
+  params->param = NULL;
+  
   return true;
 }
 
@@ -36,6 +38,8 @@ bool sc_itv_create_link_defaults(sc_param_request_t *params) {
 }
 
 bool sc_itv_get_genres_defaults(sc_param_request_t *params) {
+  params->param = NULL;
+  
   return true;
 }
 

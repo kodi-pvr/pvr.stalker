@@ -15,8 +15,13 @@ LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la \
 
 include ../Makefile.include.am
 
-libstalkerclient_addon_la_SOURCES = src/client.cpp \
-                                    src/SData.cpp \
+libstalkerclient_addon_la_SOURCES = src/libstalkerclient/itv.c \
+                                    src/libstalkerclient/param.c \
+                                    src/libstalkerclient/request.c \
+                                    src/libstalkerclient/stb.c \
+                                    src/libstalkerclient/util.c \
+                                    src/client.cpp \
+                                    src/HTTPSocket.cpp \
                                     src/SAPI.cpp \
-                                    src/HTTPSocket.cpp
+                                    src/SData.cpp
 libstalkerclient_addon_la_LDFLAGS = @TARGET_LDFLAGS@

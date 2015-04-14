@@ -22,6 +22,7 @@
 
 #include "SData.h"
 
+#include <cmath>
 #include <tinyxml/tinyxml.h>
 #include "platform/os.h"
 
@@ -216,6 +217,8 @@ bool SData::Authenticate()
 
 bool SData::Initialize()
 {
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
   m_bInitialized = false;
 
   if (!m_bApiInit && !InitAPI()) {
@@ -258,11 +261,7 @@ bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChann
     tag.iChannelNumber = iChannelNumber;
     tag.startTime = iStartTimestamp;
     tag.endTime = iStopTimestamp;
-    //tag.strPlotOutline = myTag.strPlotOutline.c_str();
     tag.strPlot = (*it)["descr"].asCString();
-    //tag.strIconPath = myTag.strIconPath.c_str();
-    //tag.iGenreType = myTag.iGenreType;
-    //tag.iGenreSubType = myTag.iGenreSubType;
 
     PVR->TransferEpgEntry(handle, &tag);
   }
@@ -370,7 +369,10 @@ bool SData::ParseChannels(Json::Value &parsed)
     channel.iChannelNumber = atoi(strTemp);
 
     channel.strChannelName = (*it)["name"].asString();
-    channel.strStreamURL = "pvr://stream/" + std::to_string(channel.iUniqueId); // "pvr://stream/" causes GetLiveStreamURL to be called
+
+    char strStreamURL[256];
+    sprintf(strStreamURL, "pvr://stream/%d", channel.iUniqueId); // "pvr://stream/" causes GetLiveStreamURL to be called
+    channel.strStreamURL = strStreamURL;
 
     strTemp = (*it)["logo"].asCString();
     channel.strIconPath = strlen(strTemp) == 0 ? "" : std::string(g_strApiBasePath + "misc/logos/120/" + strTemp).c_str();
@@ -430,6 +432,8 @@ bool SData::LoadChannels()
 
 bool SData::LoadData(void)
 {
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
   if (!LoadCache()) {
     return false;
   }
@@ -437,35 +441,6 @@ bool SData::LoadData(void)
   if (!g_token.empty()) {
     m_bAuthenticated = true;
   }
-
-  /*XBMC->QueueNotification(QUEUE_INFO, "Loading channel list.");
-
-  if (!SAPI::Init()) {
-  XBMC->Log(LOG_ERROR, "failed to init api");
-  XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
-  return false;
-  }
-
-  if (g_token.empty() && !Authenticate()) {
-  XBMC->QueueNotification(QUEUE_ERROR, "Authentication failed.");
-  return false;
-  }
-
-  if (!LoadChannels()) {
-  if (!g_authorized) {
-  XBMC->Log(LOG_NOTICE, "re-authenticating");
-  if (!Authenticate()) {
-  XBMC->QueueNotification(QUEUE_ERROR, "Authentication failed.");
-  return PVR_ERROR_SERVER_ERROR;
-  }
-  }
-
-  XBMC->Log(LOG_NOTICE, "re-attempting to load channels");
-  if (!LoadChannels()) {
-  XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");
-  return PVR_ERROR_SERVER_ERROR;
-  }
-  }*/
 
   return true;
 }
@@ -507,6 +482,10 @@ int SData::GetChannelGroupsAmount(void)
 PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  if (bRadio) {
+    return PVR_ERROR_NO_ERROR;
+  }
 
   if (!LoadChannelGroups()) {
     XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channel groups.");
@@ -573,6 +552,10 @@ int SData::GetChannelsAmount(void)
 PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  if (bRadio) {
+    return PVR_ERROR_NO_ERROR;
+  }
 
   if (!LoadChannels()) {
     XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");

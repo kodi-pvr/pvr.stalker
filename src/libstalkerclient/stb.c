@@ -3,6 +3,8 @@
 #include <string.h>
 
 bool sc_stb_handshake_defaults(sc_param_request_t *params) {
+  params->param = NULL;
+  
   return true;
 }
 

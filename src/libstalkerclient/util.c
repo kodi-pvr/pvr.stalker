@@ -8,8 +8,7 @@ char* sc_util_strcpy(char *str) {
 
   len = strlen(str) + 1;
   char *buffer = (char *) malloc(len * sizeof (char));
-  strncpy(buffer, str, len);
-  buffer[len] = '\0';
+  strcpy(buffer, str);
 
   return buffer;
 }

@@ -54,7 +54,7 @@ extern "C" {
   sc_param_t* sc_param_copy(sc_param_t *param);
   void sc_param_append(sc_param_request_t *params, sc_param_t *param);
   void sc_param_append(sc_param_request_t *params, sc_param_t *param);
-  void sc_param_free_param(sc_param_t *param);
+  void sc_param_free(sc_param_t *param);
   void sc_param_free_params(sc_param_t *param);
 
 

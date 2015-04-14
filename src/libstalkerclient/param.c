@@ -100,7 +100,7 @@ void sc_param_destroy(sc_param_request_t *params, sc_param_t *param) {
     next->prev = prev;
   }
   
-  sc_param_free_param(param);
+  sc_param_free(param);
 }
 
 sc_param_t* sc_param_copy(sc_param_t *param) {
@@ -148,7 +148,7 @@ void sc_param_append(sc_param_request_t *params, sc_param_t *param) {
   param->next = NULL;
 }
 
-void sc_param_free_param(sc_param_t *param) {
+void sc_param_free(sc_param_t *param) {
   if (param->type == SC_STRING) {
     free(param->value.string);
   }
@@ -161,7 +161,7 @@ void sc_param_free_params(sc_param_t *param) {
     sc_param_t *next;
     next = param->next;
 
-    sc_param_free_param(param);
+    sc_param_free(param);
 
     param = next;
   }

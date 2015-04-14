@@ -74,6 +74,10 @@ sc_request_header_t* sc_request_create_header(const char *name, char *value) {
   header = (sc_request_header_t *) malloc(sizeof (sc_request_header_t));
   header->name = name;
   header->value = sc_util_strcpy(value);
+  
+  header->first = NULL;
+  header->prev = NULL;
+  header->next = NULL;
 
   return header;
 }
