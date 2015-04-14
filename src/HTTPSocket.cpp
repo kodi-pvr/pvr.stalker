@@ -28,24 +28,6 @@
 
 #define TEMP_BUFFER_SIZE 1024
 
-#if TARGET_WINDOWS
-
-#pragma warning(disable:4005) // Disable "warning C4005: '_WINSOCKAPI_' : macro redefinition"
-#include <winsock2.h>
-#pragma warning(default:4005)
-
-#define close(s) closesocket(s)
-
-#else
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h> 
-
-#endif
-
 using namespace ADDON;
 using namespace PLATFORM;
 
@@ -103,7 +85,7 @@ bool HTTPSocket::BuildRequest(std::string *request)
 {
   char buffer[TEMP_BUFFER_SIZE];
 
-  sprintf(buffer, "%s %s HTTP/1.0\r\n", "GET", m_uri.c_str());
+  sprintf(buffer, "%s %s HTTP/1.0\r\n", m_method.c_str(), m_uri.c_str());
   request->append(buffer);
 
   sprintf(buffer, "Host: %s:%d\r\n", m_host.c_str(), m_port);
@@ -126,47 +108,46 @@ bool HTTPSocket::BuildRequest(std::string *request)
   return true;
 }
 
-bool HTTPSocket::OpenSocket(int *sockfd)
+bool HTTPSocket::Open()
 {
-  struct sockaddr_in servaddr;
-  struct hostent *server;
+  uint64_t iNow;
+  uint64_t iTarget;
 
-  if ((*sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-    XBMC->Log(LOG_ERROR, "failed to create socket");
-    return false;
+  iNow = GetTimeMs();
+  iTarget = iNow + 5 * 1000;
+
+  m_socket = new CTcpConnection(m_host.c_str(), m_port);
+
+  while (!m_socket->IsOpen() && iNow < iTarget) {
+    if (!m_socket->Open(iTarget - iNow))
+      CEvent::Sleep(100);
+    iNow = GetTimeMs();
   }
 
-  if ((server = gethostbyname(m_host.c_str())) == NULL) {
-    XBMC->Log(LOG_ERROR, "failed to resolve host");
-    return false;
-  }
-
-  servaddr.sin_family = AF_INET;
-  memcpy((char *)&servaddr.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
-  servaddr.sin_port = htons(m_port);
-
-  if (connect(*sockfd, (const sockaddr *)&servaddr, sizeof(sockaddr_in)) < 0) {
-    XBMC->Log(LOG_ERROR, "failed to connect");
+  if (!m_socket->IsOpen()) {
+    XBMC->Log(LOG_ERROR, "%s: failed to connect", __FUNCTION__, m_socket->GetError().c_str());
     return false;
   }
 
   return true;
 }
 
-bool HTTPSocket::CloseSocket(int *sockfd)
+void HTTPSocket::Close()
 {
-  if (close(*sockfd) < 0) {
-    return false;
+  if (m_socket->IsOpen()) {
+    m_socket->Close();
   }
 
-  return true;
+  if (m_socket) {
+    delete m_socket;
+    m_socket = NULL;
+  }
 }
 
 bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
 {
   std::string request;
   std::string response;
-  int sockfd;
   char buffer[TEMP_BUFFER_SIZE];
   int len;
   size_t pos;
@@ -176,44 +157,14 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
     return false;
   }
 
-  /*if (!OpenSocket(&sockfd)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to open socket", __FUNCTION__);
-    return false;
-  }*/
-
-  uint64_t iNow = GetTimeMs();
-  uint64_t iTarget = iNow + 5 * 1000;
-  m_socket = new CTcpConnection(m_host.c_str(), m_port);
-  //m_socket->Open();
-  while (!m_socket->IsOpen() && iNow < iTarget)
-  {
-    if (!m_socket->Open(iTarget - iNow))
-      CEvent::Sleep(100);
-    iNow = GetTimeMs();
-  }
-
-  if (!m_socket->IsOpen())
-  {
-    XBMC->Log(LOG_ERROR, "%s - failed to connect to the backend (%s)", __FUNCTION__, m_socket->GetError().c_str());
+  if (!Open()) {
     return false;
   }
-
-  /*if ((len = send(sockfd, request.c_str(), strlen(request.c_str()), 0)) < 0) {
-    XBMC->Log(LOG_ERROR, "%s: failed to write data", __FUNCTION__);
-    return false;
-  }*/
 
   if ((len = m_socket->Write((void*)request.c_str(), strlen(request.c_str()))) < 0) {
-    XBMC->Log(LOG_ERROR, "%s: failed to write data", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to write request", __FUNCTION__);
     return false;
   }
-
-  /*memset(buffer, 0, TEMP_BUFFER_SIZE);
-  while ((len = recv(sockfd, buffer, TEMP_BUFFER_SIZE - 1, 0)) > 0) {
-    //buffer[len] = 0;
-    response.append(buffer, len);
-    memset(buffer, 0, TEMP_BUFFER_SIZE);
-  }*/
 
   memset(buffer, 0, TEMP_BUFFER_SIZE);
   while ((len = m_socket->Read(buffer, TEMP_BUFFER_SIZE - 1)) > 0) {
@@ -221,17 +172,10 @@ bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
     memset(buffer, 0, TEMP_BUFFER_SIZE);
   }
 
-  /*if (!CloseSocket(&sockfd)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to close socket", __FUNCTION__);
-    return false;
-  }*/
-
-  m_socket->Close();
-  delete m_socket;
-  m_socket = NULL;
+  Close();
 
   if ((pos = response.find("\r\n\r\n")) == std::string::npos) {
-    XBMC->Log(LOG_ERROR, "%s: failed to split http response", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to parse response", __FUNCTION__);
     return false;
   }
 

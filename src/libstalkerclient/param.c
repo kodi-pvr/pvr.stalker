@@ -5,18 +5,26 @@
 
 #include "util.h"
 
-sc_param_t* sc_param_create_string(const char *name, char *value, bool required) {
+sc_param_t* sc_param_create(const char *name, sc_param_type_t type, bool required) {
   sc_param_t *param;
 
   param = (sc_param_t *) malloc(sizeof (sc_param_t));
   param->name = name;
-  param->type = SC_STRING;
-  param->value.string = sc_util_strcpy(value);
+  param->type = type;
   param->required = required;
   
   param->first = NULL;
   param->prev = NULL;
   param->next = NULL;
+
+  return param;
+}
+
+sc_param_t* sc_param_create_string(const char *name, char *value, bool required) {
+  sc_param_t *param;
+
+  param = sc_param_create(name, SC_STRING, required);
+  param->value.string = sc_util_strcpy(value);
 
   return param;
 }
@@ -24,15 +32,8 @@ sc_param_t* sc_param_create_string(const char *name, char *value, bool required)
 sc_param_t* sc_param_create_integer(const char *name, int value, bool required) {
   sc_param_t *param;
 
-  param = (sc_param_t *) malloc(sizeof (sc_param_t));
-  param->name = name;
-  param->type = SC_INTEGER;
+  param = sc_param_create(name, SC_INTEGER, required);
   param->value.integer = value;
-  param->required = required;
-  
-  param->first = NULL;
-  param->prev = NULL;
-  param->next = NULL;
 
   return param;
 }
@@ -40,15 +41,8 @@ sc_param_t* sc_param_create_integer(const char *name, int value, bool required) 
 sc_param_t* sc_param_create_boolean(const char *name, bool value, bool required) {
   sc_param_t *param;
 
-  param = (sc_param_t *) malloc(sizeof (sc_param_t));
-  param->name = name;
-  param->type = SC_BOOLEAN;
+  param = sc_param_create(name, SC_BOOLEAN, required);
   param->value.boolean = value;
-  param->required = required;
-  
-  param->first = NULL;
-  param->prev = NULL;
-  param->next = NULL;
 
   return param;
 }

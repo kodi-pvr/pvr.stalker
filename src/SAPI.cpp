@@ -25,12 +25,11 @@
 #include <algorithm>
 #include <platform/os.h>
 
+#include "libstalkerclient/param.h"
+#include "libstalkerclient/stb.h"
+#include "libstalkerclient/itv.h"
+#include "libstalkerclient/util.h"
 #include "client.h"
-
-#include <libstalkerclient/param.h>
-#include <libstalkerclient/stb.h>
-#include <libstalkerclient/itv.h>
-#include <libstalkerclient/util.h>
 
 using namespace ADDON;
 
@@ -241,6 +240,7 @@ namespace SAPI
     }
 
     if ((param = sc_param_get(&params, "genre"))) {
+      free(param->value.string);
       param->value.string = sc_util_strcpy((char *)genre.c_str());
     }
 
@@ -272,6 +272,7 @@ namespace SAPI
     }
 
     if ((param = sc_param_get(&params, "cmd"))) {
+      free(param->value.string);
       param->value.string = sc_util_strcpy((char *)cmd.c_str());
     }
 

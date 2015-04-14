@@ -44,6 +44,7 @@ extern "C" {
     sc_param_t *param;
   } sc_param_request_t;
 
+  sc_param_t* sc_param_create(const char *name, sc_param_type_t type, bool required);
   sc_param_t* sc_param_create_string(const char *name, char *value, bool required);
   sc_param_t* sc_param_create_integer(const char *name, int value, bool required);
   sc_param_t* sc_param_create_boolean(const char *name, bool value, bool required);

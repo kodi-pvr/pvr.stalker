@@ -36,22 +36,21 @@ public:
   HTTPSocket();
   virtual ~HTTPSocket();
 
-  void SetURL(const std::string &url);
-  void SetBody(const std::string &req_body);
-  void AddHeader(const std::string &name, const std::string &value);
-  bool Execute(std::string *resp_headers, std::string *resp_body);
+  virtual void SetURL(const std::string &url);
+  virtual void SetBody(const std::string &req_body);
+  virtual void AddHeader(const std::string &name, const std::string &value);
+  virtual bool Execute(std::string *resp_headers, std::string *resp_body);
 protected:
   virtual bool BuildRequest(std::string *request);
-  virtual bool OpenSocket(int *sockfd);
-  virtual bool CloseSocket(int *sockfd);
+  virtual bool Open();
+  virtual void Close();
 private:
-  std::string m_method;
-  std::string m_uri;
-  std::string m_host;
-  int m_port;
-  std::string m_user_agent;
-  std::vector<std::string> m_headers;
-  std::string m_req_body;
-  PLATFORM::CTcpConnection *m_socket;
+  std::string               m_method;
+  std::string               m_uri;
+  std::string               m_host;
+  int                       m_port;
+  std::string               m_user_agent;
+  std::vector<std::string>  m_headers;
+  std::string               m_req_body;
+  PLATFORM::CTcpConnection  *m_socket;
 };
-

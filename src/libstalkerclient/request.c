@@ -39,6 +39,7 @@ void sc_request_remove_default_non_required(sc_param_request_t *dst_params, sc_p
       switch (src_param->type) {
         case SC_STRING:
           if (strcmp(dst_param->value.string, src_param->value.string) != 0) {
+            free(dst_param->value.string);
             dst_param->value.string = src_param->value.string;
             destroy = false;
           }
