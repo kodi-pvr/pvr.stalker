@@ -12,7 +12,7 @@ sc_param_t* sc_param_create(const char *name, sc_param_type_t type, bool require
   param->name = name;
   param->type = type;
   param->required = required;
-  
+
   param->first = NULL;
   param->prev = NULL;
   param->next = NULL;
@@ -81,17 +81,17 @@ void sc_param_destroy(sc_param_request_t *params, sc_param_t *param) {
 
   if (first == param) {
     sc_param_t *oparam;
-    
+
     oparam = next;
     while (oparam) {
       oparam->first = next;
 
       oparam = oparam->next;
     }
-    
+
     params->param = next;
   }
-  
+
   if (prev) {
     prev->next = next;
   }
@@ -99,7 +99,7 @@ void sc_param_destroy(sc_param_request_t *params, sc_param_t *param) {
   if (next) {
     next->prev = prev;
   }
-  
+
   sc_param_free(param);
 }
 

@@ -4,7 +4,7 @@
 
 bool sc_stb_handshake_defaults(sc_param_request_t *params) {
   params->param = NULL;
-  
+
   return true;
 }
 
@@ -33,7 +33,7 @@ bool sc_stb_get_profile_defaults(sc_param_request_t *params) {
   param = sc_param_link(param, sc_param_create_integer("num_banks", 1, true));
   param = sc_param_link(param, sc_param_create_integer("image_version", 216, true));
   param = sc_param_link(param, sc_param_create_string("hw_version", "1.7-BD-00", true));
-  
+
   params->param = param->first;
 
   return true;
@@ -46,13 +46,13 @@ bool sc_stb_defaults(sc_param_request_t *params) {
     case STB_GET_PROFILE:
       return sc_stb_get_profile_defaults(params);
   }
-  
+
   return false;
 }
 
 bool sc_stb_prep_request(sc_param_request_t *params, sc_request_t *request) {
   const char *buffer;
-  
+
   switch (params->action) {
     case STB_HANDSHAKE:
       buffer = "type=stb&action=handshake&";
@@ -61,9 +61,9 @@ bool sc_stb_prep_request(sc_param_request_t *params, sc_request_t *request) {
       buffer = "type=stb&action=get_profile&";
       break;
   }
-  
+
   request->method = "GET";
-  
+
   if (buffer) {
     strncpy(request->query, buffer, strlen(buffer));
   }

@@ -74,7 +74,7 @@ sc_request_header_t* sc_request_create_header(const char *name, char *value) {
   header = (sc_request_header_t *) malloc(sizeof (sc_request_header_t));
   header->name = name;
   header->value = sc_util_strcpy(value);
-  
+
   header->first = NULL;
   header->prev = NULL;
   header->next = NULL;
@@ -159,6 +159,7 @@ bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_re
   sc_param_request_t *final_params;
 
   final_params = (sc_param_request_t *) malloc(sizeof (sc_param_request_t));
+  memset(final_params, 0, sizeof (final_params));
   final_params->action = params->action;
 
   switch (final_params->action) {
@@ -179,7 +180,7 @@ bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_re
 
   sc_request_set_missing_required(params, final_params);
   sc_request_remove_default_non_required(final_params, params);
-  
+
   sc_request_build_headers(identity, request, final_params->action);
   sc_request_build_query(final_params, request);
 
