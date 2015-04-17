@@ -24,7 +24,7 @@
 
 #include <string>
 #include <stdint.h>
-#include <jsoncpp/include/json/json.h>
+#include <json/json.h>
 
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/request.h"

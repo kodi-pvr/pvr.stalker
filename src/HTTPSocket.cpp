@@ -22,7 +22,7 @@
 
 #include "HTTPSocket.h"
 
-#include <platform/sockets/tcp.h>
+#include "kodi/sockets/tcp.h"
 
 #include "client.h"
 

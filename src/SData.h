@@ -23,7 +23,7 @@
  */
 
 #include <vector>
-#include <jsoncpp/include/json/json.h>
+#include <json/json.h>
 
 #include "libstalkerclient/identity.h"
 #include "client.h"

@@ -23,7 +23,8 @@
 #include "SAPI.h"
 
 #include <algorithm>
-#include <platform/os.h>
+ 
+#include "kodi/os.h"
 
 #include "libstalkerclient/param.h"
 #include "libstalkerclient/stb.h"

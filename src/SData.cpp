@@ -23,8 +23,9 @@
 #include "SData.h"
 
 #include <cmath>
-#include <tinyxml/tinyxml.h>
-#include "platform/os.h"
+
+#include "tinyxml.h"
+#include "kodi/os.h"
 
 #include "SAPI.h"
 
