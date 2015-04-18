@@ -6,20 +6,19 @@
   provider-name="dvbken">
   <requires>
     <c-pluff version="0.1"/>
-    <import addon="xbmc.pvr" version="1.9.2"/>
+    <import addon="xbmc.pvr" version="1.9.6"/>
   </requires>
   <extension
     point="xbmc.pvrclient"
-    library_linux="Kodi_Stalker_Client.pvr"
-	  library_osx="Kodi_Stalker_Client.pvr"
-    library_freebsd="Kodi_Stalker_Client.pvr"
-    library_wingl="Kodi_Stalker_Client_win32.dll"
-    library_windx="Kodi_Stalker_Client_win32.dll"
-    library_android="libKodi_Stalker_Client.so" />
+    library_linux="pvr.stalker.client.so"
+    library_osx="pvr.stalker.client.dylib"
+    library_freebsd="pvr.stalker.client.so"
+    library_windx="pvr.stalker.client.dll"
+    library_android="libpvr.stalker.client.so" />
   <extension point="xbmc.addon.metadata">
     <summary lang="en">PVR Client to connect Kodi to Stalker Middleware</summary>
     <description lang="en">PVR Client to connect Kodi to Stalker Middleware</description>
     <disclaimer lang="en">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects..</disclaimer>
-    <platform>@OS@</platform>
+    <platform>all</platform>
   </extension>
 </addon>
