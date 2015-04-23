@@ -1,3 +1,7 @@
+0.7 (04-17-2015)
+- updated to PVR API version 1.9.6
+- isengard related changes
+
 0.6 (04-15-2015)
 - added epg support
 - added channel group support
