@@ -1,0 +1,18 @@
+0.6 (04-15-2015)
+- added epg support
+- added channel group support
+- added channel logos support
+- better support for differently formatted stream urls
+
+0.5 (03-10-2015)
+- gui error notifications
+- additional channels
+- better combatitility in some areas
+- stability fixes
+
+0.3 (02-23-2015)
+- stability fixes
+- cross platform support
+
+0.1 (02-16-2015)
+- initial release
