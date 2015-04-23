@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker.client"
-  version="0.6b"
+  version="0.6"
   name="Stalker Client"
   provider-name="dvbken">
   <requires>
@@ -11,7 +11,7 @@
   <extension
     point="xbmc.pvrclient"
     library_linux="Kodi_Stalker_Client.pvr"
-	  library_osx="Kodi_Stalker_Client.pvr"
+    library_osx="Kodi_Stalker_Client.pvr"
     library_freebsd="Kodi_Stalker_Client.pvr"
     library_wingl="Kodi_Stalker_Client_win32.dll"
     library_windx="Kodi_Stalker_Client_win32.dll"
