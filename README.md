@@ -1,4 +1,4 @@
-# Stalker Client PVR
+# Stalker PVR
 Stalker Middleware PVR client addon for [Kodi] (http://kodi.tv)
 
 ##### Useful links
