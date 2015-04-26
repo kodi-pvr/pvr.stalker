@@ -1,6 +1,6 @@
 # Kodi Media Center language file
 # Addon Name: Stalker Client
-# Addon id: pvr.stalker.client
+# Addon id: pvr.stalker
 # Addon Provider: dvbken
 msgid ""
 msgstr ""

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
-  id="pvr.stalker.client"
+  id="pvr.stalker"
   version="0.7"
   name="Stalker Client"
   provider-name="dvbken">
@@ -10,11 +10,11 @@
   </requires>
   <extension
     point="xbmc.pvrclient"
-    library_linux="pvr.stalker.client.so"
-    library_osx="pvr.stalker.client.dylib"
-    library_freebsd="pvr.stalker.client.so"
-    library_windx="pvr.stalker.client.dll"
-    library_android="libpvr.stalker.client.so" />
+    library_linux="pvr.stalker.so"
+    library_osx="pvr.stalker.dylib"
+    library_freebsd="pvr.stalker.so"
+    library_windx="pvr.stalker.dll"
+    library_android="libpvr.stalker.so" />
   <extension point="xbmc.addon.metadata">
     <summary lang="en">PVR Client to connect Kodi to Stalker Middleware</summary>
     <description lang="en">PVR Client to connect Kodi to Stalker Middleware</description>

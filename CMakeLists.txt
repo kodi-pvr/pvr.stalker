@@ -1,4 +1,4 @@
-project(pvr.stalker.client)
+project(pvr.stalker)
 
 cmake_minimum_required(VERSION 2.6)
 
@@ -25,11 +25,11 @@ if(WIN32)
   list(APPEND DEPLIBS ws2_32)
 endif()
 
-set(SC_SOURCES src/client.cpp
+set(STALKER_SOURCES src/client.cpp
                src/HTTPSocket.cpp
                src/SAPI.cpp
                src/SData.cpp)
 
-build_addon(pvr.stalker.client SC DEPLIBS)
+build_addon(pvr.stalker STALKER DEPLIBS)
 
 include(CPack)
