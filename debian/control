@@ -1,0 +1,23 @@
+Source: kodi-pvr-stalker
+Priority: extra
+Maintainer: Nobody <nobody@kodi.tv>
+Build-Depends: debhelper (>= 9.0.0), cmake, kodi-pvr-dev,
+               libkodiplatform-dev, kodi-addon-dev,
+               libjsoncpp-dev, libtinyxml-dev
+Standards-Version: 3.9.4
+Section: libs
+
+Package: kodi-pvr-stalker
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Stalker PVR for Kodi
+ Stalker PVR for Kodi
+
+Package: kodi-pvr-stalker-dbg
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: debugging symbols for Stalker PVR for Kodi
+ debugging symbols for Stalker PVR for Kodi
+
