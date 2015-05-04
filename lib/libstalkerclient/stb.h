@@ -34,6 +34,13 @@ extern "C" {
 #endif
 
 
+  typedef struct {
+    bool store_auth_data_on_stb;
+    int status;
+    char *msg;
+    char *block_msg;
+  } sc_stb_profile_t;
+  
   bool sc_stb_handshake_defaults(sc_param_request_t *params);
   bool sc_stb_get_profile_defaults(sc_param_request_t *params);
   bool sc_stb_defaults(sc_param_request_t *params);

@@ -22,7 +22,7 @@
 
 #include "HTTPSocket.h"
 
-#include "platform/sockets/tcp.h"
+#include "kodi/util/StringUtils.h"
 
 #include "client.h"
 
@@ -33,82 +33,165 @@ using namespace PLATFORM;
 
 HTTPSocket::HTTPSocket()
 {
-  m_method = "GET";
-  m_port = 80;
-  m_user_agent = "Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3";
+  UrlOption option;
+
+  option = { "User-Agent", "Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3" };
+  m_defaultOptions.push_back(option);
+
+  option = { "Connection-Timeout", "5" };
+  m_defaultOptions.push_back(option);
 }
 
 HTTPSocket::~HTTPSocket()
 {
+  m_defaultOptions.clear();
 }
 
-void HTTPSocket::SetURL(const std::string &url)
+void HTTPSocket::SetDefaults(Request *request)
 {
-  std::string uri = "/";
-  std::string host = url;
-  int port = m_port;
-  size_t pos;
+  bool found;
+  
+  for (std::vector<UrlOption>::iterator option = m_defaultOptions.begin(); option != m_defaultOptions.end(); ++option) {
+    found = false;
 
-  if (host.find("http://") == 0) {
-    host.replace(0, 7, "");
-  }
-  if ((pos = host.find("/")) != std::string::npos) {
-    uri = host.substr(pos);
-    host.replace(pos, std::string::npos, "");
-  }
-  if ((pos = host.find(":")) != std::string::npos) {
-    std::string sport = host.substr(pos + 1);
-    long int lport = strtol(sport.c_str(), NULL, 10);
-    port = lport != 0L ? (int)lport : port;
-    host.replace(pos, std::string::npos, "");
-  }
+    for (std::vector<UrlOption>::iterator it = request->options.begin(); it != request->options.end(); ++it) {
+      std::string oname = option->name; StringUtils::ToLower(oname);
+      std::string iname = it->name; StringUtils::ToLower(iname);
+      
+      if (found = (iname.compare(oname) == 0))
+        break;
+    }
 
-  m_uri = uri;
-  m_host = host;
-  m_port = port;
+    if (!found)
+      request->AddHeader(option->name, option->value);
+  }
 }
 
-void HTTPSocket::AddHeader(const std::string &name, const std::string &value)
+void HTTPSocket::BuildRequestUrl(Request *request, std::string *strRequestUrl)
 {
   char buffer[TEMP_BUFFER_SIZE];
-
-  sprintf(buffer, "%s: %s", name.c_str(), value.c_str());
-  m_headers.push_back(buffer);
-}
-
-void HTTPSocket::SetBody(const std::string &req_body)
-{
-  m_req_body = req_body;
-}
-
-bool HTTPSocket::BuildRequest(std::string *request)
-{
-  char buffer[TEMP_BUFFER_SIZE];
-
-  sprintf(buffer, "%s %s HTTP/1.0\r\n", m_method.c_str(), m_uri.c_str());
-  request->append(buffer);
-
-  sprintf(buffer, "Host: %s:%d\r\n", m_host.c_str(), m_port);
-  request->append(buffer);
-
-  sprintf(buffer, "User-Agent: %s\r\n", m_user_agent.c_str());
-  request->append(buffer);
-
-  sprintf(buffer, "Accept: %s\r\n", "*/*");
-  request->append(buffer);
-
-  for (std::vector<std::string>::iterator it = m_headers.begin(); it != m_headers.end(); ++it) {
-    request->append((*it) + "\r\n");
+  
+  SetDefaults(request);
+  
+  strRequestUrl->append(request->url + "|");
+  
+  for (std::vector<UrlOption>::iterator it = request->options.begin(); it != request->options.end(); ++it) {
+    sprintf(buffer, "%s=%s", it->name.c_str(), it->value.c_str());
+    strRequestUrl->append(buffer);
+    
+    if (it + 1 != request->options.end())
+      strRequestUrl->append("&");
   }
+}
 
-  request->append("\r\n\r\n");
-
-  request->append(m_req_body);
-
+bool HTTPSocket::Get(std::string *strRequestUrl, std::string *strResponse)
+{
+  void *hdl;
+  char buffer[1024];
+  
+  hdl = XBMC->OpenFile(strRequestUrl->c_str(), 0);
+  if (hdl) {
+    memset(buffer, 0, sizeof(buffer));
+    while (XBMC->ReadFileString(hdl, buffer, sizeof(buffer) - 1)) {
+      strResponse->append(buffer);
+      memset(buffer, 0, sizeof(buffer));
+    }
+    
+    XBMC->CloseFile(hdl);
+  }
+  
   return true;
 }
 
-bool HTTPSocket::Open()
+bool HTTPSocket::Execute(Request *request, Response *response)
+{
+  std::string strRequestUrl;
+  bool result;
+
+  BuildRequestUrl(request, &strRequestUrl);
+  
+  switch (request->method) {
+    case GET:
+      result = Get(&strRequestUrl, &response->body);
+      break;
+    //case POST: //TODO
+  }
+  
+  if (!result) {
+    XBMC->Log(LOG_ERROR, "%s: request failed", __FUNCTION__);
+    return false;
+  }
+  
+  XBMC->Log(LOG_DEBUG, "%s", response->body.substr(0, 512).c_str()); // 512 is max
+  
+  return true;
+}
+
+HTTPSocketRaw::HTTPSocketRaw()
+  : HTTPSocket()
+{
+}
+
+HTTPSocketRaw::~HTTPSocketRaw()
+{
+}
+
+void HTTPSocketRaw::BuildRequestString(Request *request, std::string *strRequest)
+{
+  std::string strMethod;
+  std::string strUri;
+  size_t pos;
+  char buffer[TEMP_BUFFER_SIZE];
+  
+  SetDefaults(request);
+  
+  // defaults
+  strMethod = "GET";
+  strUri = "/";
+  m_host = request->url;
+  m_port = 80;
+  
+  switch (request->method) {
+    case GET:
+      strMethod = "GET";
+      break;
+    //case POST: //TODO
+  }
+  
+  if (m_host.find("http://") == 0) {
+    m_host.replace(0, 7, "");
+  }
+  if ((pos = m_host.find("/")) != std::string::npos) {
+    strUri = m_host.substr(pos);
+    m_host.replace(pos, std::string::npos, "");
+  }
+  if ((pos = m_host.find(":")) != std::string::npos) {
+    std::string sport = m_host.substr(pos + 1);
+    long int lport = strtol(sport.c_str(), NULL, 10);
+    m_port = lport != 0L ? (int)lport : m_port;
+    m_host.replace(pos, std::string::npos, "");
+  }
+
+  sprintf(buffer, "%s %s HTTP/1.0\r\n", strMethod.c_str(), strUri.c_str());
+  strRequest->append(buffer);
+
+  sprintf(buffer, "Host: %s:%d\r\n", m_host.c_str(), m_port);
+  strRequest->append(buffer);
+
+  sprintf(buffer, "Accept: %s\r\n", "*/*");
+  strRequest->append(buffer);
+
+  for (std::vector<UrlOption>::iterator it = request->options.begin(); it != request->options.end(); ++it) {
+    sprintf(buffer, "%s: %s\r\n", it->name.c_str(), it->value.c_str());
+    strRequest->append(buffer);
+  }
+
+  strRequest->append("\r\n\r\n");
+
+  strRequest->append(request->body);
+}
+
+bool HTTPSocketRaw::Open()
 {
   uint64_t iNow;
   uint64_t iTarget;
@@ -124,19 +207,16 @@ bool HTTPSocket::Open()
     iNow = GetTimeMs();
   }
 
-  if (!m_socket->IsOpen()) {
-    XBMC->Log(LOG_ERROR, "%s: failed to connect", __FUNCTION__, m_socket->GetError().c_str());
+  if (!m_socket->IsOpen())
     return false;
-  }
 
   return true;
 }
 
-void HTTPSocket::Close()
+void HTTPSocketRaw::Close()
 {
-  if (m_socket->IsOpen()) {
+  if (m_socket->IsOpen())
     m_socket->Close();
-  }
 
   if (m_socket) {
     delete m_socket;
@@ -144,46 +224,44 @@ void HTTPSocket::Close()
   }
 }
 
-bool HTTPSocket::Execute(std::string *resp_headers, std::string *resp_body)
+bool HTTPSocketRaw::Execute(Request *request, Response *response)
 {
-  std::string request;
-  std::string response;
+  std::string strRequest;
+  std::string strResponse;
   char buffer[TEMP_BUFFER_SIZE];
   int len;
   size_t pos;
-
-  if (!BuildRequest(&request)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to build request", __FUNCTION__);
-    return false;
-  }
+  
+  BuildRequestString(request, &strRequest);
 
   if (!Open()) {
+    XBMC->Log(LOG_ERROR, "%s: failed to connect", __FUNCTION__, m_socket->GetError().c_str());
     return false;
   }
 
-  if ((len = m_socket->Write((void*)request.c_str(), strlen(request.c_str()))) < 0) {
+  if ((len = m_socket->Write((void*)strRequest.c_str(), strlen(strRequest.c_str()))) < 0) {
     XBMC->Log(LOG_ERROR, "%s: failed to write request", __FUNCTION__);
     return false;
   }
 
   memset(buffer, 0, TEMP_BUFFER_SIZE);
   while ((len = m_socket->Read(buffer, TEMP_BUFFER_SIZE - 1)) > 0) {
-    response.append(buffer, len);
+    strResponse.append(buffer, len);
     memset(buffer, 0, TEMP_BUFFER_SIZE);
   }
 
   Close();
 
-  if ((pos = response.find("\r\n\r\n")) == std::string::npos) {
+  if ((pos = strResponse.find("\r\n\r\n")) == std::string::npos) {
     XBMC->Log(LOG_ERROR, "%s: failed to parse response", __FUNCTION__);
     return false;
   }
 
-  *resp_headers = response.substr(0, pos);
-  *resp_body = response.substr(pos + 4);
+  response->headers = strResponse.substr(0, pos);
+  response->body = strResponse.substr(pos + 4);
 
-  XBMC->Log(LOG_DEBUG, "%s", resp_headers->c_str());
-  XBMC->Log(LOG_DEBUG, "%s", resp_body->substr(0, 512).c_str()); // 512 is max
+  XBMC->Log(LOG_DEBUG, "%s", response->headers.c_str());
+  XBMC->Log(LOG_DEBUG, "%s", response->body.substr(0, 512).c_str()); // 512 is max
 
   return true;
 }

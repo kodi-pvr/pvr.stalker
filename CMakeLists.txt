@@ -28,9 +28,10 @@ if(WIN32)
 endif()
 
 set(STALKER_SOURCES src/client.cpp
-               src/HTTPSocket.cpp
-               src/SAPI.cpp
-               src/SData.cpp)
+                    src/HTTPSocket.cpp
+                    src/SAPI.cpp
+                    src/SData.cpp
+                    src/XMLTV.cpp)
 
 build_addon(pvr.stalker STALKER DEPLIBS)
 

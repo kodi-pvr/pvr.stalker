@@ -23,6 +23,8 @@
 #include "SData.h"
 
 #include <cmath>
+#include <map>
+#include <iterator>
 
 #include "tinyxml.h"
 #include "platform/os.h"
@@ -33,10 +35,10 @@ using namespace ADDON;
 
 SData::SData(void)
 {
+  m_bInitedApi        = false;
+  m_bDidHandshake   = false;
+  m_bLoadedProfile  = false;
   m_bInitialized    = false;
-  m_bApiInit        = false;
-  m_bAuthenticated  = false;
-  m_bProfileLoaded  = false;
 }
 
 SData::~SData(void)
@@ -158,7 +160,7 @@ bool SData::InitAPI()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  m_bApiInit = false;
+  m_bInitedApi = false;
 
   if (!SAPI::Init()) {
     XBMC->Log(LOG_ERROR, "%s: failed to init api", __FUNCTION__);
@@ -171,7 +173,34 @@ bool SData::InitAPI()
   m_identity.time_zone = g_strTimeZone.c_str();
   m_identity.auth_token = g_token.c_str();
 
-  m_bApiInit = true;
+  m_bInitedApi = true;
+
+  return true;
+}
+
+bool SData::DoHandshake()
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  Json::Value parsed;
+
+  m_bDidHandshake = false;
+
+  if (!SAPI::Handshake(&m_identity, &parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: Handshake failed", __FUNCTION__);
+    return false;
+  }
+  
+  if (parsed["js"].isMember("token"))
+    m_identity.auth_token = parsed["js"]["token"].asCString();
+
+  XBMC->Log(LOG_DEBUG, "auth_token: %s", m_identity.auth_token);
+  
+  m_bAuthTokenNotValid = parsed["js"].isMember("not_valid")
+    ? GetIntValueAsBool(parsed["js"]["not_valid"])
+    : 0;
+
+  m_bDidHandshake = true;
 
   return true;
 }
@@ -182,36 +211,46 @@ bool SData::LoadProfile()
 
   Json::Value parsed;
 
-  m_bProfileLoaded = false;
+  m_bLoadedProfile = false;
 
-  if (!SAPI::GetProfile(&m_identity, &parsed)) {
+  if (!SAPI::GetProfile(&m_identity, m_bAuthTokenNotValid, &parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetProfile failed", __FUNCTION__);
     return false;
   }
-
-  m_bProfileLoaded = true;
-
-  return true;
-}
-
-bool SData::Authenticate()
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  Json::Value parsed;
-
-  m_bAuthenticated = false;
-
-  if (!SAPI::Handshake(&m_identity, &parsed) || !LoadProfile()) {
-    XBMC->Log(LOG_ERROR, "%s: authentication failed", __FUNCTION__);
+  
+  m_profile.store_auth_data_on_stb = parsed["js"].isMember("store_auth_data_on_stb")
+    ? GetIntValueAsBool(parsed["js"]["store_auth_data_on_stb"])
+    : false;
+  m_profile.status = parsed["js"].isMember("status")
+    ? GetIntValue(parsed["js"]["status"])
+    : -1;
+  
+  m_profile.block_msg = parsed["js"].isMember("msg")
+    ? (char *)parsed["js"]["msg"].asCString()
+    : "";
+  
+  m_profile.block_msg = parsed["js"].isMember("block_msg")
+    ? (char *)parsed["js"]["block_msg"].asCString()
+    : "";
+  
+  if (m_profile.store_auth_data_on_stb && !SaveCache())
     return false;
+  
+  switch (m_profile.status) {
+    case 0:
+      break;
+    case 2:
+      //TODO auth
+    case 1:
+    default:
+      XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s",
+              __FUNCTION__, m_profile.status,
+              (const char *)m_profile.msg,
+              (const char *)m_profile.block_msg);
+      return false;
   }
 
-  if (!SaveCache()) {
-    return false;
-  }
-
-  m_bAuthenticated = true;
+  m_bLoadedProfile = true;
 
   return true;
 }
@@ -222,15 +261,15 @@ bool SData::Initialize()
 
   m_bInitialized = false;
 
-  if (!m_bApiInit && !InitAPI()) {
+  if (!m_bInitedApi && !InitAPI()) {
     return m_bInitialized;
   }
 
-  if (!m_bAuthenticated && !Authenticate()) {
+  if (!m_bDidHandshake && !DoHandshake()) {
     return m_bInitialized;
   }
 
-  if (!m_bProfileLoaded && !LoadProfile()) {
+  if (!m_bLoadedProfile && !LoadProfile()) {
     return m_bInitialized;
   }
 
@@ -270,6 +309,88 @@ bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChann
   return true;
 }
 
+bool SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  
+  std::string strChanNum;
+  Channel *chan = NULL;
+  
+  std::ostringstream oss;
+  oss << iChannelNumber;
+  strChanNum = oss.str();
+  
+  chan = m_xmltv->GetChannelById(strChanNum);
+  if (!chan)
+    chan = m_xmltv->GetChannelByDisplayName(strChannelName);
+  
+  if (!chan) {
+    XBMC->Log(LOG_ERROR, "%s: channel \"%s\" not found", __FUNCTION__, strChanNum.c_str());
+    return true; // don't fail
+  }
+  
+  for (std::vector<Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
+    if (!(it->start > iStart && it->stop < iEnd)) {
+      continue;
+    }
+
+    EPG_TAG tag;
+    memset(&tag, 0, sizeof(EPG_TAG));
+
+    tag.iUniqueBroadcastId = it->iBroadcastId;
+    tag.strTitle = it->strTitle.c_str();
+    tag.iChannelNumber = iChannelNumber;
+    tag.startTime = it->start;
+    tag.endTime = it->stop;
+    tag.strPlot = it->strDesc.c_str();
+    
+    std::string strYear = it->strDate.substr(0, 4); // only need the year;
+    //TODO move to utils
+    int value = 0;
+    try {
+      std::istringstream iss(strYear);
+      iss >> value;
+    }
+    catch (...) {
+      
+    }
+    tag.iYear = value;
+    
+    tag.iGenreType = m_xmltv->EPGGenreByCategory(it->categories);
+    if (tag.iGenreType == EPG_GENRE_USE_STRING) {
+      //TODO move to utils
+      std::ostringstream oss;
+      if (!it->categories.empty()) {
+        std::copy(it->categories.begin(), it->categories.end() - 1, 
+          std::ostream_iterator<std::string>(oss, ", "));
+        oss << it->categories.back();
+      }
+      tag.strGenreDescription = oss.str().c_str();
+    }
+    
+    tag.firstAired = it->previouslyShown;
+    
+    std::string strStarRating = it->strStarRating.substr(0, 1);
+    //TODO move to utils
+    value = 0;
+    try {
+      std::istringstream iss(strStarRating);
+      iss >> value;
+    }
+    catch (...) {
+      
+    }
+    tag.iStarRating = value;
+    
+    tag.iEpisodeNumber = it->iEpisodeNumber;
+    tag.strEpisodeName = it->strSubTitle.c_str();
+    
+    PVR->TransferEpgEntry(handle, &tag);
+  }
+  
+  return true;
+}
+
 bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
@@ -283,10 +404,16 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
     XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
     return false;
   }
+  
+  if (m_xmltv && !m_xmltv->bLoaded && !m_xmltv->Parse(GetFilePath("xmltv.xml"))) {
+    XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+    return false;
+  }
 
   sprintf(strChannelId, "%d", channel.iChannelId);
 
-  if (!ParseEPG(m_epgData["js"]["data"][strChannelId], iStart, iEnd, channel.iChannelNumber, handle)) {
+  if (!ParseEPG(m_epgData["js"]["data"][strChannelId], iStart, iEnd, channel.iChannelNumber, handle) ||
+    !ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle)) {
     XBMC->Log(LOG_ERROR, "%s: ParseEPG failed", __FUNCTION__);
     return false;
   }
@@ -440,7 +567,7 @@ bool SData::LoadData(void)
   }
 
   if (!g_token.empty()) {
-    m_bAuthenticated = true;
+    m_bDidHandshake = true;
   }
 
   return true;

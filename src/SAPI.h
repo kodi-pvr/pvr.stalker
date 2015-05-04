@@ -35,9 +35,9 @@
 namespace SAPI
 {
   bool Init();
-  bool StalkerCall(sc_identity_t *identity, sc_param_request_t *params, std::string *resp_headers, std::string *resp_body, Json::Value *parsed);
+  bool StalkerCall(sc_identity_t *identity, sc_param_request_t *params, Response *response, Json::Value *parsed);
   bool Handshake(sc_identity_t *identity, Json::Value *parsed);
-  bool GetProfile(sc_identity_t *identity, Json::Value *parsed);
+  bool GetProfile(sc_identity_t *identity, bool bAuthTokenNotValid, Json::Value *parsed);
   bool GetAllChannels(sc_identity_t *identity, Json::Value *parsed);
   bool GetOrderedList(std::string &genre, uint32_t page, sc_identity_t *identity, Json::Value *parsed);
   bool CreateLink(std::string &cmd, sc_identity_t *identity, Json::Value *parsed);

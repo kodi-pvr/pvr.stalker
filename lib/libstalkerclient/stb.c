@@ -25,7 +25,8 @@
 #include <string.h>
 
 bool sc_stb_handshake_defaults(sc_param_request_t *params) {
-  params->param = NULL;
+  params->param = sc_param_create_string("token", "", false);
+  params->param->first = params->param;
 
   return true;
 }
