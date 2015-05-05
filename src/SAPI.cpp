@@ -24,7 +24,7 @@
 
 #include <algorithm>
  
-#include "kodi/os.h"
+#include "platform/os.h"
 
 #include "libstalkerclient/param.h"
 #include "libstalkerclient/stb.h"
