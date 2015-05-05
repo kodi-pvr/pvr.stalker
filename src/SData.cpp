@@ -25,7 +25,7 @@
 #include <cmath>
 
 #include "tinyxml.h"
-#include "kodi/os.h"
+#include "platform/os.h"
 
 #include "SAPI.h"
 
