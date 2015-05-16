@@ -94,31 +94,41 @@ bool sc_itv_defaults(sc_param_request_t *params) {
 }
 
 bool sc_itv_prep_request(sc_param_request_t *params, sc_request_t *request) {
-  const char *buffer;
+  sc_request_nameVal_t *paramPrev;
+  sc_request_nameVal_t *param;
+
+  paramPrev = request->params;
+  while (paramPrev && paramPrev->next)
+    paramPrev = paramPrev->next;
+
+  param = sc_request_create_nameVal("type", "itv");
+
+  if (!paramPrev) {
+    param->first = param;
+    request->params = paramPrev = param;
+  } else {
+    paramPrev = sc_request_link_nameVal(paramPrev, param);
+  }
 
   switch (params->action) {
     case ITV_GET_ALL_CHANNELS:
-      buffer = "type=itv&action=get_all_channels&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_all_channels"));
       break;
     case ITV_GET_ORDERED_LIST:
-      buffer = "type=itv&action=get_ordered_list&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_ordered_list"));
       break;
     case ITV_CREATE_LINK:
-      buffer = "type=itv&action=create_link&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "create_link"));
       break;
     case ITV_GET_GENRES:
-      buffer = "type=itv&action=get_genres&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_genres"));
       break;
     case ITV_GET_EPG_INFO:
-      buffer = "type=itv&action=get_epg_info&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_epg_info"));
       break;
   }
 
   request->method = "GET";
-
-  if (buffer) {
-    strncpy(request->query, buffer, strlen(buffer));
-  }
 
   return true;
 }

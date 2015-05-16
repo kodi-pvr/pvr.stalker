@@ -23,6 +23,13 @@
 #ifndef UTIL_H
 #define	UTIL_H
 
+#include <string.h>
+
+#define SC_STR_LENGTH 1024
+
+#define SC_STR_SET(dst, src) \
+  strncpy(dst, src, sizeof(dst) - 1);
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

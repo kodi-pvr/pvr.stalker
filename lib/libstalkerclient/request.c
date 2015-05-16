@@ -28,6 +28,7 @@
 
 #include "stb.h"
 #include "itv.h"
+#include "watchdog.h"
 #include "util.h"
 
 void sc_request_set_missing_required(sc_param_request_t *dst_params, sc_param_request_t *src_params) {
@@ -90,10 +91,10 @@ void sc_request_remove_default_non_required(sc_param_request_t *dst_params, sc_p
   }
 }
 
-sc_request_header_t* sc_request_create_header(const char *name, char *value) {
-  sc_request_header_t *header;
+sc_request_nameVal_t* sc_request_create_nameVal(const char *name, char *value) {
+  sc_request_nameVal_t *header;
 
-  header = (sc_request_header_t *) malloc(sizeof (sc_request_header_t));
+  header = (sc_request_nameVal_t *) malloc(sizeof (sc_request_nameVal_t));
   header->name = name;
   header->value = sc_util_strcpy(value);
 
@@ -104,7 +105,7 @@ sc_request_header_t* sc_request_create_header(const char *name, char *value) {
   return header;
 }
 
-sc_request_header_t* sc_request_link_header(sc_request_header_t *a, sc_request_header_t *b) {
+sc_request_nameVal_t* sc_request_link_nameVal(sc_request_nameVal_t *a, sc_request_nameVal_t *b) {
   b->first = a->first;
   b->prev = a;
   a->next = b;
@@ -113,41 +114,43 @@ sc_request_header_t* sc_request_link_header(sc_request_header_t *a, sc_request_h
 }
 
 void sc_request_build_headers(sc_identity_t *identity, sc_request_t *request, sc_action_t action) {
-  sc_request_header_t *header;
+  sc_request_nameVal_t *header;
   char buffer[256];
 
   memset(&buffer, 0, sizeof (buffer));
   sprintf(buffer, "mac=%s; stb_lang=%s; timezone=%s",
     identity->mac, identity->lang, identity->time_zone);
-  header = sc_request_create_header("Cookie", buffer);
+  header = sc_request_create_nameVal("Cookie", buffer);
 
   if (!request->headers) {
     header->first = header;
     request->headers = header;
   } else {
-    header = sc_request_link_header(request->headers, header);
+    header = sc_request_link_nameVal(request->headers, header);
   }
 
   if (action != STB_HANDSHAKE) {
     memset(&buffer, 0, sizeof (buffer));
-    sprintf(buffer, "Bearer %s", identity->auth_token);
-    header = sc_request_link_header(header, sc_request_create_header("Authorization", buffer));
+    sprintf(buffer, "Bearer %s", identity->token);
+    header = sc_request_link_nameVal(header, sc_request_create_nameVal("Authorization", buffer));
   }
 
   header->next = NULL;
 }
 
-void sc_request_build_query(sc_param_request_t *params, sc_request_t *request) {
+void sc_request_build_query_params(sc_param_request_t *params, sc_request_t *request) {
   sc_param_t *param;
   char buffer[1024];
-  char str[1024];
-  size_t pos = strlen(request->query);
-  size_t len = 0;
+  sc_request_nameVal_t *qParamPrev;
+  sc_request_nameVal_t *qParam;
+
+  qParamPrev = request->params;
+  while (qParamPrev && qParamPrev->next)
+    qParamPrev = qParamPrev->next;
 
   param = params->param;
   while (param) {
     memset(&buffer, 0, sizeof (buffer));
-    memset(&str, 0, sizeof (str));
 
     switch (param->type) {
       case SC_STRING:
@@ -161,20 +164,19 @@ void sc_request_build_query(sc_param_request_t *params, sc_request_t *request) {
         break;
     }
 
-    sprintf(str, "%s=%s&", param->name, buffer);
+    qParam = sc_request_create_nameVal(param->name, buffer);
 
-    len = strlen(str);
-    strncpy(&request->query[pos], str, len);
+    if (!request->params) {
+      qParam->first = qParam;
+      request->params = qParamPrev = qParam;
+    } else {
+      qParamPrev = sc_request_link_nameVal(qParamPrev, qParam);
+    }
 
-    /*fprintf(stderr, "param: %s | len: %d | pos: %d\n",
-            param->name, len, pos);*/
-
-    pos += len;
     param = param->next;
   }
 
-  // remove trailing '&'
-  request->query[pos - 1] = '\0';
+  qParamPrev->next = NULL;
 }
 
 bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_request_t *request) {
@@ -187,6 +189,7 @@ bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_re
   switch (final_params->action) {
     case STB_HANDSHAKE:
     case STB_GET_PROFILE:
+    case STB_DO_AUTH:
       sc_stb_defaults(final_params);
       sc_stb_prep_request(params, request);
       break;
@@ -198,36 +201,40 @@ bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_re
       sc_itv_defaults(final_params);
       sc_itv_prep_request(params, request);
       break;
+    case WATCHDOG_GET_EVENTS:
+      sc_watchdog_defaults(final_params);
+      sc_watchdog_prep_request(params, request);
+      break;
   }
 
   sc_request_set_missing_required(params, final_params);
   sc_request_remove_default_non_required(final_params, params);
 
   sc_request_build_headers(identity, request, final_params->action);
-  sc_request_build_query(final_params, request);
+  sc_request_build_query_params(final_params, request);
 
   return true;
 }
 
-void sc_request_free_header(sc_request_header_t *header) {
+void sc_request_free_nameVal(sc_request_nameVal_t *header) {
   free(header->value);
   free(header);
   header = NULL;
 }
 
-void sc_request_free_headers(sc_request_header_t *header) {
+void sc_request_free_nameVals(sc_request_nameVal_t *header) {
   while (header) {
-    sc_request_header_t *next;
+    sc_request_nameVal_t *next;
     next = header->next;
 
-    sc_request_free_header(header);
+    sc_request_free_nameVal(header);
 
     header = next;
   }
 }
 
 void sc_request_free(sc_request_t *request) {
-  sc_request_free_headers(request->headers);
+  sc_request_free_nameVals(request->headers);
   free(request);
   request = NULL;
 }

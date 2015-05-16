@@ -28,25 +28,46 @@
 
 #include "SData.h"
 
+#define GET_SETTING_STR(name, tmp, store, def) \
+  if (!XBMC->GetSetting(name, tmp)) \
+    store = def; \
+  else \
+    store = tmp;
+
+#define GET_SETTING_INT(name, store, def) \
+  if (!XBMC->GetSetting(name, &store)) \
+    store = def;
+
 using namespace ADDON;
 
 ADDON_STATUS  m_CurStatus = ADDON_STATUS_UNKNOWN;
 SData         *m_data     = NULL;
 
-std::string g_strUserPath   = "";
-std::string g_strClientPath = "";
+std::string g_strUserPath     = "";
+std::string g_strClientPath   = "";
+std::string g_strApiBasePath  = "";
+std::string g_strApiEndpoint  = "";
+std::string g_strReferer      = "";
+std::string g_strToken        = "";
 
 /* User adjustable settings are saved here.
 * Default values are defined inside client.h
 * and exported to the other source files.
 */
-std::string g_strMac          = "";
-std::string g_strServer       = "";
-std::string g_strTimeZone     = "";
-std::string g_strApiBasePath  = "";
-std::string g_api_endpoint    = "";
-std::string g_referer         = "";
-std::string g_token           = "";
+std::string g_strMac;
+std::string g_strServer;
+std::string g_strTimeZone;
+std::string g_strLogin;
+std::string g_strPassword;
+int         g_iConnectionTimeout;
+int         g_iGuidePreference;
+int         g_iXmltvScope;
+std::string g_strXmltvUrl;
+std::string g_strXmltvPath;
+std::string g_strSerialNumber;
+std::string g_strDeviceId;
+std::string g_strDeviceId2;
+std::string g_strSignature;
 
 CHelper_libXBMC_addon *XBMC = NULL;
 CHelper_libXBMC_pvr   *PVR  = NULL;
@@ -113,6 +134,20 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   else {
     g_strTimeZone = buffer;
   }
+  
+  GET_SETTING_STR("login", buffer, g_strLogin, DEFAULT_LOGIN);
+  GET_SETTING_STR("password", buffer, g_strPassword, DEFAULT_PASSWORD);
+  GET_SETTING_INT("connection_timeout", g_iConnectionTimeout, DEFAULT_CONNECTION_TIMEOUT);
+  GET_SETTING_INT("guide_preference", g_iGuidePreference, DEFAULT_GUIDE_PREFERENCE);
+  GET_SETTING_INT("xmltv_scope", g_iXmltvScope, DEFAULT_XMLTV_SCOPE);
+  GET_SETTING_STR("xmltv_url", buffer, g_strXmltvUrl, DEFAULT_XMLTV_URL);
+  GET_SETTING_STR("xmltv_path", buffer, g_strXmltvPath, DEFAULT_XMLTV_PATH);
+  GET_SETTING_STR("serial_number", buffer, g_strSerialNumber, DEFAULT_SERIAL_NUMBER);
+  GET_SETTING_STR("device_id", buffer, g_strDeviceId, DEFAULT_DEVICE_ID);
+  GET_SETTING_STR("device_id2", buffer, g_strDeviceId2, DEFAULT_DEVICE_ID2);
+  GET_SETTING_STR("signature", buffer, g_strSignature, DEFAULT_SIGNATURE);
+  
+  XBMC->Log(LOG_DEBUG, "connection_timeout=%d", g_iConnectionTimeout);
 
   if (!m_data->LoadData()) {
     XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
@@ -287,7 +322,7 @@ const char* GetLiveStreamURL(const PVR_CHANNEL& channel)
   if (m_data)
     url = m_data->GetChannelStreamURL(channel);
 
-  if (strcmp(url, "") == 0)
+  if (strlen(url) == 0)
     XBMC->QueueNotification(QUEUE_ERROR, "Failed to get stream URL.");
 
   return url;

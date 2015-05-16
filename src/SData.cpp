@@ -23,31 +23,42 @@
 #include "SData.h"
 
 #include <cmath>
-#include <map>
-#include <iterator>
 
 #include "tinyxml.h"
 #include "platform/os.h"
+#include "kodi/util/util.h"
 
+#include "libstalkerclient/itv.h"
+#include "libstalkerclient/util.h"
 #include "SAPI.h"
+#include "Utils.h"
 
 using namespace ADDON;
 
 SData::SData(void)
 {
-  m_bInitedApi        = false;
-  m_bDidHandshake   = false;
-  m_bLoadedProfile  = false;
-  m_bInitialized    = false;
+  m_bInitedApi            = false;
+  m_bDidHandshake         = false;
+  m_bLoadedProfile        = false;
+  m_bInitialized          = false;
+  m_bGetEpgInfoAttempted  = false;
+  m_watchdog              = NULL;
+  m_xmltv                 = new XMLTV;
 }
 
 SData::~SData(void)
 {
+  if (m_watchdog && !m_watchdog->StopThread())
+    XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to stop Watchdog");
+  
   m_channelGroups.clear();
   m_channels.clear();
+  
+  SAFE_DELETE(m_watchdog);
+  SAFE_DELETE(m_xmltv);
 }
 
-std::string SData::GetFilePath(std::string strPath, bool bUserPath) const
+std::string SData::GetFilePath(std::string strPath, bool bUserPath)
 {
   return (bUserPath ? g_strUserPath : g_strClientPath) + PATH_SEPARATOR_CHAR + strPath;
 }
@@ -93,10 +104,10 @@ bool SData::LoadCache()
     XBMC->Log(LOG_DEBUG, "\"token\" element not found");
   }
   else if (pTokenElement->GetText()) {
-    g_token = pTokenElement->GetText();
+    g_strToken = pTokenElement->GetText();
   }
 
-  XBMC->Log(LOG_DEBUG, "token: %s", g_token.c_str());
+  XBMC->Log(LOG_DEBUG, "token: %s", g_strToken.c_str());
 
   return true;
 }
@@ -123,7 +134,7 @@ bool SData::SaveCache()
 
   pTokenElement = pRootElement->FirstChildElement("token");
   pTokenElement->Clear();
-  pTokenElement->LinkEndChild(new TiXmlText(g_token));
+  pTokenElement->LinkEndChild(new TiXmlText(g_strToken));
 
   strCacheFile = GetFilePath("cache.xml");
   if (!xml_doc.SaveFile(strCacheFile)) {
@@ -132,28 +143,6 @@ bool SData::SaveCache()
   }
 
   return true;
-}
-
-int SData::GetIntValue(Json::Value &value)
-{
-  const char *tempChar = NULL;
-  int tempInt = -1;
-
-  // some json responses have have ints formated as strings
-  if (value.isString()) {
-    tempChar = value.asCString();
-    tempInt = atoi(tempChar);
-  }
-  else if (value.isInt()) {
-    tempInt = value.asInt();
-  }
-
-  return tempInt;
-}
-
-bool SData::GetIntValueAsBool(Json::Value &value)
-{
-  return GetIntValue(value) > 0 ? true : false;
 }
 
 bool SData::InitAPI()
@@ -167,11 +156,16 @@ bool SData::InitAPI()
     return false;
   }
 
-  memset(&m_identity, 0, sizeof(m_identity));
-  m_identity.mac = g_strMac.c_str();
-  m_identity.lang = "en";
-  m_identity.time_zone = g_strTimeZone.c_str();
-  m_identity.auth_token = g_token.c_str();
+  sc_identity_defaults(&m_identity);
+  SC_STR_SET(m_identity.mac, g_strMac.c_str());
+  SC_STR_SET(m_identity.time_zone, g_strTimeZone.c_str());
+  SC_STR_SET(m_identity.token, g_strToken.c_str());
+  SC_STR_SET(m_identity.login, g_strLogin.c_str());
+  SC_STR_SET(m_identity.password, g_strPassword.c_str());
+  SC_STR_SET(m_identity.serial_number, g_strSerialNumber.c_str());
+  SC_STR_SET(m_identity.device_id, g_strDeviceId.c_str());
+  SC_STR_SET(m_identity.device_id2, g_strDeviceId2.c_str());
+  SC_STR_SET(m_identity.signature, g_strSignature.c_str());
 
   m_bInitedApi = true;
 
@@ -186,26 +180,45 @@ bool SData::DoHandshake()
 
   m_bDidHandshake = false;
 
-  if (!SAPI::Handshake(&m_identity, &parsed)) {
+  if (!SAPI::Handshake(m_identity, parsed)) {
     XBMC->Log(LOG_ERROR, "%s: Handshake failed", __FUNCTION__);
     return false;
   }
   
-  if (parsed["js"].isMember("token"))
-    m_identity.auth_token = parsed["js"]["token"].asCString();
+  if (parsed["js"].isMember("token")) {
+    g_strToken = parsed["js"]["token"].asString();
+    SC_STR_SET(m_identity.token, g_strToken.c_str());
+  }
 
-  XBMC->Log(LOG_DEBUG, "auth_token: %s", m_identity.auth_token);
+  XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
   
-  m_bAuthTokenNotValid = parsed["js"].isMember("not_valid")
-    ? GetIntValueAsBool(parsed["js"]["not_valid"])
-    : 0;
+  if (parsed["js"].isMember("not_valid"))
+    m_identity.valid_token = !Utils::GetIntFromJsonValue(parsed["js"]["not_valid"]);
 
   m_bDidHandshake = true;
 
   return true;
 }
 
-bool SData::LoadProfile()
+bool SData::DoAuth()
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  Json::Value parsed;
+  bool result(false);
+  
+  if (!SAPI::DoAuth(m_identity, parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: DoAuth failed", __FUNCTION__);
+    return false;
+  }
+  
+  if (parsed.isMember("js"))
+    result = parsed["js"].asBool();
+
+  return result;
+}
+
+bool SData::LoadProfile(bool bAuthSecondStep)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
@@ -213,44 +226,53 @@ bool SData::LoadProfile()
 
   m_bLoadedProfile = false;
 
-  if (!SAPI::GetProfile(&m_identity, m_bAuthTokenNotValid, &parsed)) {
+  if (!SAPI::GetProfile(m_identity, bAuthSecondStep, parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetProfile failed", __FUNCTION__);
     return false;
   }
   
-  m_profile.store_auth_data_on_stb = parsed["js"].isMember("store_auth_data_on_stb")
-    ? GetIntValueAsBool(parsed["js"]["store_auth_data_on_stb"])
-    : false;
-  m_profile.status = parsed["js"].isMember("status")
-    ? GetIntValue(parsed["js"]["status"])
-    : -1;
+  sc_stb_profile_defaults(&m_profile);
   
-  m_profile.block_msg = parsed["js"].isMember("msg")
-    ? (char *)parsed["js"]["msg"].asCString()
-    : "";
+  if (parsed["js"].isMember("store_auth_data_on_stb"))
+    m_profile.store_auth_data_on_stb = !!Utils::GetIntFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
   
-  m_profile.block_msg = parsed["js"].isMember("block_msg")
-    ? (char *)parsed["js"]["block_msg"].asCString()
-    : "";
+  if (parsed["js"].isMember("status"))
+    m_profile.status = Utils::GetIntFromJsonValue(parsed["js"]["status"]);
+  
+  if (parsed["js"].isMember("msg"))
+    SC_STR_SET(m_profile.msg, parsed["js"]["msg"].asCString());
+  
+  if (parsed["js"].isMember("block_msg"))
+    SC_STR_SET(m_profile.block_msg, parsed["js"]["block_msg"].asCString());
+  
+  if (parsed["js"].isMember("watchdog_timeout"))
+    m_profile.watchdog_timeout = Utils::GetIntFromJsonValue(parsed["js"]["watchdog_timeout"]);
+  
+  if (parsed["js"].isMember("timeslot"))
+    m_profile.timeslot = Utils::GetDoubleFromJsonValue(parsed["js"]["timeslot"]);
+
+  XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __FUNCTION__, m_profile.timeslot);
   
   if (m_profile.store_auth_data_on_stb && !SaveCache())
     return false;
   
   switch (m_profile.status) {
     case 0:
+      m_bLoadedProfile = true;
       break;
     case 2:
-      //TODO auth
+      if (!DoAuth()) {
+        XBMC->QueueNotification(QUEUE_ERROR, "Authentication failed.");
+        return false;
+      }
+      
+      return LoadProfile(true);
     case 1:
     default:
       XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s",
-              __FUNCTION__, m_profile.status,
-              (const char *)m_profile.msg,
-              (const char *)m_profile.block_msg);
+        __FUNCTION__, m_profile.status, m_profile.msg, m_profile.block_msg);
       return false;
   }
-
-  m_bLoadedProfile = true;
 
   return true;
 }
@@ -261,33 +283,37 @@ bool SData::Initialize()
 
   m_bInitialized = false;
 
-  if (!m_bInitedApi && !InitAPI()) {
+  if (!m_bInitedApi && !InitAPI())
     return m_bInitialized;
-  }
 
-  if (!m_bDidHandshake && !DoHandshake()) {
+  if (!m_bDidHandshake && !DoHandshake())
     return m_bInitialized;
-  }
 
-  if (!m_bLoadedProfile && !LoadProfile()) {
+  if (!m_bLoadedProfile && !LoadProfile())
     return m_bInitialized;
-  }
-
+  
+  if (!m_watchdog)
+    m_watchdog = new CWatchdog((int)m_profile.timeslot, m_identity);
+    
+  if (m_watchdog && !m_watchdog->IsRunning() && !m_watchdog->CreateThread())
+    XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to start Watchdog");
+  
   m_bInitialized = true;
 
   return m_bInitialized;
 }
 
-bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle)
+int SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   time_t iStartTimestamp;
   time_t iStopTimestamp;
+  int iEntriesTransfered(0);
 
   for (Json::Value::iterator it = parsed.begin(); it != parsed.end(); ++it) {
-    iStartTimestamp = GetIntValue((*it)["start_timestamp"]);
-    iStopTimestamp = GetIntValue((*it)["stop_timestamp"]);
+    iStartTimestamp = Utils::GetIntFromJsonValue((*it)["start_timestamp"]);
+    iStopTimestamp = Utils::GetIntFromJsonValue((*it)["stop_timestamp"]);
 
     if (!(iStartTimestamp > iStart && iStopTimestamp < iEnd)) {
       continue;
@@ -296,7 +322,7 @@ bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChann
     EPG_TAG tag;
     memset(&tag, 0, sizeof(EPG_TAG));
 
-    tag.iUniqueBroadcastId = GetIntValue((*it)["id"]);
+    tag.iUniqueBroadcastId = Utils::GetIntFromJsonValue((*it)["id"]);
     tag.strTitle = (*it)["name"].asCString();
     tag.iChannelNumber = iChannelNumber;
     tag.startTime = iStartTimestamp;
@@ -304,38 +330,42 @@ bool SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChann
     tag.strPlot = (*it)["descr"].asCString();
 
     PVR->TransferEpgEntry(handle, &tag);
+    iEntriesTransfered++;
   }
-
-  return true;
+  
+  return iEntriesTransfered;
 }
 
-bool SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
   
   std::string strChanNum;
   Channel *chan = NULL;
+  int iEntriesTransfered(0);
   
-  std::ostringstream oss;
-  oss << iChannelNumber;
-  strChanNum = oss.str();
+  strChanNum = Utils::ToString(iChannelNumber);
   
   chan = m_xmltv->GetChannelById(strChanNum);
   if (!chan)
     chan = m_xmltv->GetChannelByDisplayName(strChannelName);
   
   if (!chan) {
-    XBMC->Log(LOG_ERROR, "%s: channel \"%s\" not found", __FUNCTION__, strChanNum.c_str());
-    return true; // don't fail
+    XBMC->Log(LOG_DEBUG, "%s: channel \"%s\" not found", __FUNCTION__, strChanNum.c_str());
+    return iEntriesTransfered;
   }
   
   for (std::vector<Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
-    if (!(it->start > iStart && it->stop < iEnd)) {
+    if (!(it->start > iStart && it->stop < iEnd))
       continue;
-    }
 
     EPG_TAG tag;
     memset(&tag, 0, sizeof(EPG_TAG));
+    
+    std::vector<Credit> cast;
+    cast = XMLTV::FilterCredits(it->credits, ACTOR);
+    Utils::ConcatenateVectors(cast, XMLTV::FilterCredits(it->credits, GUEST));
+    Utils::ConcatenateVectors(cast, XMLTV::FilterCredits(it->credits, PRESENTER));
 
     tag.iUniqueBroadcastId = it->iBroadcastId;
     tag.strTitle = it->strTitle.c_str();
@@ -343,52 +373,24 @@ bool SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_
     tag.startTime = it->start;
     tag.endTime = it->stop;
     tag.strPlot = it->strDesc.c_str();
-    
-    std::string strYear = it->strDate.substr(0, 4); // only need the year;
-    //TODO move to utils
-    int value = 0;
-    try {
-      std::istringstream iss(strYear);
-      iss >> value;
-    }
-    catch (...) {
-      
-    }
-    tag.iYear = value;
-    
+    tag.strCast = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(cast)).c_str();
+    tag.strDirector = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(it->credits, DIRECTOR)).c_str();
+    tag.strWriter = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(it->credits, WRITER)).c_str();
+    tag.iYear = Utils::StringToInt(it->strDate.substr(0, 4)); // year only
+    tag.strIconPath = it->strIcon.c_str();
     tag.iGenreType = m_xmltv->EPGGenreByCategory(it->categories);
-    if (tag.iGenreType == EPG_GENRE_USE_STRING) {
-      //TODO move to utils
-      std::ostringstream oss;
-      if (!it->categories.empty()) {
-        std::copy(it->categories.begin(), it->categories.end() - 1, 
-          std::ostream_iterator<std::string>(oss, ", "));
-        oss << it->categories.back();
-      }
-      tag.strGenreDescription = oss.str().c_str();
-    }
-    
+    if (tag.iGenreType == EPG_GENRE_USE_STRING)
+      tag.strGenreDescription = Utils::ConcatenateStringList(it->categories).c_str();
     tag.firstAired = it->previouslyShown;
-    
-    std::string strStarRating = it->strStarRating.substr(0, 1);
-    //TODO move to utils
-    value = 0;
-    try {
-      std::istringstream iss(strStarRating);
-      iss >> value;
-    }
-    catch (...) {
-      
-    }
-    tag.iStarRating = value;
-    
+    tag.iStarRating = Utils::StringToInt(it->strStarRating.substr(0, 1)); // numerator only
     tag.iEpisodeNumber = it->iEpisodeNumber;
     tag.strEpisodeName = it->strSubTitle.c_str();
     
     PVR->TransferEpgEntry(handle, &tag);
+    iEntriesTransfered++;
   }
   
-  return true;
+  return iEntriesTransfered;
 }
 
 bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
@@ -396,26 +398,62 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   uint32_t iPeriod;
-  char strChannelId[25];
+  Scope scope;
+  std::string xmltvPath;
+  std::string strChannelId;
+  int iEntriesTransfered(0);
 
   iPeriod = (iEnd - iStart) / 3600;
+  
+  if (g_iXmltvScope == REMOTE_URL) {
+    scope = REMOTE;
+    xmltvPath = g_strXmltvUrl;
+  } else {
+    scope = LOCAL;
+    xmltvPath = g_strXmltvPath;
+  }
 
-  if (m_epgData.empty() && !SAPI::GetEPGInfo(iPeriod, &m_identity, &m_epgData)) {
-    XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
-    return false;
+  if ((g_iGuidePreference != XMLTV_ONLY)
+    && !m_bGetEpgInfoAttempted)
+  {
+    m_bGetEpgInfoAttempted = true;
+    
+    if (!SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData))
+      XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
   }
   
-  if (m_xmltv && !m_xmltv->bLoaded && !m_xmltv->Parse(GetFilePath("xmltv.xml"))) {
+  if ((g_iGuidePreference != PROVIDER_ONLY) && !xmltvPath.empty()
+    && m_xmltv && !m_xmltv->bParseAttempted && !m_xmltv->Parse(scope, xmltvPath))
+  {
     XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
-    return false;
   }
-
-  sprintf(strChannelId, "%d", channel.iChannelId);
-
-  if (!ParseEPG(m_epgData["js"]["data"][strChannelId], iStart, iEnd, channel.iChannelNumber, handle) ||
-    !ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle)) {
-    XBMC->Log(LOG_ERROR, "%s: ParseEPG failed", __FUNCTION__);
-    return false;
+  
+  strChannelId = Utils::ToString(channel.iChannelId);
+  
+  switch (g_iGuidePreference) {
+    case PREFER_PROVIDER:
+    case PROVIDER_ONLY:
+      if (!m_epgData.empty())
+        iEntriesTransfered = ParseEPG(m_epgData["js"]["data"][strChannelId.c_str()], iStart, iEnd, channel.iChannelNumber, handle);
+      
+      if (g_iGuidePreference == PROVIDER_ONLY)
+        break;
+      
+      if (iEntriesTransfered == 0)
+        ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
+      
+      break;
+    case PREFER_XMLTV:
+    case XMLTV_ONLY:
+      iEntriesTransfered = ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
+      
+      if (g_iGuidePreference == XMLTV_ONLY)
+        break;
+      
+      if (!m_epgData.empty() && iEntriesTransfered == 0)
+        ParseEPG(m_epgData["js"]["data"][strChannelId.c_str()], iStart, iEnd, channel.iChannelNumber, handle);
+      
+      break;
   }
 
   return true;
@@ -436,7 +474,8 @@ bool SData::ParseChannelGroups(Json::Value &parsed)
 
       m_channelGroups.push_back(channelGroup);
 
-      XBMC->Log(LOG_DEBUG, "%s: %s - %s", __FUNCTION__, channelGroup.strId.c_str(), channelGroup.strGroupName.c_str());
+      XBMC->Log(LOG_DEBUG, "%s: %s - %s",
+        __FUNCTION__, channelGroup.strId.c_str(), channelGroup.strGroupName.c_str());
     }
   }
   catch (...) {
@@ -450,14 +489,13 @@ bool SData::LoadChannelGroups()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (!m_bInitialized && !Initialize()) {
+  if (!m_bInitialized && !Initialize())
     return false;
-  }
 
   Json::Value parsed;
 
   // genres are channel groups
-  if (!SAPI::GetGenres(&m_identity, &parsed) || !ParseChannelGroups(parsed)) {
+  if (!SAPI::GetGenres(m_identity, parsed) || !ParseChannelGroups(parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetGenres|ParseChannelGroups failed", __FUNCTION__);
     return false;
   }
@@ -483,39 +521,35 @@ bool SData::ParseChannels(Json::Value &parsed)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  Json::Value tempValue;
-  const char *strTemp = NULL;
+  try {
+    for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
+      SChannel channel;
+      channel.iUniqueId = GetChannelId((*it)["name"].asCString(), (*it)["number"].asCString());
+      channel.bRadio = false;
+      channel.iChannelNumber = Utils::StringToInt((*it)["number"].asString());
+      channel.strChannelName = (*it)["name"].asString();
 
-  for (Json::Value::iterator it = parsed["js"]["data"].begin(); it != parsed["js"]["data"].end(); ++it) {
-    SChannel channel;
-    //channel.iUniqueId = GetIntValue((*it)["id"]);
-    channel.iUniqueId = GetChannelId((*it)["name"].asCString(), (*it)["number"].asCString());
+      // "pvr://stream/" causes GetLiveStreamURL to be called
+      channel.strStreamURL = "pvr://stream/" + Utils::ToString(channel.iUniqueId);
 
-    channel.bRadio = false;
+      std::string strLogo = (*it)["logo"].asString();
+      channel.strIconPath = strLogo.length() == 0 ? "" : std::string(g_strApiBasePath + SC_ITV_LOGO_PATH_320 + strLogo);
 
-    strTemp = (*it)["number"].asCString();
-    channel.iChannelNumber = atoi(strTemp);
+      channel.iChannelId = Utils::GetIntFromJsonValue((*it)["id"]);
+      channel.strCmd = (*it)["cmd"].asString();
+      channel.strTvGenreId = (*it)["tv_genre_id"].asString();
+      channel.bUseHttpTmpLink = !!Utils::GetIntFromJsonValue((*it)["use_http_tmp_link"]);
+      channel.bUseLoadBalancing = !!Utils::GetIntFromJsonValue((*it)["use_load_balancing"]);
 
-    channel.strChannelName = (*it)["name"].asString();
+      m_channels.push_back(channel);
 
-    char strStreamURL[256];
-    sprintf(strStreamURL, "pvr://stream/%d", channel.iUniqueId); // "pvr://stream/" causes GetLiveStreamURL to be called
-    channel.strStreamURL = strStreamURL;
-
-    strTemp = (*it)["logo"].asCString();
-    channel.strIconPath = strlen(strTemp) == 0 ? "" : std::string(g_strApiBasePath + "misc/logos/120/" + strTemp).c_str();
-
-    channel.iChannelId = GetIntValue((*it)["id"]);
-    channel.strCmd = (*it)["cmd"].asString();
-    channel.strTvGenreId = (*it)["tv_genre_id"].asString();
-    channel.bUseHttpTmpLink = GetIntValueAsBool((*it)["use_http_tmp_link"]);
-    channel.bUseLoadBalancing = GetIntValueAsBool((*it)["use_load_balancing"]);
-    
-    m_channels.push_back(channel);
-
-    XBMC->Log(LOG_DEBUG, "%s: %d - %s", __FUNCTION__, channel.iChannelNumber, channel.strChannelName.c_str());
+      XBMC->Log(LOG_DEBUG, "%s: %d - %s", __FUNCTION__, channel.iChannelNumber, channel.strChannelName.c_str());
+    }
   }
-
+  catch (...) {
+    return false;
+  }
+  
   return true;
 }
 
@@ -523,16 +557,15 @@ bool SData::LoadChannels()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (!m_bInitialized && !Initialize()) {
+  if (!m_bInitialized && !Initialize())
     return false;
-  }
 
   Json::Value parsed;
-  std::string genre = "10";
+  int iGenre = 10;
   uint32_t iCurrentPage = 1;
   uint32_t iMaxPages = 1;
 
-  if (!SAPI::GetAllChannels(&m_identity, &parsed) || !ParseChannels(parsed)) {
+  if (!SAPI::GetAllChannels(m_identity, parsed) || !ParseChannels(parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetAllChannels failed", __FUNCTION__);
     return false;
   }
@@ -540,13 +573,13 @@ bool SData::LoadChannels()
   parsed.clear();
 
   while (iCurrentPage <= iMaxPages) {
-    if (!SAPI::GetOrderedList(genre, iCurrentPage, &m_identity, &parsed) || !ParseChannels(parsed)) {
+    if (!SAPI::GetOrderedList(iGenre, iCurrentPage, m_identity, parsed) || !ParseChannels(parsed)) {
       XBMC->Log(LOG_ERROR, "%s: GetOrderedList failed", __FUNCTION__);
       return false;
     }
 
-    int iTotalItems = GetIntValue(parsed["js"]["total_items"]);
-    int iMaxPageItems = GetIntValue(parsed["js"]["max_page_items"]);
+    int iTotalItems = Utils::GetIntFromJsonValue(parsed["js"]["total_items"]);
+    int iMaxPageItems = Utils::GetIntFromJsonValue(parsed["js"]["max_page_items"]);
     iMaxPages = static_cast<uint32_t>(ceil((double)iTotalItems / iMaxPageItems));
 
     iCurrentPage++;
@@ -562,13 +595,8 @@ bool SData::LoadData(void)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (!LoadCache()) {
+  if (!LoadCache())
     return false;
-  }
-
-  if (!g_token.empty()) {
-    m_bDidHandshake = true;
-  }
 
   return true;
 }
@@ -622,9 +650,8 @@ PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 
   for (std::vector<SChannelGroup>::iterator group = m_channelGroups.begin(); group != m_channelGroups.end(); ++group) {
     // exclude group id '*' (all)
-    if (group->strId.compare("*") == 0) {
+    if (group->strId.compare("*") == 0)
       continue;
-    }
 
     PVR_CHANNEL_GROUP tag;
     memset(&tag, 0, sizeof(tag));
@@ -657,16 +684,17 @@ PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_G
   }
 
   for (std::vector<SChannel>::iterator channel = m_channels.begin(); channel != m_channels.end(); ++channel) {
-    if (channel->strTvGenreId.compare(channelGroup->strId) == 0) {
-      PVR_CHANNEL_GROUP_MEMBER tag;
-      memset(&tag, 0, sizeof(tag));
+    if (channel->strTvGenreId.compare(channelGroup->strId) != 0)
+      continue;
+    
+    PVR_CHANNEL_GROUP_MEMBER tag;
+    memset(&tag, 0, sizeof(tag));
 
-      strncpy(tag.strGroupName, channelGroup->strGroupName.c_str(), sizeof(tag.strGroupName) - 1);
-      tag.iChannelUniqueId = channel->iUniqueId;
-      tag.iChannelNumber = channel->iChannelNumber;
+    strncpy(tag.strGroupName, channelGroup->strGroupName.c_str(), sizeof(tag.strGroupName) - 1);
+    tag.iChannelUniqueId = channel->iUniqueId;
+    tag.iChannelNumber = channel->iChannelNumber;
 
-      PVR->TransferChannelGroupMember(handle, &tag);
-    }
+    PVR->TransferChannelGroupMember(handle, &tag);
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -681,9 +709,8 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (bRadio) {
+  if (bRadio)
     return PVR_ERROR_NO_ERROR;
-  }
 
   if (!LoadChannels()) {
     XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");
@@ -719,9 +746,8 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++) {
     thisChannel = &m_channels.at(iChannelPtr);
 
-    if (thisChannel->iUniqueId == (int)channel.iUniqueId) {
+    if (thisChannel->iUniqueId == (int)channel.iUniqueId)
       break;
-    }
   }
 
   if (!thisChannel) {
@@ -737,14 +763,13 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
     Json::Value parsed;
 
-    if (!SAPI::CreateLink(thisChannel->strCmd, &m_identity, &parsed)) {
+    if (!SAPI::CreateLink(thisChannel->strCmd, m_identity, parsed)) {
       XBMC->Log(LOG_ERROR, "%s: CreateLink failed", __FUNCTION__);
       return "";
     }
 
-    if (parsed["js"].isMember("cmd")) {
+    if (parsed["js"].isMember("cmd"))
       strCmd = parsed["js"]["cmd"].asString();
-    }
   }
   else {
     strCmd = thisChannel->strCmd;
@@ -752,19 +777,21 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
   // cmd format
   // (?:ffrt\d*\s|)(.*)
-  if ((pos = strCmd.find(" ")) != std::string::npos) {
+  if ((pos = strCmd.find(" ")) != std::string::npos)
     m_PlaybackURL = strCmd.substr(pos + 1);
-  }
-  else {
-    if (strCmd.find("http") == 0) {
-      m_PlaybackURL = strCmd;
-    }
-  }
+  else
+    m_PlaybackURL = strCmd;
 
   if (m_PlaybackURL.empty()) {
     XBMC->Log(LOG_ERROR, "%s: no stream url found", __FUNCTION__);
     return "";
   }
+  
+  // some protocols don't strip the protocol options. \
+  some servers handle it, others don't.
+  //TODO other protocols may need to be excluded.
+  if (m_PlaybackURL.find("rtmp://") == std::string::npos)
+    m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
 
   XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
 

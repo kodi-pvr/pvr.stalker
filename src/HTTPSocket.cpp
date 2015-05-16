@@ -25,20 +25,22 @@
 #include "kodi/util/StringUtils.h"
 
 #include "client.h"
+#include "Utils.h"
 
 #define TEMP_BUFFER_SIZE 1024
 
 using namespace ADDON;
 using namespace PLATFORM;
 
-HTTPSocket::HTTPSocket()
+HTTPSocket::HTTPSocket(int iTimeout)
+  : m_iTimeout(iTimeout)
 {
   UrlOption option;
 
   option = { "User-Agent", "Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3" };
   m_defaultOptions.push_back(option);
 
-  option = { "Connection-Timeout", "5" };
+  option = { "Connection-Timeout", Utils::ToString(m_iTimeout) };
   m_defaultOptions.push_back(option);
 }
 
@@ -47,14 +49,14 @@ HTTPSocket::~HTTPSocket()
   m_defaultOptions.clear();
 }
 
-void HTTPSocket::SetDefaults(Request *request)
+void HTTPSocket::SetDefaults(Request &request)
 {
   bool found;
   
   for (std::vector<UrlOption>::iterator option = m_defaultOptions.begin(); option != m_defaultOptions.end(); ++option) {
     found = false;
 
-    for (std::vector<UrlOption>::iterator it = request->options.begin(); it != request->options.end(); ++it) {
+    for (std::vector<UrlOption>::iterator it = request.options.begin(); it != request.options.end(); ++it) {
       std::string oname = option->name; StringUtils::ToLower(oname);
       std::string iname = it->name; StringUtils::ToLower(iname);
       
@@ -63,37 +65,45 @@ void HTTPSocket::SetDefaults(Request *request)
     }
 
     if (!found)
-      request->AddHeader(option->name, option->value);
+      request.AddHeader(option->name, option->value);
   }
 }
 
-void HTTPSocket::BuildRequestUrl(Request *request, std::string *strRequestUrl)
+void HTTPSocket::BuildRequestUrl(Request &request, std::string &strRequestUrl)
 {
   char buffer[TEMP_BUFFER_SIZE];
   
+  strRequestUrl += request.url;
+  
+  if (request.scope == LOCAL)
+    return;
+  
   SetDefaults(request);
   
-  strRequestUrl->append(request->url + "|");
+  if (request.options.empty())
+    return;
   
-  for (std::vector<UrlOption>::iterator it = request->options.begin(); it != request->options.end(); ++it) {
-    sprintf(buffer, "%s=%s", it->name.c_str(), it->value.c_str());
-    strRequestUrl->append(buffer);
-    
-    if (it + 1 != request->options.end())
-      strRequestUrl->append("&");
+  strRequestUrl += "|";
+
+  for (std::vector<UrlOption>::iterator it = request.options.begin(); it != request.options.end(); ++it) {
+    sprintf(buffer, "%s=%s", it->name.c_str(), Utils::UrlEncode(it->value).c_str());
+    strRequestUrl += buffer;
+
+    if (it + 1 != request.options.end())
+      strRequestUrl += "&";
   }
 }
 
-bool HTTPSocket::Get(std::string *strRequestUrl, std::string *strResponse)
+bool HTTPSocket::Get(std::string &strRequestUrl, std::string &strResponse)
 {
   void *hdl;
   char buffer[1024];
   
-  hdl = XBMC->OpenFile(strRequestUrl->c_str(), 0);
+  hdl = XBMC->OpenFile(strRequestUrl.c_str(), 0);
   if (hdl) {
     memset(buffer, 0, sizeof(buffer));
     while (XBMC->ReadFileString(hdl, buffer, sizeof(buffer) - 1)) {
-      strResponse->append(buffer);
+      strResponse += buffer;
       memset(buffer, 0, sizeof(buffer));
     }
     
@@ -103,16 +113,16 @@ bool HTTPSocket::Get(std::string *strRequestUrl, std::string *strResponse)
   return true;
 }
 
-bool HTTPSocket::Execute(Request *request, Response *response)
+bool HTTPSocket::Execute(Request &request, Response &response)
 {
   std::string strRequestUrl;
   bool result;
 
-  BuildRequestUrl(request, &strRequestUrl);
+  BuildRequestUrl(request, strRequestUrl);
   
-  switch (request->method) {
+  switch (request.method) {
     case GET:
-      result = Get(&strRequestUrl, &response->body);
+      result = Get(strRequestUrl, response.body);
       break;
     //case POST: //TODO
   }
@@ -122,13 +132,13 @@ bool HTTPSocket::Execute(Request *request, Response *response)
     return false;
   }
   
-  XBMC->Log(LOG_DEBUG, "%s", response->body.substr(0, 512).c_str()); // 512 is max
+  XBMC->Log(LOG_DEBUG, "%s", response.body.substr(0, 512).c_str()); // 512 is max
   
   return true;
 }
 
-HTTPSocketRaw::HTTPSocketRaw()
-  : HTTPSocket()
+HTTPSocketRaw::HTTPSocketRaw(int iTimeout)
+  : HTTPSocket(iTimeout)
 {
 }
 
@@ -136,7 +146,7 @@ HTTPSocketRaw::~HTTPSocketRaw()
 {
 }
 
-void HTTPSocketRaw::BuildRequestString(Request *request, std::string *strRequest)
+void HTTPSocketRaw::BuildRequestString(Request &request, std::string &strRequest)
 {
   std::string strMethod;
   std::string strUri;
@@ -148,10 +158,10 @@ void HTTPSocketRaw::BuildRequestString(Request *request, std::string *strRequest
   // defaults
   strMethod = "GET";
   strUri = "/";
-  m_host = request->url;
+  m_host = request.url;
   m_port = 80;
   
-  switch (request->method) {
+  switch (request.method) {
     case GET:
       strMethod = "GET";
       break;
@@ -173,22 +183,22 @@ void HTTPSocketRaw::BuildRequestString(Request *request, std::string *strRequest
   }
 
   sprintf(buffer, "%s %s HTTP/1.0\r\n", strMethod.c_str(), strUri.c_str());
-  strRequest->append(buffer);
+  strRequest += buffer;
 
   sprintf(buffer, "Host: %s:%d\r\n", m_host.c_str(), m_port);
-  strRequest->append(buffer);
+  strRequest += buffer;
 
   sprintf(buffer, "Accept: %s\r\n", "*/*");
-  strRequest->append(buffer);
+  strRequest += buffer;
 
-  for (std::vector<UrlOption>::iterator it = request->options.begin(); it != request->options.end(); ++it) {
+  for (std::vector<UrlOption>::iterator it = request.options.begin(); it != request.options.end(); ++it) {
     sprintf(buffer, "%s: %s\r\n", it->name.c_str(), it->value.c_str());
-    strRequest->append(buffer);
+    strRequest += buffer;
   }
 
-  strRequest->append("\r\n\r\n");
+  strRequest += "\r\n\r\n";
 
-  strRequest->append(request->body);
+  strRequest += request.body;
 }
 
 bool HTTPSocketRaw::Open()
@@ -197,7 +207,7 @@ bool HTTPSocketRaw::Open()
   uint64_t iTarget;
 
   iNow = GetTimeMs();
-  iTarget = iNow + 5 * 1000;
+  iTarget = iNow + m_iTimeout * 1000;
 
   m_socket = new CTcpConnection(m_host.c_str(), m_port);
 
@@ -224,7 +234,7 @@ void HTTPSocketRaw::Close()
   }
 }
 
-bool HTTPSocketRaw::Execute(Request *request, Response *response)
+bool HTTPSocketRaw::Execute(Request &request, Response &response)
 {
   std::string strRequest;
   std::string strResponse;
@@ -232,14 +242,14 @@ bool HTTPSocketRaw::Execute(Request *request, Response *response)
   int len;
   size_t pos;
   
-  BuildRequestString(request, &strRequest);
+  BuildRequestString(request, strRequest);
 
   if (!Open()) {
     XBMC->Log(LOG_ERROR, "%s: failed to connect", __FUNCTION__, m_socket->GetError().c_str());
     return false;
   }
 
-  if ((len = m_socket->Write((void*)strRequest.c_str(), strlen(strRequest.c_str()))) < 0) {
+  if ((len = m_socket->Write((void *)strRequest.c_str(), strlen(strRequest.c_str()))) < 0) {
     XBMC->Log(LOG_ERROR, "%s: failed to write request", __FUNCTION__);
     return false;
   }
@@ -257,11 +267,11 @@ bool HTTPSocketRaw::Execute(Request *request, Response *response)
     return false;
   }
 
-  response->headers = strResponse.substr(0, pos);
-  response->body = strResponse.substr(pos + 4);
+  response.headers = strResponse.substr(0, pos);
+  response.body = strResponse.substr(pos + 4);
 
-  XBMC->Log(LOG_DEBUG, "%s", response->headers.c_str());
-  XBMC->Log(LOG_DEBUG, "%s", response->body.substr(0, 512).c_str()); // 512 is max
+  XBMC->Log(LOG_DEBUG, "%s", response.headers.c_str());
+  XBMC->Log(LOG_DEBUG, "%s", response.body.substr(0, 512).c_str()); // 512 is max
 
   return true;
 }

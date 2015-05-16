@@ -23,366 +23,449 @@
 #include "SAPI.h"
 
 #include <algorithm>
+#include <sstream>
  
 #include "platform/os.h"
 
+#include "libstalkerclient/itv.h"
 #include "libstalkerclient/param.h"
 #include "libstalkerclient/stb.h"
-#include "libstalkerclient/itv.h"
 #include "libstalkerclient/util.h"
+#include "libstalkerclient/watchdog.h"
 #include "client.h"
+#include "Utils.h"
 
 using namespace ADDON;
 
-namespace SAPI
+bool SAPI::Init()
 {
-  bool Init()
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-    
-    bool isHttp;
-    Request request;
-    Response response;
-    HTTPSocket *sock = NULL;
-    size_t pos;
-    std::string strRealServer;
-    
-    isHttp = g_strServer.find("http://") == 0;
-    
-    sock = isHttp
-      ? new HTTPSocketRaw
-      : new HTTPSocket;
-    
-    request.url = g_strServer;
-    
-    if (!sock->Execute(&request, &response) || (!isHttp && response.body.empty())) {
-      XBMC->Log(LOG_ERROR, "%s: api init failed", __FUNCTION__);
-      return false;
-    }
-    
-    if (isHttp) {
-      // check for location header
-      if ((pos = response.headers.find("Location: ")) != std::string::npos) {
-        strRealServer = response.headers.substr(pos + 10, response.headers.find("\r\n", pos) - (pos + 10));
-      }
-      else {
-        XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from location header", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-        // convert to lower case
-        std::transform(response.body.begin(), response.body.end(), response.body.begin(), ::tolower);
+  std::string strServer;
+  bool isHttp;
+  Request request;
+  Response response;
+  HTTPSocket *sock = NULL;
+  size_t pos;
+  std::string strRealServer;
 
-        // check for meta refresh tag
-        if ((pos = response.body.find("url=")) != std::string::npos) {
-          strRealServer = g_strServer + "/" + response.body.substr(pos + 4, response.body.find("\"", pos) - (pos + 4));
-        }
-        else {
-          XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from meta refresh tag", __FUNCTION__);
-        }
-      }
-    }
-    
-    if (strRealServer.empty()) {
-      // assume current url is the intended location
-      XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location", __FUNCTION__);
-      strRealServer = g_strServer;
-    }
-    
-    // xpcom.common.js > get_server_params()
-    if ((pos = strRealServer.find_last_of("/")) == std::string::npos || strRealServer.substr(pos - 2, 3).compare("/c/") != 0) {
-      XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
-      return false;
-    }
-    
-    // strip tail from url path and set api endpoint and referer
-    g_strApiBasePath = strRealServer.substr(0, pos - 1);
-    g_api_endpoint = g_strApiBasePath + "server/load.php";
-    g_referer = strRealServer.substr(0, pos + 1);
+  if (g_strServer.find("://") == std::string::npos)
+    strServer = "http://";
+  
+  strServer += g_strServer;
+  isHttp = strServer.find("://") == 0;
 
-    XBMC->Log(LOG_DEBUG, "api endpoint: %s", g_api_endpoint.c_str());
-    XBMC->Log(LOG_DEBUG, "referer: %s", g_referer.c_str());
+  sock = isHttp
+    ? new HTTPSocketRaw(g_iConnectionTimeout)
+    : new HTTPSocket(g_iConnectionTimeout);
 
-    return true;
+  request.url = strServer;
+
+  if (!sock->Execute(request, response) || (!isHttp && response.body.empty())) {
+    XBMC->Log(LOG_ERROR, "%s: api init failed", __FUNCTION__);
+    return false;
   }
 
-  bool StalkerCall(sc_identity_t *identity, sc_param_request_t *params, Response *response, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-    sc_request_t scRequest;
-    sc_request_header_t *scHeader;
-    Request request;
-    HTTPSocket sock;
-    size_t pos;
-    Json::Reader reader;
-
-    memset(&scRequest, 0, sizeof(scRequest));
-    if (!sc_request_build(identity, params, &scRequest)) {
-      XBMC->Log(LOG_ERROR, "sc_request_build failed");
+  if (isHttp) {
+    // check for location header
+    if ((pos = response.headers.find("Location: ")) != std::string::npos) {
+      strRealServer = response.headers.substr(pos + 10, response.headers.find("\r\n", pos) - (pos + 10));
     }
+    else {
+      XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from location header", __FUNCTION__);
 
-    scHeader = scRequest.headers;
-    while (scHeader) {
-      std::string strValue;
+      // convert to lower case
+      std::transform(response.body.begin(), response.body.end(), response.body.begin(), ::tolower);
 
-      strValue = scHeader->value;
-
-      //TODO url encode
-      while ((pos = strValue.find(":")) != std::string::npos) {
-        strValue.replace(pos, 1, "%3A");
-      }
-      while ((pos = strValue.find("/")) != std::string::npos) {
-        strValue.replace(pos, 1, "%2F");
-      }
-
-      request.AddHeader(scHeader->name, strValue);
-
-      scHeader = scHeader->next;
+      // check for meta refresh tag
+      if ((pos = response.body.find("url=")) != std::string::npos)
+        strRealServer = strServer + "/" + response.body.substr(pos + 4, response.body.find("\"", pos) - (pos + 4));
+      else
+        XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from meta refresh tag", __FUNCTION__);
     }
-
-    request.AddHeader("Referer", g_referer);
-    request.AddHeader("X-User-Agent", "Model: MAG250; Link: WiFi");
-
-    //TODO url encode
-    std::string query;
-    query = scRequest.query;
-    while ((pos = query.find(" ")) != std::string::npos) {
-      query.replace(pos, 1, "%20");
-    }
-
-    request.url = g_api_endpoint + "?" + query;
-
-    sc_request_free_headers(scRequest.headers);
-
-    if (!sock.Execute(&request, response)) {
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    if (!reader.parse(response->body, *parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: parsing failed", __FUNCTION__);
-      if (response->body.compare(AUTHORIZATION_FAILED) == 0) {
-        XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
-      }
-      return false;
-    }
-
-    return true;
   }
 
-  bool Handshake(sc_identity_t *identity, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-    sc_param_request_t params;
-    sc_param_t *param;
-    std::string resp_headers;
-    std::string resp_body;
-
-    memset(&params, 0, sizeof(params));
-    params.action = STB_HANDSHAKE;
-
-    if (!sc_stb_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
-      return false;
-    }
-    
-    if (identity->auth_token && strlen(identity->auth_token) > 0
-      && (param = sc_param_get(&params, "token")))
-    {
-      free(param->value.string);
-      param->value.string = sc_util_strcpy((char *)identity->auth_token);
-    }
-
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    sc_param_free_params(params.param);
-
-    return true;
+  if (strRealServer.empty()) {
+    // assume current url is the intended location
+    XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location", __FUNCTION__);
+    strRealServer = strServer;
   }
 
-  bool GetProfile(sc_identity_t *identity, bool bAuthTokenNotValid, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-    sc_param_request_t params;
-    sc_param_t *param;
-    std::string resp_headers;
-    std::string resp_body;
-
-    memset(&params, 0, sizeof(params));
-    params.action = STB_GET_PROFILE;
-
-    if (!sc_stb_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
-      return false;
-    }
-    
-    if ((param = sc_param_get(&params, "not_valid_token")))
-      param->value.boolean = bAuthTokenNotValid;
-
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    sc_param_free_params(params.param);
-
-    return true;
+  // xpcom.common.js > get_server_params()
+  if ((pos = strRealServer.find_last_of("/")) == std::string::npos || strRealServer.substr(pos - 2, 3).compare("/c/") != 0) {
+    XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
+    return false;
   }
 
-  bool GetAllChannels(sc_identity_t *identity, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  // strip tail from url path and set api endpoint and referer
+  g_strApiBasePath = strRealServer.substr(0, pos - 1);
+  g_strApiEndpoint = g_strApiBasePath + "server/load.php";
+  g_strReferer = strRealServer.substr(0, pos + 1);
 
-    sc_param_request_t params;
-    Response response;
+  XBMC->Log(LOG_DEBUG, "api_endpoint=%s", g_strApiEndpoint.c_str());
+  XBMC->Log(LOG_DEBUG, "referer=%s", g_strReferer.c_str());
 
-    memset(&params, 0, sizeof(params));
-    params.action = ITV_GET_ALL_CHANNELS;
+  return true;
+}
 
-    if (!sc_itv_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
-      return false;
-    }
+bool SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
+  sc_request_t scRequest;
+  sc_request_nameVal_t *scNameVal;
+  std::ostringstream oss;
+  Request request;
+  HTTPSocket sock(g_iConnectionTimeout);
+  Json::Reader reader;
 
-    sc_param_free_params(params.param);
+  memset(&scRequest, 0, sizeof(scRequest));
+  if (!sc_request_build(&identity, &params, &scRequest))
+    XBMC->Log(LOG_ERROR, "sc_request_build failed");
 
-    return true;
+  scNameVal = scRequest.headers;
+  while (scNameVal) {
+    request.AddHeader(scNameVal->name, scNameVal->value);
+
+    scNameVal = scNameVal->next;
   }
 
-  bool GetOrderedList(std::string &genre, uint32_t page, sc_identity_t *identity, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  request.AddHeader("Referer", g_strReferer);
+  request.AddHeader("X-User-Agent", "Model: MAG250; Link: WiFi");
 
-    sc_param_request_t params;
-    sc_param_t *param;
-    Response response;
+  sc_request_free_nameVals(scRequest.headers);
 
-    memset(&params, 0, sizeof(params));
-    params.action = ITV_GET_ORDERED_LIST;
+  oss << g_strApiEndpoint << "?";
+  scNameVal = scRequest.params;
+  while (scNameVal) {
+    oss << scNameVal->name << "=";
+    oss << Utils::UrlEncode(std::string(scNameVal->value));
 
-    if (!sc_itv_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
-      return false;
-    }
+    if (scNameVal->next)
+      oss << "&";
 
-    if ((param = sc_param_get(&params, "genre"))) {
-      free(param->value.string);
-      param->value.string = sc_util_strcpy((char *)genre.c_str());
-    }
-
-    if ((param = sc_param_get(&params, "p"))) {
-      param->value.integer = page;
-    }
-
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    sc_param_free_params(params.param);
-
-    return true;
+    scNameVal = scNameVal->next;
   }
 
-  bool CreateLink(std::string &cmd, sc_identity_t *identity, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  sc_request_free_nameVals(scRequest.params);
 
-    sc_param_request_t params;
-    sc_param_t *param;
-    Response response;
+  request.url = oss.str();
 
-    memset(&params, 0, sizeof(params));
-    params.action = ITV_CREATE_LINK;
-
-    if (!sc_itv_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
-      return false;
-    }
-
-    if ((param = sc_param_get(&params, "cmd"))) {
-      free(param->value.string);
-      param->value.string = sc_util_strcpy((char *)cmd.c_str());
-    }
-
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    sc_param_free_params(params.param);
-
-    return true;
+  if (!sock.Execute(request, response)) {
+    XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
+    return false;
   }
 
-  bool GetGenres(sc_identity_t *identity, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-    sc_param_request_t params;
-    Response response;
-
-    memset(&params, 0, sizeof(params));
-    params.action = ITV_GET_GENRES;
-
-    if (!sc_itv_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
-      return false;
+  if (!reader.parse(response.body, parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: parsing failed", __FUNCTION__);
+    if (response.body.compare(AUTHORIZATION_FAILED) == 0) {
+      XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
     }
-
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    sc_param_free_params(params.param);
-
-    return true;
+    return false;
   }
 
-  bool GetEPGInfo(uint32_t period, sc_identity_t *identity, Json::Value *parsed)
-  {
-    XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  return true;
+}
 
-    sc_param_request_t params;
-    sc_param_t *param;
-    Response response;
+bool SAPI::Handshake(sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    memset(&params, 0, sizeof(params));
-    params.action = ITV_GET_EPG_INFO;
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
 
-    if (!sc_itv_defaults(&params)) {
-      XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
-      return false;
-    }
+  memset(&params, 0, sizeof(params));
+  params.action = STB_HANDSHAKE;
 
-    if ((param = sc_param_get(&params, "period"))) {
-      param->value.integer = period;
-    }
-
-    if (!StalkerCall(identity, &params, &response, parsed)) {
-      sc_param_free_params(params.param);
-      XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-      return false;
-    }
-
-    sc_param_free_params(params.param);
-
-    return true;
+  if (!sc_stb_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+    return false;
   }
+
+  if (strlen(identity.token) > 0
+    && (param = sc_param_get(&params, "token")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.token);
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = STB_GET_PROFILE;
+
+  if (!sc_stb_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  if ((param = sc_param_get(&params, "auth_second_step")))
+    param->value.boolean = bAuthSecondStep;
+
+  if ((param = sc_param_get(&params, "not_valid_token")))
+    param->value.boolean = !identity.valid_token;
+  
+  if (strlen(identity.serial_number) > 0
+    && (param = sc_param_get(&params, "sn")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.serial_number);
+  }
+  
+  if (strlen(identity.device_id) > 0
+    && (param = sc_param_get(&params, "device_id")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.device_id);
+  }
+  
+  if (strlen(identity.device_id2) > 0
+    && (param = sc_param_get(&params, "device_id2")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.device_id2);
+  }
+  
+  if (strlen(identity.signature) > 0
+    && (param = sc_param_get(&params, "signature")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.signature);
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::DoAuth(sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = STB_DO_AUTH;
+
+  if (!sc_stb_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  if ((param = sc_param_get(&params, "login"))) {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy((char *)identity.login);
+  }
+
+  if ((param = sc_param_get(&params, "password"))) {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy((char *)identity.password);
+  }
+  
+  if (strlen(identity.device_id) > 0
+    && (param = sc_param_get(&params, "device_id")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.device_id);
+  }
+  
+  if (strlen(identity.device_id2) > 0
+    && (param = sc_param_get(&params, "device_id2")))
+  {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy(identity.device_id2);
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::GetAllChannels(sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = ITV_GET_ALL_CHANNELS;
+
+  if (!sc_itv_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = ITV_GET_ORDERED_LIST;
+
+  if (!sc_itv_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  if ((param = sc_param_get(&params, "genre"))) {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy((char *)Utils::ToString(iGenre).c_str());
+  }
+
+  if ((param = sc_param_get(&params, "p"))) {
+    param->value.integer = iPage;
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = ITV_CREATE_LINK;
+
+  if (!sc_itv_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  if ((param = sc_param_get(&params, "cmd"))) {
+    free(param->value.string);
+    param->value.string = sc_util_strcpy((char *)cmd.c_str());
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::GetGenres(sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = ITV_GET_GENRES;
+
+  if (!sc_itv_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = ITV_GET_EPG_INFO;
+
+  if (!sc_itv_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  if ((param = sc_param_get(&params, "period"))) {
+    param->value.integer = iPeriod;
+  }
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
+}
+
+bool SAPI::GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  sc_param_request_t params;
+  sc_param_t *param;
+  Response response;
+  bool result(true);
+
+  memset(&params, 0, sizeof(params));
+  params.action = WATCHDOG_GET_EVENTS;
+
+  if (!sc_watchdog_defaults(&params)) {
+    XBMC->Log(LOG_ERROR, "%s: sc_watchdog_defaults failed", __FUNCTION__);
+    return false;
+  }
+
+  if ((param = sc_param_get(&params, "cur_play_type")))
+    param->value.integer = iCurPlayType;
+
+  if ((param = sc_param_get(&params, "event_active_id")))
+    param->value.integer = iEventActiveId;
+
+  result = StalkerCall(identity, params, response, parsed);
+
+  sc_param_free_params(params.param);
+
+  return result;
 }

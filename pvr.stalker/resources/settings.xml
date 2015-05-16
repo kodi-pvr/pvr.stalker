@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <setting id="mac" type="text" label="30000" default="00:1A:79:00:00:00" />
-    <setting id="server" type="text" label="30001" default="127.0.0.1" />
-    <setting id="time_zone" type="text" label="30002" default="Europe/Kiev" />
+  <category label="31000">
+    <setting id="mac" type="text" label="31001" default="00:1A:79:00:00:00" />
+    <setting id="server" type="text" label="31002" default="127.0.0.1" />
+    <setting id="time_zone" type="text" label="31003" default="Europe/Kiev" />
+    <setting id="sep1" type="lsep" label="31004" />
+    <setting id="login" type="text" label="31005" default="" />
+    <setting id="password" type="text" option="hidden" label="31006" default="" />
+    <setting id="sep2" type="lsep" label="31007" />
+    <setting id="connection_timeout" type="enum" label="31008" values="0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" default="5" />
+  </category>
+  <category label="32000">
+    <setting id="guide_preference" type="enum" label="32001" lvalues="32002|32003|32004|32005" default="0" />
+    <setting id="sep3" type="lsep" label="32006" />
+    <setting id="xmltv_scope" type="enum" label="32007" lvalues="32008|32009" default="0" />
+    <setting id="xmltv_url" type="text" label="32008" default="" visible="eq(-1,0)" />
+    <setting id="xmltv_path" type="file" label="32009" default="" visible="eq(-2,1)" />
+  </category>
+  <category label="33000">
+    <setting id="serial_number" type="text" label="33001" default="" />
+    <setting id="device_id" type="text" label="33002" default="" />
+    <setting id="device_id2" type="text" label="33003" default="" />
+    <setting id="signature" type="text" label="33004" default="" />
+  </category>
 </settings>

@@ -18,14 +18,94 @@ msgstr ""
 
 #settings labels
 
-msgctxt "#30000"
+msgctxt "#31001"
 msgid "MAC Address"
 msgstr ""
 
-msgctxt "#30001"
+msgctxt "#31002"
 msgid "Server Address"
 msgstr ""
 
-msgctxt "#30002"
+msgctxt "#31003"
 msgid "Time Zone"
+msgstr ""
+
+msgctxt "#31004"
+msgid "Auth Credentials"
+msgstr ""
+
+msgctxt "#31005"
+msgid "Login"
+msgstr ""
+
+msgctxt "#31006"
+msgid "Password"
+msgstr ""
+
+msgctxt "#31007"
+msgid "Misc"
+msgstr ""
+
+msgctxt "#31008"
+msgid "Connection Timeout"
+msgstr ""
+
+msgctxt "#32000"
+msgid "Guide"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Preference"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Prefer Provider"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Prefer XMLTV"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Provider Only"
+msgstr ""
+
+msgctxt "#32005"
+msgid "XMLTV Only"
+msgstr ""
+
+msgctxt "#32006"
+msgid "XMLTV"
+msgstr ""
+
+msgctxt "#32007"
+msgid "Scope"
+msgstr ""
+
+msgctxt "#32008"
+msgid "Remote URL"
+msgstr ""
+
+msgctxt "#32009"
+msgid "Local Path"
+msgstr ""
+
+msgctxt "#33000"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "#33001"
+msgid "Serial Number"
+msgstr ""
+
+msgctxt "#33002"
+msgid "Device ID"
+msgstr ""
+
+msgctxt "#33003"
+msgid "Device ID2"
+msgstr ""
+
+msgctxt "#33004"
+msgid "Signature"
 msgstr ""

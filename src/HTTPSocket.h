@@ -25,10 +25,16 @@
 #include <string>
 #include <vector>
 
-typedef enum Method
+typedef enum
+{
+  REMOTE,
+  LOCAL
+} Scope;
+
+typedef enum
 {
   GET
-};
+} Method;
 
 struct UrlOption
 {
@@ -38,7 +44,8 @@ struct UrlOption
 
 struct Request
 {
-  Method                  method = GET;
+  Scope                   scope   = REMOTE;
+  Method                  method  = GET;
   std::string             url;
   std::vector<UrlOption>  options;
   std::string             body;
@@ -59,16 +66,17 @@ struct Response
 class HTTPSocket
 {
 public:
-  HTTPSocket();
+  HTTPSocket(int iTimeout = 5);
   virtual ~HTTPSocket();
 
-  virtual bool Execute(Request *request, Response *response);
+  virtual bool Execute(Request &request, Response &response);
 protected:
-  virtual void SetDefaults(Request *request);
-  virtual void BuildRequestUrl(Request *request, std::string *strRequestUrl);
-  virtual bool Get(std::string *strRequestUrl, std::string *strResponse);
+  virtual void SetDefaults(Request &request);
+  virtual void BuildRequestUrl(Request &request, std::string &strRequestUrl);
+  virtual bool Get(std::string &strRequestUrl, std::string &strResponse);
 
-  std::vector<UrlOption> m_defaultOptions;
+  int                     m_iTimeout;
+  std::vector<UrlOption>  m_defaultOptions;
 };
 
 namespace PLATFORM
@@ -79,13 +87,13 @@ namespace PLATFORM
 class HTTPSocketRaw : public HTTPSocket
 {
 public:
-  HTTPSocketRaw();
+  HTTPSocketRaw(int iTimeout = 5);
   ~HTTPSocketRaw();
   
-  void HTTPSocketRaw::SetURL(const std::string &url);
-  bool Execute(Request *request, Response *response);
+  void SetURL(const std::string &url);
+  bool Execute(Request &request, Response &response);
 protected:
-  void BuildRequestString(Request *request, std::string *strRequest);
+  void BuildRequestString(Request &request, std::string &strRequest);
   bool Open();
   void Close();
 private:

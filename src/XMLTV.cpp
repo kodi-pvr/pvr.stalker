@@ -22,45 +22,23 @@
 
 #include "XMLTV.h"
 
-//#include <algorithm>
 #include <string>
+#include <vector>
 
 #include "kodi/util/StringUtils.h"
 
 #include "client.h"
+#include "Utils.h"
 
 using namespace ADDON;
 
 XMLTV::XMLTV() {
-  bLoaded = false;
+  bParseAttempted = false;
   m_genreMap = XMLTV::CreateGenreMap();
 }
 
 XMLTV::~XMLTV() {
   m_channels.clear();
-}
-
-bool XMLTV::ReadFile(std::string &strPath)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
-  void *hdl;
-  char buffer[1024];
-  
-  m_strXmlDoc.clear();
-  
-  hdl = XBMC->OpenFile(strPath.c_str(), 0);
-  if (hdl) {
-    memset(buffer, 0, sizeof(buffer));
-    while (XBMC->ReadFileString(hdl, buffer, sizeof(buffer) - 1)) {
-      m_strXmlDoc.append(buffer);
-      memset(buffer, 0, sizeof(buffer));
-    }
-    
-    XBMC->CloseFile(hdl);
-  }
-  
-  return true;
 }
 
 bool XMLTV::ReadChannels(TiXmlElement *elemRoot)
@@ -183,20 +161,15 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
     
     elem = element->FirstChildElement("episode-num");
     if (elem) {
-      std::string strEpisodeNum;
+      std::string strSystem;
       
-      strEpisodeNum = elem->Attribute("system");
-      if (strEpisodeNum.compare("onscreen") == 0) {
-        //TODO move to utils
-        int value = 0;
+      if (elem->Attribute("system"))
+        strSystem = elem->Attribute("system");
+      
+      if (strSystem.compare("onscreen") == 0 && elem->GetText()) {
         try {
-          std::istringstream iss(strEpisodeNum);
-          iss >> value;
-        }
-        catch (...) {
-
-        }
-        programme.iEpisodeNumber = value;
+          programme.iEpisodeNumber = Utils::StringToInt(elem->GetText());
+        } catch (...) { }
       }
     }
     
@@ -211,6 +184,10 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
         programme.strStarRating = elem->GetText();
     }
     
+    elem = element->FirstChildElement("icon");
+    if (elem && elem->Attribute("src"))
+      programme.strIcon = elem->Attribute("src");
+    
     chan->programmes.push_back(programme);
     
     XBMC->Log(LOG_DEBUG, "%s: channel_id=%s | programme_title=%s",
@@ -220,18 +197,29 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
   return true;
 }
 
-bool XMLTV::ParseXML()
+bool XMLTV::Parse(Scope scope, std::string &strPath)
 {
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  
+  HTTPSocket sock(g_iConnectionTimeout);
+  Request request;
+  Response response;
   TiXmlDocument doc;
   TiXmlElement *elemRoot;
   
-  doc.Parse(m_strXmlDoc.c_str());
+  bParseAttempted = true;
+  
+  request.scope = scope;
+  request.url = strPath;
+  
+  if (!sock.Execute(request, response) || response.body.empty())
+    return false;
+  
+  doc.Parse(response.body.c_str());
   if (doc.Error()) {
     XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __FUNCTION__);
     return false;
   }
-  
-  m_channels.clear();
   
   elemRoot = doc.FirstChildElement("tv");
   if (!elemRoot) {
@@ -239,28 +227,10 @@ bool XMLTV::ParseXML()
     return false;
   }
   
-  if (!ReadChannels(elemRoot) || !ReadProgrammes(elemRoot)) {
+  m_channels.clear();
+  
+  if (!ReadChannels(elemRoot) || !ReadProgrammes(elemRoot))
     return false;
-  }
-  
-  return true;
-}
-
-bool XMLTV::Parse(std::string &strPath)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
-  bLoaded = false;
-  
-  if (!ReadFile(strPath)) {
-    return false;
-  }
-  
-  if (!ParseXML()) {
-    return false;
-  }
-  
-  bLoaded = true;
   
   return true;
 }
@@ -310,13 +280,21 @@ Channel* XMLTV::GetChannelByDisplayName(std::string &strDisplayName)
 int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
 {
   std::map<int, int> matches;
-  std::map<int, int>::iterator finalMatch;
+  std::map<int, int>::iterator finalMatch = matches.end();
   
-  for (std::map<int, std::string>::iterator genre = m_genreMap.begin(); genre != m_genreMap.end(); ++genre) {
-    for (std::vector<std::string>::iterator category = categories.begin(); category != categories.end(); ++category) {
-      if (genre->second.find(*category) != std::string::npos) {
+  for (std::vector<std::string>::iterator category = categories.begin(); category != categories.end(); ++category) {
+    for (std::map<int, std::string>::iterator genre = m_genreMap.begin(); genre != m_genreMap.end(); ++genre) {
+      std::string cat = *category; StringUtils::ToLower(cat);
+      std::string gen = genre->second; StringUtils::ToLower(gen);
+      
+      if (gen.find(cat) != std::string::npos) {
         std::map<int, int>::iterator match = matches.find(genre->first);
         matches[genre->first] = match != matches.end() ? match->second + 1 : 1;
+        
+        // set the first category match as the initial final match
+        // useful when there is no dominant genre
+        if (finalMatch == matches.end())
+          finalMatch = matches.find(genre->first);
       }
     }
   }
@@ -324,11 +302,37 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
   if (matches.empty())
     return EPG_GENRE_USE_STRING;
   
-  finalMatch = matches.begin();
   for (std::map<int, int>::iterator match = matches.begin(); match != matches.end(); ++match) {
     if (match->second > finalMatch->second)
       finalMatch = match;
   }
   
   return finalMatch->first;
+}
+
+std::vector<Credit> XMLTV::FilterCredits(std::vector<Credit> &credits, CreditType type)
+{
+  std::vector<Credit> filteredCredits;
+  
+  for (std::vector<Credit>::iterator credit = credits.begin(); credit != credits.end(); ++credit) {
+    if (credit->type == type)
+      filteredCredits.push_back(*credit);
+  }
+  
+  return filteredCredits;
+}
+
+std::vector<std::string> XMLTV::StringListForCreditType(std::vector<Credit> &credits, CreditType type)
+{
+  std::vector<Credit> filteredCredits;
+  std::vector<std::string> creditList;
+  
+  filteredCredits = type != ALL
+    ? FilterCredits(credits, type)
+    : credits;
+  
+  for (std::vector<Credit>::iterator credit = filteredCredits.begin(); credit != filteredCredits.end(); ++credit)
+    creditList.push_back(credit->strName);
+  
+  return creditList;
 }

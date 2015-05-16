@@ -23,16 +23,29 @@
 #ifndef IDENTITY_H
 #define	IDENTITY_H
 
+#include <stdbool.h>
+
+#include "util.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
   typedef struct {
-    const char *mac;
-    const char *lang;
-    const char *time_zone;
-    const char *auth_token;
+    char mac[SC_STR_LENGTH];
+    char lang[SC_STR_LENGTH];
+    char time_zone[SC_STR_LENGTH];
+    char token[SC_STR_LENGTH];
+    bool valid_token;
+    char login[SC_STR_LENGTH];
+    char password[SC_STR_LENGTH];
+    char serial_number[SC_STR_LENGTH];
+    char device_id[SC_STR_LENGTH];
+    char device_id2[SC_STR_LENGTH];
+    char signature[SC_STR_LENGTH];
   } sc_identity_t;
+
+  void sc_identity_defaults(sc_identity_t *identity);
 
 
 #ifdef	__cplusplus

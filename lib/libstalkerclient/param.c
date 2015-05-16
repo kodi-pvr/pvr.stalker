@@ -159,14 +159,17 @@ sc_param_t* sc_param_copy(sc_param_t *param) {
 void sc_param_append(sc_param_request_t *params, sc_param_t *param) {
   sc_param_t *oparam;
 
-  oparam = params->param;
-  while (oparam->next) {
-    oparam = oparam->next;
+  if (!params->param) {
+    params->param = param;
+  } else {
+    oparam = params->param;
+    while (oparam && oparam->next) {
+      oparam = oparam->next;
+    }
+
+    sc_param_link(oparam, param);
   }
 
-  oparam->next = param;
-
-  param->prev = oparam;
   param->next = NULL;
 }
 

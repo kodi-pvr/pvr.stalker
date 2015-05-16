@@ -22,15 +22,18 @@
  *
  */
 
-#include <string>
-#include <vector>
 #include <ctime>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "tinyxml.h"
 #include "kodi/xbmc_epg_types.h"
 
+#include "HTTPSocket.h"
+
 typedef enum CreditType {
+  ALL,
   ACTOR,
   DIRECTOR,
   GUEST,
@@ -59,6 +62,7 @@ struct Programme
   int                       iEpisodeNumber;
   time_t                    previouslyShown;
   std::string               strStarRating;
+  std::string               strIcon;
 };
 
 struct Channel
@@ -74,15 +78,16 @@ public:
   XMLTV();
   virtual ~XMLTV();
   
-  virtual bool Parse(std::string &strPath);
+  virtual bool Parse(Scope scope, std::string &strPath);
   virtual Channel* GetChannelById(std::string &strId);
   virtual Channel* GetChannelByDisplayName(std::string &strDisplayName);
   virtual int EPGGenreByCategory(std::vector<std::string> &categories);
   
-  bool bLoaded;
-protected:
-  virtual bool ReadFile(std::string &strPath); //TODO sync with httpsocket from http branch
+  static std::vector<Credit> FilterCredits(std::vector<Credit> &credits, CreditType type);
+  static std::vector<std::string> StringListForCreditType(std::vector<Credit> &credits, CreditType type = ALL);
   
+  bool bParseAttempted;
+protected:
   static time_t XmlTvToUnixTime(const char *strTime)
   {
     if (!strTime)
@@ -130,7 +135,7 @@ protected:
     genreMap[EPG_EVENT_CONTENTMASK_UNDEFINED] = "Other";
     genreMap[EPG_EVENT_CONTENTMASK_MOVIEDRAMA] = "Film, Movie, Movies";
     genreMap[EPG_EVENT_CONTENTMASK_NEWSCURRENTAFFAIRS] = "News";
-    genreMap[EPG_EVENT_CONTENTMASK_SHOW] = "Episodic, Reality TV, Shows, Sitcoms, Talk Show";//, Series";
+    genreMap[EPG_EVENT_CONTENTMASK_SHOW] = "Episodic, Reality TV, Shows, Sitcoms, Talk Show, Series";
     genreMap[EPG_EVENT_CONTENTMASK_SPORTS] = "Football, Golf, Sports";
     genreMap[EPG_EVENT_CONTENTMASK_CHILDRENYOUTH] = "Animation, Children, Kids, Under 5";
     genreMap[EPG_EVENT_CONTENTMASK_MUSICBALLETDANCE] = "";
@@ -146,9 +151,7 @@ protected:
   virtual bool ReadChannels(TiXmlElement *elemRoot);
   virtual bool ReadCredits(TiXmlElement *elemRoot, Programme *programme);
   virtual bool ReadProgrammes(TiXmlElement *elemRoot);
-  virtual bool ParseXML();
 private:
-  std::string                 m_strXmlDoc;
   std::vector<Channel>        m_channels;
   std::map<int, std::string>  m_genreMap;
 };
