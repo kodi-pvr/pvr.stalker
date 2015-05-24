@@ -22,7 +22,7 @@
  *
  */
 
-#include "kodi/threads/threads.h"
+#include "platform/threads/threads.h"
 
 #include "libstalkerclient/identity.h"
 

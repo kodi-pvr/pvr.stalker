@@ -32,7 +32,7 @@
 
 #include "HTTPSocket.h"
 
-typedef enum CreditType {
+typedef enum {
   ALL,
   ACTOR,
   DIRECTOR,
@@ -40,7 +40,7 @@ typedef enum CreditType {
   PRESENTER,
   PRODUCER,
   WRITER
-};
+} CreditType;
 
 struct Credit
 {

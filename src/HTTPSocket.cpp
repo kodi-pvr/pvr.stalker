@@ -22,7 +22,8 @@
 
 #include "HTTPSocket.h"
 
-#include "kodi/util/StringUtils.h"
+#include "platform/util/StringUtils.h"
+#include "platform/sockets/tcp.h"
 
 #include "client.h"
 #include "Utils.h"

@@ -26,7 +26,7 @@
 
 #include "tinyxml.h"
 #include "platform/os.h"
-#include "kodi/util/util.h"
+#include "platform/util/util.h"
 
 #include "libstalkerclient/itv.h"
 #include "libstalkerclient/util.h"
@@ -348,9 +348,10 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
     memset(&tag, 0, sizeof(EPG_TAG));
     
     std::vector<Credit> cast;
+    std::vector<Credit> cast2;
     cast = XMLTV::FilterCredits(it->credits, ACTOR);
-    Utils::ConcatenateVectors(cast, XMLTV::FilterCredits(it->credits, GUEST));
-    Utils::ConcatenateVectors(cast, XMLTV::FilterCredits(it->credits, PRESENTER));
+    Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(it->credits, GUEST)));
+    Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(it->credits, PRESENTER)));
 
     tag.iUniqueBroadcastId = it->iBroadcastId;
     tag.strTitle = it->strTitle.c_str();
@@ -786,9 +787,9 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     return "";
   }
   
-  // some protocols don't strip the protocol options. \
-  some servers handle it, others don't.
-  //TODO other protocols may need to be excluded.
+  /* some protocols don't strip the protocol options.
+  some servers handle it, others don't. */
+  //TODO other protocols may need to be excluded
   if (m_PlaybackURL.find("rtmp://") == std::string::npos)
     m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
 

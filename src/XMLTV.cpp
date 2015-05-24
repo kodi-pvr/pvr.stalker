@@ -22,10 +22,11 @@
 
 #include "XMLTV.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
-#include "kodi/util/StringUtils.h"
+#include "platform/util/StringUtils.h"
 
 #include "client.h"
 #include "Utils.h"

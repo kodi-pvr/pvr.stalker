@@ -97,8 +97,8 @@ double Utils::GetDoubleFromJsonValue(Json::Value &value, double defaultValue)
 {
   double dTemp = defaultValue;
 
-  // some json responses have have doubles formated as strings, \
-  or an expected double is formated as an int
+  /* some json responses have have doubles formated as strings,
+  or an expected double is formated as an int */
   if (value.isString())
     dTemp = StringToDouble(value.asString());
   else if (value.isInt() || value.isDouble())

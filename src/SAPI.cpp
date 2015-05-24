@@ -53,7 +53,7 @@ bool SAPI::Init()
     strServer = "http://";
   
   strServer += g_strServer;
-  isHttp = strServer.find("://") == 0;
+  isHttp = strServer.find("http://") == 0;
 
   sock = isHttp
     ? new HTTPSocketRaw(g_iConnectionTimeout)
@@ -228,23 +228,17 @@ bool SAPI::GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value
     param->value.string = sc_util_strcpy(identity.serial_number);
   }
   
-  if (strlen(identity.device_id) > 0
-    && (param = sc_param_get(&params, "device_id")))
-  {
+  if ((param = sc_param_get(&params, "device_id"))) {
     free(param->value.string);
     param->value.string = sc_util_strcpy(identity.device_id);
   }
   
-  if (strlen(identity.device_id2) > 0
-    && (param = sc_param_get(&params, "device_id2")))
-  {
+  if ((param = sc_param_get(&params, "device_id2"))) {
     free(param->value.string);
     param->value.string = sc_util_strcpy(identity.device_id2);
   }
   
-  if (strlen(identity.signature) > 0
-    && (param = sc_param_get(&params, "signature")))
-  {
+  if ((param = sc_param_get(&params, "signature"))) {
     free(param->value.string);
     param->value.string = sc_util_strcpy(identity.signature);
   }
@@ -283,16 +277,12 @@ bool SAPI::DoAuth(sc_identity_t &identity, Json::Value &parsed)
     param->value.string = sc_util_strcpy((char *)identity.password);
   }
   
-  if (strlen(identity.device_id) > 0
-    && (param = sc_param_get(&params, "device_id")))
-  {
+  if ((param = sc_param_get(&params, "device_id"))) {
     free(param->value.string);
     param->value.string = sc_util_strcpy(identity.device_id);
   }
   
-  if (strlen(identity.device_id2) > 0
-    && (param = sc_param_get(&params, "device_id2")))
-  {
+  if ((param = sc_param_get(&params, "device_id2"))) {
     free(param->value.string);
     param->value.string = sc_util_strcpy(identity.device_id2);
   }
