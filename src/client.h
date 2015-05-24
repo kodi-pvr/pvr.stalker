@@ -25,6 +25,9 @@
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
 
+#define PORTAL_SUFFIX_FORMAT        "%s_%d"
+
+#define DEFAULT_ACTIVE_PORTAL       0
 #define DEFAULT_MAC                 "00:1A:79:00:00:00"
 #define DEFAULT_SERVER              "127.0.0.1"
 #define DEFAULT_TIME_ZONE           "Europe/Kiev"
@@ -35,6 +38,7 @@
 #define DEFAULT_XMLTV_SCOPE         0 // remote url
 #define DEFAULT_XMLTV_URL           ""
 #define DEFAULT_XMLTV_PATH          ""
+#define DEFAULT_TOKEN               ""
 #define DEFAULT_SERIAL_NUMBER       ""
 #define DEFAULT_DEVICE_ID           ""
 #define DEFAULT_DEVICE_ID2          ""
@@ -58,8 +62,8 @@ extern std::string  g_strClientPath;
 extern std::string  g_strApiBasePath;
 extern std::string  g_strApiEndpoint;
 extern std::string  g_strReferer;
-extern std::string  g_strToken;
 
+extern int          g_iActivePortal;
 extern std::string  g_strMac;
 extern std::string  g_strServer;
 extern std::string  g_strTimeZone;
@@ -70,6 +74,7 @@ extern int          g_iGuidePreference;
 extern int          g_iXmltvScope;
 extern std::string  g_strXmltvUrl;
 extern std::string  g_strXmltvPath;
+extern std::string  g_strToken;
 extern std::string  g_strSerialNumber;
 extern std::string  g_strDeviceId;
 extern std::string  g_strDeviceId2;

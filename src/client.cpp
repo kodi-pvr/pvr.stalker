@@ -38,6 +38,14 @@
   if (!XBMC->GetSetting(name, &store)) \
     store = def;
 
+#define GET_SETTING_STR2(setting, name, tmp, store, def) \
+  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, g_iActivePortal); \
+  GET_SETTING_STR(setting, tmp, store, def);
+
+#define GET_SETTING_INT2(setting, name, store, def) \
+  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, g_iActivePortal); \
+  GET_SETTING_INT(setting, store, def);
+
 using namespace ADDON;
 
 ADDON_STATUS  m_CurStatus = ADDON_STATUS_UNKNOWN;
@@ -48,12 +56,12 @@ std::string g_strClientPath   = "";
 std::string g_strApiBasePath  = "";
 std::string g_strApiEndpoint  = "";
 std::string g_strReferer      = "";
-std::string g_strToken        = "";
 
 /* User adjustable settings are saved here.
 * Default values are defined inside client.h
 * and exported to the other source files.
 */
+int         g_iActivePortal;
 std::string g_strMac;
 std::string g_strServer;
 std::string g_strTimeZone;
@@ -64,6 +72,7 @@ int         g_iGuidePreference;
 int         g_iXmltvScope;
 std::string g_strXmltvUrl;
 std::string g_strXmltvPath;
+std::string g_strToken;
 std::string g_strSerialNumber;
 std::string g_strDeviceId;
 std::string g_strDeviceId2;
@@ -110,44 +119,43 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   }
 
   char buffer[1024];
-
-  if (!XBMC->GetSetting("mac", &buffer)) {
-    XBMC->Log(LOG_DEBUG, "mac address not set");
-    g_strMac = DEFAULT_MAC;
-  }
-  else {
-    g_strMac = buffer;
-  }
-
-  if (!XBMC->GetSetting("server", &buffer)) {
-    XBMC->Log(LOG_DEBUG, "server address not set");
-    g_strServer = DEFAULT_SERVER;
-  }
-  else {
-    g_strServer = buffer;
-  }
-
-  if (!XBMC->GetSetting("time_zone", &buffer)) {
-    XBMC->Log(LOG_DEBUG, "time zone not set");
-    g_strTimeZone = DEFAULT_TIME_ZONE;
-  }
-  else {
-    g_strTimeZone = buffer;
-  }
+  char setting[256];
   
-  GET_SETTING_STR("login", buffer, g_strLogin, DEFAULT_LOGIN);
-  GET_SETTING_STR("password", buffer, g_strPassword, DEFAULT_PASSWORD);
+  GET_SETTING_INT("active_portal", g_iActivePortal, DEFAULT_ACTIVE_PORTAL);
   GET_SETTING_INT("connection_timeout", g_iConnectionTimeout, DEFAULT_CONNECTION_TIMEOUT);
-  GET_SETTING_INT("guide_preference", g_iGuidePreference, DEFAULT_GUIDE_PREFERENCE);
-  GET_SETTING_INT("xmltv_scope", g_iXmltvScope, DEFAULT_XMLTV_SCOPE);
-  GET_SETTING_STR("xmltv_url", buffer, g_strXmltvUrl, DEFAULT_XMLTV_URL);
-  GET_SETTING_STR("xmltv_path", buffer, g_strXmltvPath, DEFAULT_XMLTV_PATH);
-  GET_SETTING_STR("serial_number", buffer, g_strSerialNumber, DEFAULT_SERIAL_NUMBER);
-  GET_SETTING_STR("device_id", buffer, g_strDeviceId, DEFAULT_DEVICE_ID);
-  GET_SETTING_STR("device_id2", buffer, g_strDeviceId2, DEFAULT_DEVICE_ID2);
-  GET_SETTING_STR("signature", buffer, g_strSignature, DEFAULT_SIGNATURE);
   
+  GET_SETTING_STR2(setting, "mac", buffer, g_strMac, DEFAULT_MAC);
+  GET_SETTING_STR2(setting, "server", buffer, g_strServer, DEFAULT_SERVER);
+  GET_SETTING_STR2(setting, "time_zone", buffer, g_strTimeZone, DEFAULT_TIME_ZONE);
+  GET_SETTING_STR2(setting, "login", buffer, g_strLogin, DEFAULT_LOGIN);
+  GET_SETTING_STR2(setting, "password", buffer, g_strPassword, DEFAULT_PASSWORD);
+  GET_SETTING_INT2(setting, "guide_preference", g_iGuidePreference, DEFAULT_GUIDE_PREFERENCE);
+  GET_SETTING_INT2(setting, "xmltv_scope", g_iXmltvScope, DEFAULT_XMLTV_SCOPE);
+  GET_SETTING_STR2(setting, "xmltv_url", buffer, g_strXmltvUrl, DEFAULT_XMLTV_URL);
+  GET_SETTING_STR2(setting, "xmltv_path", buffer, g_strXmltvPath, DEFAULT_XMLTV_PATH);
+  GET_SETTING_STR2(setting, "token", buffer, g_strToken, DEFAULT_TOKEN);
+  GET_SETTING_STR2(setting, "serial_number", buffer, g_strSerialNumber, DEFAULT_SERIAL_NUMBER);
+  GET_SETTING_STR2(setting, "device_id", buffer, g_strDeviceId, DEFAULT_DEVICE_ID);
+  GET_SETTING_STR2(setting, "device_id2", buffer, g_strDeviceId2, DEFAULT_DEVICE_ID2);
+  GET_SETTING_STR2(setting, "signature", buffer, g_strSignature, DEFAULT_SIGNATURE);
+  
+  XBMC->Log(LOG_DEBUG, "active_portal=%d", g_iActivePortal);
   XBMC->Log(LOG_DEBUG, "connection_timeout=%d", g_iConnectionTimeout);
+  
+  XBMC->Log(LOG_DEBUG, "mac=%s", g_strMac.c_str());
+  XBMC->Log(LOG_DEBUG, "server=%s", g_strServer.c_str());
+  XBMC->Log(LOG_DEBUG, "time_zone=%s", g_strTimeZone.c_str());
+  XBMC->Log(LOG_DEBUG, "login=%s", g_strLogin.c_str());
+  XBMC->Log(LOG_DEBUG, "password=%s", g_strPassword.c_str());
+  XBMC->Log(LOG_DEBUG, "guide_preference=%d", g_iGuidePreference);
+  XBMC->Log(LOG_DEBUG, "xmltv_scope=%d", g_iXmltvScope);
+  XBMC->Log(LOG_DEBUG, "xmltv_url=%s", g_strXmltvUrl.c_str());
+  XBMC->Log(LOG_DEBUG, "xmltv_path=%s", g_strXmltvPath.c_str());
+  XBMC->Log(LOG_DEBUG, "token=%s", g_strToken.c_str());
+  XBMC->Log(LOG_DEBUG, "serial_number=%s", g_strSerialNumber.c_str());
+  XBMC->Log(LOG_DEBUG, "device_id=%s", g_strDeviceId.c_str());
+  XBMC->Log(LOG_DEBUG, "device_id2=%s", g_strDeviceId2.c_str());
+  XBMC->Log(LOG_DEBUG, "signature=%s", g_strSignature.c_str());
 
   if (!m_data->LoadData()) {
     XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");

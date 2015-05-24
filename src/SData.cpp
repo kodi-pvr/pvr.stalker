@@ -100,14 +100,12 @@ bool SData::LoadCache()
   }
   
   pTokenElement = pRootElement->FirstChildElement("token");
-  if (!pTokenElement) {
+  if (!pTokenElement)
     XBMC->Log(LOG_DEBUG, "\"token\" element not found");
-  }
-  else if (pTokenElement->GetText()) {
-    g_strToken = pTokenElement->GetText();
-  }
+  else if (pTokenElement->GetText())
+    SC_STR_SET(m_identity.token, pTokenElement->GetText());
 
-  XBMC->Log(LOG_DEBUG, "token: %s", g_strToken.c_str());
+  XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
 
   return true;
 }
@@ -134,7 +132,7 @@ bool SData::SaveCache()
 
   pTokenElement = pRootElement->FirstChildElement("token");
   pTokenElement->Clear();
-  pTokenElement->LinkEndChild(new TiXmlText(g_strToken));
+  pTokenElement->LinkEndChild(new TiXmlText(m_identity.token));
 
   strCacheFile = GetFilePath("cache.xml");
   if (!xml_doc.SaveFile(strCacheFile)) {
@@ -156,17 +154,6 @@ bool SData::InitAPI()
     return false;
   }
 
-  sc_identity_defaults(&m_identity);
-  SC_STR_SET(m_identity.mac, g_strMac.c_str());
-  SC_STR_SET(m_identity.time_zone, g_strTimeZone.c_str());
-  SC_STR_SET(m_identity.token, g_strToken.c_str());
-  SC_STR_SET(m_identity.login, g_strLogin.c_str());
-  SC_STR_SET(m_identity.password, g_strPassword.c_str());
-  SC_STR_SET(m_identity.serial_number, g_strSerialNumber.c_str());
-  SC_STR_SET(m_identity.device_id, g_strDeviceId.c_str());
-  SC_STR_SET(m_identity.device_id2, g_strDeviceId2.c_str());
-  SC_STR_SET(m_identity.signature, g_strSignature.c_str());
-
   m_bInitedApi = true;
 
   return true;
@@ -185,10 +172,8 @@ bool SData::DoHandshake()
     return false;
   }
   
-  if (parsed["js"].isMember("token")) {
-    g_strToken = parsed["js"]["token"].asString();
-    SC_STR_SET(m_identity.token, g_strToken.c_str());
-  }
+  if (parsed["js"].isMember("token"))
+    SC_STR_SET(m_identity.token, parsed["js"]["token"].asCString());
 
   XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
   
@@ -285,7 +270,7 @@ bool SData::Initialize()
 
   if (!m_bInitedApi && !InitAPI())
     return m_bInitialized;
-
+  
   if (!m_bDidHandshake && !DoHandshake())
     return m_bInitialized;
 
@@ -595,7 +580,21 @@ bool SData::LoadData(void)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (!LoadCache())
+  sc_identity_defaults(&m_identity);
+  SC_STR_SET(m_identity.mac, g_strMac.c_str());
+  SC_STR_SET(m_identity.time_zone, g_strTimeZone.c_str());
+  SC_STR_SET(m_identity.token, g_strToken.c_str());
+  SC_STR_SET(m_identity.login, g_strLogin.c_str());
+  SC_STR_SET(m_identity.password, g_strPassword.c_str());
+  SC_STR_SET(m_identity.serial_number, g_strSerialNumber.c_str());
+  SC_STR_SET(m_identity.device_id, g_strDeviceId.c_str());
+  SC_STR_SET(m_identity.device_id2, g_strDeviceId2.c_str());
+  SC_STR_SET(m_identity.signature, g_strSignature.c_str());
+
+  // skip handshake if token setting was set
+  if (strlen(m_identity.token) > 0)
+    m_bDidHandshake = true;
+  else if (!LoadCache())
     return false;
 
   return true;

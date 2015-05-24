@@ -18,94 +18,126 @@ msgstr ""
 
 #settings labels
 
-msgctxt "#31001"
-msgid "MAC Address"
+msgctxt "#30000"
+msgid "General"
 msgstr ""
 
-msgctxt "#31002"
-msgid "Server Address"
+msgctxt "#30001"
+msgid "Active Portal"
 msgstr ""
 
-msgctxt "#31003"
-msgid "Time Zone"
-msgstr ""
-
-msgctxt "#31004"
-msgid "Auth Credentials"
-msgstr ""
-
-msgctxt "#31005"
-msgid "Login"
-msgstr ""
-
-msgctxt "#31006"
-msgid "Password"
-msgstr ""
-
-msgctxt "#31007"
+msgctxt "#30002"
 msgid "Misc"
 msgstr ""
 
-msgctxt "#31008"
+msgctxt "#30003"
 msgid "Connection Timeout"
 msgstr ""
 
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr ""
+
 msgctxt "#32000"
-msgid "Guide"
-msgstr ""
-
-msgctxt "#32001"
-msgid "Preference"
-msgstr ""
-
-msgctxt "#32002"
-msgid "Prefer Provider"
-msgstr ""
-
-msgctxt "#32003"
-msgid "Prefer XMLTV"
-msgstr ""
-
-msgctxt "#32004"
-msgid "Provider Only"
-msgstr ""
-
-msgctxt "#32005"
-msgid "XMLTV Only"
-msgstr ""
-
-msgctxt "#32006"
-msgid "XMLTV"
-msgstr ""
-
-msgctxt "#32007"
-msgid "Scope"
-msgstr ""
-
-msgctxt "#32008"
-msgid "Remote URL"
-msgstr ""
-
-msgctxt "#32009"
-msgid "Local Path"
+msgid "Portal 2"
 msgstr ""
 
 msgctxt "#33000"
+msgid "Portal 3"
+msgstr ""
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr ""
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr ""
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Login"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr ""
+
+msgctxt "#30109
+msgid "Prefer Provider"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr ""
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr ""
+
+msgctxt "#30113"
+msgid "XMLTV"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Scope"
+msgstr ""
+
+msgctxt "#30115"
+msgid "Remote URL"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Local Path"
+msgstr ""
+
+msgctxt "#30117"
 msgid "Advanced"
 msgstr ""
 
-msgctxt "#33001"
+msgctxt "#30118"
+msgid "Token"
+msgstr ""
+
+msgctxt "#30119"
 msgid "Serial Number"
 msgstr ""
 
-msgctxt "#33002"
+msgctxt "#30120"
 msgid "Device ID"
 msgstr ""
 
-msgctxt "#33003"
+msgctxt "#30121"
 msgid "Device ID2"
 msgstr ""
 
-msgctxt "#33004"
+msgctxt "#30122"
 msgid "Signature"
 msgstr ""
