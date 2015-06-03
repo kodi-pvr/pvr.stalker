@@ -22,8 +22,8 @@
  *
  */
 
-#include "kodi/libXBMC_addon.h"
-#include "kodi/libXBMC_pvr.h"
+#include "libXBMC_addon.h"
+#include "libXBMC_pvr.h"
 
 #define DEFAULT_MAC       "00:1A:79:00:00:00"
 #define DEFAULT_SERVER    "127.0.0.1"
