@@ -4,11 +4,13 @@ cmake_minimum_required(VERSION 2.6)
 
 enable_language(C)
 
-set(SOURCES itv.c
+set(SOURCES identity.c
+            itv.c
             param.c
             request.c
             stb.c
-            util.c)
+            util.c
+            watchdog.c)
 
 add_library(stalkerclient STATIC ${SOURCES})
 

@@ -23,10 +23,14 @@
  */
 
 #include <vector>
+
 #include <json/json.h>
 
 #include "libstalkerclient/identity.h"
+#include "libstalkerclient/stb.h"
 #include "client.h"
+#include "CWatchdog.h"
+#include "XMLTV.h"
 
 struct SChannelGroup
 {
@@ -69,28 +73,33 @@ protected:
   virtual bool LoadCache();
   virtual bool SaveCache();
   virtual bool InitAPI();
-  virtual bool LoadProfile();
-  virtual bool Authenticate();
+  virtual bool DoHandshake();
+  virtual bool DoAuth();
+  virtual bool LoadProfile(bool bAuthSecondStep = false);
   virtual bool Initialize();
-  virtual bool ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
+  virtual int ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
+  virtual int ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
   virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
   virtual bool ParseChannelGroups(Json::Value &parsed);
   virtual bool LoadChannelGroups();
   virtual bool ParseChannels(Json::Value &parsed);
   virtual bool LoadChannels();
 
-  virtual std::string GetFilePath(std::string strPath, bool bUserPath = true) const;
-  virtual int GetIntValue(Json::Value &value);
-  virtual bool GetIntValueAsBool(Json::Value &value);
+  virtual std::string GetFilePath(std::string strPath, bool bUserPath = true);
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 private:
-  sc_identity_t               m_identity;
+  bool                        m_bInitedApi;
+  bool                        m_bDidHandshake;
+  bool                        m_bLoadedProfile;
   bool                        m_bInitialized;
-  bool                        m_bApiInit;
-  bool                        m_bAuthenticated;
-  bool                        m_bProfileLoaded;
+  bool                        m_bGetEpgInfoAttempted;
+  
+  sc_identity_t               m_identity;
+  sc_stb_profile_t            m_profile;
   Json::Value                 m_epgData;
   std::vector<SChannelGroup>  m_channelGroups;
   std::vector<SChannel>       m_channels;
   std::string                 m_PlaybackURL;
+  CWatchdog                   *m_watchdog;
+  XMLTV                       *m_xmltv;
 };

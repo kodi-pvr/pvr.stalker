@@ -22,7 +22,6 @@
 
 #include "util.h"
 
-#include <string.h>
 #include <stdlib.h>
 
 char* sc_util_strcpy(char *str) {

@@ -25,32 +25,79 @@
 #include <string>
 #include <vector>
 
+typedef enum
+{
+  REMOTE,
+  LOCAL
+} Scope;
+
+typedef enum
+{
+  GET
+} Method;
+
+struct UrlOption
+{
+  std::string name;
+  std::string value;
+};
+
+struct Request
+{
+  Scope                   scope   = REMOTE;
+  Method                  method  = GET;
+  std::string             url;
+  std::vector<UrlOption>  options;
+  std::string             body;
+  
+  void AddHeader(const std::string &name, const std::string &value)
+  {
+    UrlOption option = { name.c_str(), value.c_str() };
+    options.push_back(option);
+  }
+};
+
+struct Response
+{
+  std::string headers;
+  std::string body;
+};
+
+class HTTPSocket
+{
+public:
+  HTTPSocket(int iTimeout = 5);
+  virtual ~HTTPSocket();
+
+  virtual bool Execute(Request &request, Response &response);
+protected:
+  virtual void SetDefaults(Request &request);
+  virtual void BuildRequestUrl(Request &request, std::string &strRequestUrl);
+  virtual bool Get(std::string &strRequestUrl, std::string &strResponse);
+
+  int                     m_iTimeout;
+  std::vector<UrlOption>  m_defaultOptions;
+};
+
 namespace PLATFORM
 {
   class CTcpConnection;
 }
 
-class HTTPSocket
+class HTTPSocketRaw : public HTTPSocket
 {
 public:
-  HTTPSocket();
-  virtual ~HTTPSocket();
-
-  virtual void SetURL(const std::string &url);
-  virtual void SetBody(const std::string &req_body);
-  virtual void AddHeader(const std::string &name, const std::string &value);
-  virtual bool Execute(std::string *resp_headers, std::string *resp_body);
+  HTTPSocketRaw(int iTimeout = 5);
+  ~HTTPSocketRaw();
+  
+  void SetURL(const std::string &url);
+  bool Execute(Request &request, Response &response);
 protected:
-  virtual bool BuildRequest(std::string *request);
-  virtual bool Open();
-  virtual void Close();
+  void BuildRequestString(Request &request, std::string &strRequest);
+  bool Open();
+  void Close();
 private:
-  std::string               m_method;
-  std::string               m_uri;
   std::string               m_host;
   int                       m_port;
-  std::string               m_user_agent;
-  std::vector<std::string>  m_headers;
-  std::string               m_req_body;
   PLATFORM::CTcpConnection  *m_socket;
 };

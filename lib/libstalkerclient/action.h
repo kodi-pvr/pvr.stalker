@@ -31,13 +31,17 @@ extern "C" {
     // STB
     STB_HANDSHAKE,
     STB_GET_PROFILE,
+    STB_DO_AUTH,
 
     // ITV
     ITV_GET_ALL_CHANNELS,
     ITV_GET_ORDERED_LIST,
     ITV_CREATE_LINK,
     ITV_GET_GENRES,
-    ITV_GET_EPG_INFO
+    ITV_GET_EPG_INFO,
+
+    // WATCHDOG
+    WATCHDOG_GET_EVENTS
   } sc_action_t;
 
 

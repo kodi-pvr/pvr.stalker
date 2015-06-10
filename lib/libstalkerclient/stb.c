@@ -25,7 +25,8 @@
 #include <string.h>
 
 bool sc_stb_handshake_defaults(sc_param_request_t *params) {
-  params->param = NULL;
+  params->param = sc_param_create_string("token", "", false);
+  params->param->first = params->param;
 
   return true;
 }
@@ -61,34 +62,73 @@ bool sc_stb_get_profile_defaults(sc_param_request_t *params) {
   return true;
 }
 
+bool sc_stb_do_auth_defaults(sc_param_request_t *params) {
+  sc_param_t *param;
+
+  param = sc_param_create_string("login", "", true);
+  param->first = param;
+
+  param = sc_param_link(param, sc_param_create_string("password", "", true));
+  param = sc_param_link(param, sc_param_create_string("device_id", "", false));
+  param = sc_param_link(param, sc_param_create_string("device_id2", "", false));
+
+  params->param = param->first;
+
+  return true;
+}
+
 bool sc_stb_defaults(sc_param_request_t *params) {
   switch (params->action) {
     case STB_HANDSHAKE:
       return sc_stb_handshake_defaults(params);
     case STB_GET_PROFILE:
       return sc_stb_get_profile_defaults(params);
+    case STB_DO_AUTH:
+      return sc_stb_do_auth_defaults(params);
   }
 
   return false;
 }
 
 bool sc_stb_prep_request(sc_param_request_t *params, sc_request_t *request) {
-  const char *buffer;
+  sc_request_nameVal_t *paramPrev;
+  sc_request_nameVal_t *param;
+
+  paramPrev = request->params;
+  while (paramPrev && paramPrev->next)
+    paramPrev = paramPrev->next;
+
+  param = sc_request_create_nameVal("type", "stb");
+
+  if (!paramPrev) {
+    param->first = param;
+    request->params = paramPrev = param;
+  } else {
+    paramPrev = sc_request_link_nameVal(paramPrev, param);
+  }
 
   switch (params->action) {
     case STB_HANDSHAKE:
-      buffer = "type=stb&action=handshake&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "handshake"));
       break;
     case STB_GET_PROFILE:
-      buffer = "type=stb&action=get_profile&";
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_profile"));
+      break;
+    case STB_DO_AUTH:
+      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "do_auth"));
       break;
   }
 
   request->method = "GET";
 
-  if (buffer) {
-    strncpy(request->query, buffer, strlen(buffer));
-  }
-
   return true;
+}
+
+void sc_stb_profile_defaults(sc_stb_profile_t *profile) {
+  memset(profile, 0, sizeof (profile));
+
+  profile->store_auth_data_on_stb = false;
+  profile->status = -1;
+  profile->watchdog_timeout = 120;
+  profile->timeslot = 90;
 }

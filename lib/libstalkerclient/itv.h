@@ -28,6 +28,12 @@
 #include "param.h"
 #include "request.h"
 
+#define SC_ITV_LOGO_PATH "misc/logos/"
+#define SC_ITV_LOGO_PATH_120 SC_ITV_LOGO_PATH "120/"
+#define SC_ITV_LOGO_PATH_160 SC_ITV_LOGO_PATH "160/"
+#define SC_ITV_LOGO_PATH_240 SC_ITV_LOGO_PATH "240/"
+#define SC_ITV_LOGO_PATH_320 SC_ITV_LOGO_PATH "320/"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif

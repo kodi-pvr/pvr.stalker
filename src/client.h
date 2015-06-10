@@ -25,20 +25,60 @@
 #include "kodi/libXBMC_addon.h"
 #include "kodi/libXBMC_pvr.h"
 
-#define DEFAULT_MAC       "00:1A:79:00:00:00"
-#define DEFAULT_SERVER    "127.0.0.1"
-#define DEFAULT_TIME_ZONE "Europe/Kiev"
+#define PORTAL_SUFFIX_FORMAT        "%s_%d"
+
+#define DEFAULT_ACTIVE_PORTAL       0
+#define DEFAULT_MAC                 "00:1A:79:00:00:00"
+#define DEFAULT_SERVER              "127.0.0.1"
+#define DEFAULT_TIME_ZONE           "Europe/Kiev"
+#define DEFAULT_LOGIN               ""
+#define DEFAULT_PASSWORD            ""
+#define DEFAULT_CONNECTION_TIMEOUT  5
+#define DEFAULT_GUIDE_PREFERENCE    0 // prefer provider
+#define DEFAULT_XMLTV_SCOPE         0 // remote url
+#define DEFAULT_XMLTV_URL           ""
+#define DEFAULT_XMLTV_PATH          ""
+#define DEFAULT_TOKEN               ""
+#define DEFAULT_SERIAL_NUMBER       ""
+#define DEFAULT_DEVICE_ID           ""
+#define DEFAULT_DEVICE_ID2          ""
+#define DEFAULT_SIGNATURE           ""
+
+
+typedef enum {
+  PREFER_PROVIDER,
+  PREFER_XMLTV,
+  PROVIDER_ONLY,
+  XMLTV_ONLY
+} GuidePreference;
+
+typedef enum {
+  REMOTE_URL,
+  LOCAL_PATH
+} XMLTVScope;
 
 extern std::string  g_strUserPath;
 extern std::string  g_strClientPath;
+extern std::string  g_strApiBasePath;
+extern std::string  g_strApiEndpoint;
+extern std::string  g_strReferer;
 
+extern int          g_iActivePortal;
 extern std::string  g_strMac;
 extern std::string  g_strServer;
 extern std::string  g_strTimeZone;
-extern std::string  g_strApiBasePath;
-extern std::string  g_api_endpoint;
-extern std::string  g_referer;
-extern std::string  g_token;
+extern std::string  g_strLogin;
+extern std::string  g_strPassword;
+extern int          g_iConnectionTimeout;
+extern int          g_iGuidePreference;
+extern int          g_iXmltvScope;
+extern std::string  g_strXmltvUrl;
+extern std::string  g_strXmltvPath;
+extern std::string  g_strToken;
+extern std::string  g_strSerialNumber;
+extern std::string  g_strDeviceId;
+extern std::string  g_strDeviceId2;
+extern std::string  g_strSignature;
 
 extern ADDON::CHelper_libXBMC_addon *XBMC;
 extern CHelper_libXBMC_pvr          *PVR;
