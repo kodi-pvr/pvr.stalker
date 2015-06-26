@@ -1,5 +1,9 @@
+0.9.0 (07-03-2015)
+- updated to PVR API version 1.9.7
+
 0.8.1 (28-06-2015)
 - updated language files from Transifex
+
 0.8.0 (05-24-2015)
 - added XMLTV support
 - added multi-portal support
