@@ -1,0 +1,141 @@
+# Kodi Media Center language file
+# Addon Name: Stalker Client
+# Addon id: pvr.stalker
+# Addon Provider: dvbken
+msgid ""
+msgstr ""
+"Project-Id-Version: KODI Main\n"
+"Report-Msgid-Bugs-To: http://trac.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: English (United States) (http://www.transifex.com/projects/p/kodi-main/language/en_US/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_US\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "Active Portal"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "Misc"
+
+msgctxt "#30003"
+msgid "Connection Timeout"
+msgstr "Connection Timeout"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC Address"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "Server Address"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "Time Zone"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "Auth Credentials"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "Login"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Password"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Guide"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "Preference"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "Prefer Provider"
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr "Prefer XMLTV"
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "Provider Only"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "XMLTV Only"
+
+msgctxt "#30113"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30114"
+msgid "Scope"
+msgstr "Scope"
+
+msgctxt "#30115"
+msgid "Remote URL"
+msgstr "Remote URL"
+
+msgctxt "#30116"
+msgid "Local Path"
+msgstr "Local Path"
+
+msgctxt "#30117"
+msgid "Advanced"
+msgstr "Advanced"
+
+msgctxt "#30118"
+msgid "Token"
+msgstr "Token"
+
+msgctxt "#30119"
+msgid "Serial Number"
+msgstr "Serial Number"
+
+msgctxt "#30120"
+msgid "Device ID"
+msgstr "Device ID"
+
+msgctxt "#30121"
+msgid "Device ID2"
+msgstr "Device ID2"
+
+msgctxt "#30122"
+msgid "Signature"
+msgstr "Signature"
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "Portal 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "Portal 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "Portal 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "Portal 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "Portal 5"
