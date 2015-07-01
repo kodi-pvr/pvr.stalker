@@ -1,5 +1,9 @@
+0.9.0 (01-07-2015)
+- Force update after libplatform dependency update
+
 0.8.1 (28-06-2015)
 - updated language files from Transifex
+
 0.8.0 (05-24-2015)
 - added XMLTV support
 - added multi-portal support
