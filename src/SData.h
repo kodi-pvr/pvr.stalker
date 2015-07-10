@@ -92,7 +92,7 @@ private:
   bool                        m_bDidHandshake;
   bool                        m_bLoadedProfile;
   bool                        m_bInitialized;
-  bool                        m_bGetEpgInfoAttempted;
+  uint64_t                    m_iNextEpgLoadTime;
   
   sc_identity_t               m_identity;
   sc_stb_profile_t            m_profile;

@@ -34,7 +34,6 @@
 using namespace ADDON;
 
 XMLTV::XMLTV() {
-  bParseAttempted = false;
   m_genreMap = XMLTV::CreateGenreMap();
 }
 
@@ -207,8 +206,6 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
   Response response;
   TiXmlDocument doc;
   TiXmlElement *elemRoot;
-  
-  bParseAttempted = true;
   
   request.scope = scope;
   request.url = strPath;

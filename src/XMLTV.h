@@ -85,8 +85,6 @@ public:
   
   static std::vector<Credit> FilterCredits(std::vector<Credit> &credits, CreditType type);
   static std::vector<std::string> StringListForCreditType(std::vector<Credit> &credits, CreditType type = ALL);
-  
-  bool bParseAttempted;
 protected:
   static time_t XmlTvToUnixTime(const char *strTime)
   {

@@ -26,6 +26,7 @@
 
 #include "tinyxml.h"
 #include "platform/os.h"
+#include "platform/util/timeutils.h"
 #include "platform/util/util.h"
 
 #include "libstalkerclient/itv.h"
@@ -34,6 +35,7 @@
 #include "Utils.h"
 
 using namespace ADDON;
+using namespace PLATFORM;
 
 SData::SData(void)
 {
@@ -41,7 +43,7 @@ SData::SData(void)
   m_bDidHandshake         = false;
   m_bLoadedProfile        = false;
   m_bInitialized          = false;
-  m_bGetEpgInfoAttempted  = false;
+  m_iNextEpgLoadTime      = 0;
   m_watchdog              = NULL;
   m_xmltv                 = new XMLTV;
 }
@@ -386,6 +388,7 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
   uint32_t iPeriod;
   Scope scope;
   std::string xmltvPath;
+  uint64_t iNow;
   std::string strChannelId;
   int iEntriesTransfered(0);
 
@@ -399,19 +402,21 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
     xmltvPath = g_strXmltvPath;
   }
 
-  if ((g_iGuidePreference != XMLTV_ONLY)
-    && !m_bGetEpgInfoAttempted)
-  {
-    m_bGetEpgInfoAttempted = true;
+  iNow = GetTimeMs();
+  if (m_iNextEpgLoadTime < iNow) {
+    m_iNextEpgLoadTime = iNow + 10 /*minutes*/ * 60000;
     
-    if (!SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData))
-      XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
-  }
-  
-  if ((g_iGuidePreference != PROVIDER_ONLY) && !xmltvPath.empty()
-    && m_xmltv && !m_xmltv->bParseAttempted && !m_xmltv->Parse(scope, xmltvPath))
-  {
-    XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+    if (g_iGuidePreference != XMLTV_ONLY
+      && !SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData))
+    {
+        XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
+    }
+    
+    if (g_iGuidePreference != PROVIDER_ONLY && !xmltvPath.empty()
+      && m_xmltv && !m_xmltv->Parse(scope, xmltvPath))
+    {
+      XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+    }
   }
   
   strChannelId = Utils::ToString(channel.iChannelId);
