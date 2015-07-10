@@ -158,7 +158,6 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   XBMC->Log(LOG_DEBUG, "signature=%s", g_strSignature.c_str());
 
   if (!m_data->LoadData()) {
-    XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
     ADDON_Destroy();
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
   }
@@ -329,9 +328,6 @@ const char* GetLiveStreamURL(const PVR_CHANNEL& channel)
 
   if (m_data)
     url = m_data->GetChannelStreamURL(channel);
-
-  if (strlen(url) == 0)
-    XBMC->QueueNotification(QUEUE_ERROR, "Failed to get stream URL.");
 
   return url;
 }
