@@ -3,7 +3,7 @@
   <category label="30000">
     <setting id="active_portal" type="enum" label="30001" values="1|2|3|4|5" default="0" />
     <setting id="sep1" type="lsep" label="30002" />
-    <setting id="connection_timeout" type="enum" label="30003" values="0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15" default="5" />
+    <setting id="connection_timeout" type="enum" label="30003" values="0|5|10|15|20|25|30|35|40|45|50|55|60|65|70|75|80|85|90|95|100|105|110|115|120" default="1" />
   </category>
   <category label="31000">
     <setting id="mac_0" type="text" label="30101" default="00:1A:79:00:00:00" />

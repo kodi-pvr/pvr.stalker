@@ -22,8 +22,11 @@
  *
  */
 
+#include <cstdint>
 #include <string>
 #include <vector>
+
+#define MINIMUM_TIMEOUT 5
 
 typedef enum
 {
@@ -66,7 +69,7 @@ struct Response
 class HTTPSocket
 {
 public:
-  HTTPSocket(int iTimeout = 5);
+  HTTPSocket(uint32_t iTimeout = MINIMUM_TIMEOUT);
   virtual ~HTTPSocket();
 
   virtual bool Execute(Request &request, Response &response);
@@ -75,7 +78,7 @@ protected:
   virtual void BuildRequestUrl(Request &request, std::string &strRequestUrl);
   virtual bool Get(std::string &strRequestUrl, std::string &strResponse);
 
-  int                     m_iTimeout;
+  uint32_t                m_iTimeout;
   std::vector<UrlOption>  m_defaultOptions;
 };
 
@@ -87,7 +90,7 @@ namespace PLATFORM
 class HTTPSocketRaw : public HTTPSocket
 {
 public:
-  HTTPSocketRaw(int iTimeout = 5);
+  HTTPSocketRaw(uint32_t iTimeout = MINIMUM_TIMEOUT);
   ~HTTPSocketRaw();
   
   void SetURL(const std::string &url);

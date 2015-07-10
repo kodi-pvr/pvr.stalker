@@ -123,6 +123,8 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   
   GET_SETTING_INT("active_portal", g_iActivePortal, DEFAULT_ACTIVE_PORTAL);
   GET_SETTING_INT("connection_timeout", g_iConnectionTimeout, DEFAULT_CONNECTION_TIMEOUT);
+  // calc based on index (5 second steps)
+  g_iConnectionTimeout *= 5;
   
   GET_SETTING_STR2(setting, "mac", buffer, g_strMac, DEFAULT_MAC);
   GET_SETTING_STR2(setting, "server", buffer, g_strServer, DEFAULT_SERVER);
