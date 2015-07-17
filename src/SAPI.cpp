@@ -108,7 +108,7 @@ bool SAPI::Init()
   return true;
 }
 
-bool SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed)
+SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
@@ -153,7 +153,7 @@ bool SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Resp
 
   if (!sock.Execute(request, response)) {
     XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
-    return false;
+    return SERROR_API;
   }
 
   if (!reader.parse(response.body, parsed)) {
@@ -161,10 +161,10 @@ bool SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Resp
     if (response.body.compare(AUTHORIZATION_FAILED) == 0) {
       XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
     }
-    return false;
+    return SERROR_AUTHORIZATION;
   }
 
-  return true;
+  return SERROR_OK;
 }
 
 bool SAPI::Handshake(sc_identity_t &identity, Json::Value &parsed)
@@ -174,7 +174,7 @@ bool SAPI::Handshake(sc_identity_t &identity, Json::Value &parsed)
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = STB_HANDSHAKE;
@@ -191,11 +191,11 @@ bool SAPI::Handshake(sc_identity_t &identity, Json::Value &parsed)
     param->value.string = sc_util_strcpy(identity.token);
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value &parsed)
@@ -205,7 +205,7 @@ bool SAPI::GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = STB_GET_PROFILE;
@@ -243,11 +243,11 @@ bool SAPI::GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value
     param->value.string = sc_util_strcpy(identity.signature);
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::DoAuth(sc_identity_t &identity, Json::Value &parsed)
@@ -257,7 +257,7 @@ bool SAPI::DoAuth(sc_identity_t &identity, Json::Value &parsed)
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = STB_DO_AUTH;
@@ -287,11 +287,11 @@ bool SAPI::DoAuth(sc_identity_t &identity, Json::Value &parsed)
     param->value.string = sc_util_strcpy(identity.device_id2);
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::GetAllChannels(sc_identity_t &identity, Json::Value &parsed)
@@ -300,7 +300,7 @@ bool SAPI::GetAllChannels(sc_identity_t &identity, Json::Value &parsed)
 
   sc_param_request_t params;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = ITV_GET_ALL_CHANNELS;
@@ -310,11 +310,11 @@ bool SAPI::GetAllChannels(sc_identity_t &identity, Json::Value &parsed)
     return false;
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::Value &parsed)
@@ -324,7 +324,7 @@ bool SAPI::GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = ITV_GET_ORDERED_LIST;
@@ -343,11 +343,11 @@ bool SAPI::GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::
     param->value.integer = iPage;
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &parsed)
@@ -357,7 +357,7 @@ bool SAPI::CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &pa
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = ITV_CREATE_LINK;
@@ -372,11 +372,11 @@ bool SAPI::CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &pa
     param->value.string = sc_util_strcpy((char *)cmd.c_str());
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::GetGenres(sc_identity_t &identity, Json::Value &parsed)
@@ -385,7 +385,7 @@ bool SAPI::GetGenres(sc_identity_t &identity, Json::Value &parsed)
 
   sc_param_request_t params;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = ITV_GET_GENRES;
@@ -395,11 +395,11 @@ bool SAPI::GetGenres(sc_identity_t &identity, Json::Value &parsed)
     return false;
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
 bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed)
@@ -409,7 +409,7 @@ bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed)
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = ITV_GET_EPG_INFO;
@@ -423,28 +423,28 @@ bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed)
     param->value.integer = iPeriod;
   }
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret == SERROR_OK;
 }
 
-bool SAPI::GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed)
+SError SAPI::GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_param_request_t params;
   sc_param_t *param;
   Response response;
-  bool result(true);
+  SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
   params.action = WATCHDOG_GET_EVENTS;
 
   if (!sc_watchdog_defaults(&params)) {
     XBMC->Log(LOG_ERROR, "%s: sc_watchdog_defaults failed", __FUNCTION__);
-    return false;
+    return SERROR_API;
   }
 
   if ((param = sc_param_get(&params, "cur_play_type")))
@@ -453,9 +453,9 @@ bool SAPI::GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identi
   if ((param = sc_param_get(&params, "event_active_id")))
     param->value.integer = iEventActiveId;
 
-  result = StalkerCall(identity, params, response, parsed);
+  ret = StalkerCall(identity, params, response, parsed);
 
   sc_param_free_params(params.param);
 
-  return result;
+  return ret;
 }

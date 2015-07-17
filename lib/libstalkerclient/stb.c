@@ -129,6 +129,8 @@ void sc_stb_profile_defaults(sc_stb_profile_t *profile) {
 
   profile->store_auth_data_on_stb = false;
   profile->status = -1;
+  SC_STR_SET(profile->msg, "");
+  SC_STR_SET(profile->block_msg, "");
   profile->watchdog_timeout = 120;
   profile->timeslot = 90;
 }
