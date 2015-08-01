@@ -37,7 +37,7 @@
 
 using namespace ADDON;
 
-bool SAPI::Init()
+/*bool SAPI::Init()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
@@ -101,6 +101,45 @@ bool SAPI::Init()
   g_strApiBasePath = strRealServer.substr(0, pos - 1);
   g_strApiEndpoint = g_strApiBasePath + "server/load.php";
   g_strReferer = strRealServer.substr(0, pos + 1);
+
+  XBMC->Log(LOG_DEBUG, "api_endpoint=%s", g_strApiEndpoint.c_str());
+  XBMC->Log(LOG_DEBUG, "referer=%s", g_strReferer.c_str());
+
+  return true;
+}*/
+
+bool SAPI::Init()
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  std::string strServer;
+  Request request;
+  Response response;
+  HTTPSocket *sock = NULL;
+  size_t pos;
+
+  if (g_strServer.find("://") == std::string::npos)
+    strServer = "http://";
+  
+  strServer += g_strServer;
+  sock = new HTTPSocket(g_iConnectionTimeout);
+  request.url = strServer;
+
+  if (!sock->Execute(request, response)) {
+    XBMC->Log(LOG_ERROR, "%s: api init failed", __FUNCTION__);
+    return false;
+  }
+
+  // xpcom.common.js > get_server_params()
+  if ((pos = strServer.find_last_of("/")) == std::string::npos || strServer.substr(pos - 2, 3).compare("/c/") != 0) {
+    XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
+    return false;
+  }
+
+  // strip tail from url path and set api endpoint and referer
+  g_strApiBasePath = strServer.substr(0, pos - 1);
+  g_strApiEndpoint = g_strApiBasePath + "server/load.php";
+  g_strReferer = strServer.substr(0, pos + 1);
 
   XBMC->Log(LOG_DEBUG, "api_endpoint=%s", g_strApiEndpoint.c_str());
   XBMC->Log(LOG_DEBUG, "referer=%s", g_strReferer.c_str());

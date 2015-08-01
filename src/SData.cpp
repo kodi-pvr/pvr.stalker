@@ -910,11 +910,9 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     XBMC->Log(LOG_ERROR, "%s: no stream url found", __FUNCTION__);
     QueueErrorNotification(SERROR_STREAM_URL);
   } else {
-    /* some protocols don't strip the protocol options.
-    some servers handle it, others don't. */
-    //TODO other protocols may need to be excluded
+    // protocol options for http(s) urls only
     // <= zero disables timeout
-    if (m_PlaybackURL.find("rtmp://") == std::string::npos && g_iConnectionTimeout > 0)
+    if (m_PlaybackURL.find("http") == 0 && g_iConnectionTimeout > 0)
       m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
 
     XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
