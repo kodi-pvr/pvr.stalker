@@ -1,5 +1,6 @@
 0.9.3 (19-07-2015)
 - Updated to PVR API v2.1.0
+- Automatically fill in platform and library name
 
 0.9.2 (17-07-2015)
 - Debian packaging: fix library install path
