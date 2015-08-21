@@ -1,3 +1,9 @@
+0.9.5 (08-21-2015)
+- improved error notifications
+- connection timeout fixes
+- auto re-authentication when authorization is lost
+- other minor tweaks and improvements
+
 0.9.4 (03-08-2015)
 - Updated to PVR API v3.0.0 (API 1.9.7 Compatibility Mode)
 
