@@ -22,7 +22,7 @@
 
 #include "HTTPSocket.h"
 
-#include <cmath>
+#include <algorithm>
 
 #include "platform/util/StringUtils.h"
 #include "platform/sockets/tcp.h"
@@ -147,7 +147,7 @@ HTTPSocketRaw::HTTPSocketRaw(uint32_t iTimeout)
   : HTTPSocket(iTimeout)
 {
   // set minimum timeout
-  m_iTimeout = fmax(MINIMUM_TIMEOUT, m_iTimeout);
+  m_iTimeout = std::max(MINIMUM_TIMEOUT, (const int) m_iTimeout);
 }
 
 HTTPSocketRaw::~HTTPSocketRaw()

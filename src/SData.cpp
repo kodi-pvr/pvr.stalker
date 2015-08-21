@@ -319,12 +319,14 @@ SError SData::Authenticate()
   m_bAuthenticated = false;
   
   while (!m_bAuthenticated && ++iNumRetries <= iMaxRetires) {
-    Sleep(5000);
-    
-    // notify once
-    if (iNumRetries == 1)
+    // notify once after the first try failed
+    if (iNumRetries == 2)
       QueueErrorNotification(SERROR_AUTHENTICATION);
-    
+
+    // don't sleep on first try
+    if (iNumRetries > 1)
+      usleep(5000000);
+
     if (!m_bTokenManuallySet && SERROR_OK != (ret = DoHandshake()))
       continue;
 
