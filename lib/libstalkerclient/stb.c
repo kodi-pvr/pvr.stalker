@@ -45,7 +45,7 @@ bool sc_stb_get_profile_defaults(sc_param_request_t *params) {
     "PORTAL version: 4.9.9; "
     "API Version: JS API version: 328; "
     "STB API version: 134; "
-    "Player Engine version: 0x560",
+    "Player Engine version: 0x566",
     true));
   param = sc_param_link(param, sc_param_create_string("device_id", "", false));
   param = sc_param_link(param, sc_param_create_string("device_id2", "", false));
