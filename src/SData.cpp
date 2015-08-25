@@ -26,6 +26,7 @@
 
 #include "tinyxml.h"
 #include "platform/os.h"
+#include "platform/util/timeutils.h"
 #include "platform/util/util.h"
 
 #include "libstalkerclient/itv.h"
@@ -33,15 +34,26 @@
 #include "SAPI.h"
 #include "Utils.h"
 
+//TODO move strings to resources
+#define SERROR_MSG_UNKNOWN "Unknown error. See log for details."
+#define SERROR_MSG_INITIALIZE "Startup failed."
+#define SERROR_MSG_API "Failed to connect to server."
+#define SERROR_MSG_AUTHENTICATION "Authentication failed. Retrying."
+#define SERROR_MSG_LOAD_CHANNELS "Unable to load channels."
+#define SERROR_MSG_LOAD_CHANNEL_GROUPS "Unable to load channel groups."
+#define SERROR_MSG_STREAM_URL "Failed to get stream URL."
+#define SERROR_MSG_AUTHORIZATION "Authorization lost. Re-authenticating."
+#define MSG_RE_AUTHENTICATED "Re-authenticated."
+
 using namespace ADDON;
+using namespace PLATFORM;
 
 SData::SData(void)
 {
   m_bInitedApi            = false;
-  m_bDidHandshake         = false;
-  m_bLoadedProfile        = false;
-  m_bInitialized          = false;
-  m_bGetEpgInfoAttempted  = false;
+  m_bTokenManuallySet     = false;
+  m_bAuthenticated        = false;
+  m_iNextEpgLoadTime      = 0;
   m_watchdog              = NULL;
   m_xmltv                 = new XMLTV;
 }
@@ -56,6 +68,46 @@ SData::~SData(void)
   
   SAFE_DELETE(m_watchdog);
   SAFE_DELETE(m_xmltv);
+}
+
+void SData::QueueErrorNotification(SError error)
+{
+  std::string strError;
+  
+  switch (error) {
+    case SERROR_UNKNOWN:
+      if (m_strLastUnknownError.empty()) {
+        strError = SERROR_MSG_UNKNOWN;
+        break;
+      }
+      strError = m_strLastUnknownError;
+      m_strLastUnknownError.clear();
+      break;
+    case SERROR_INITIALIZE:
+      strError = SERROR_MSG_INITIALIZE;
+      break;
+    case SERROR_API:
+      strError = SERROR_MSG_API;
+      break;
+    case SERROR_AUTHENTICATION:
+      strError = SERROR_MSG_AUTHENTICATION;
+      break;
+    case SERROR_LOAD_CHANNELS:
+      strError = SERROR_MSG_LOAD_CHANNELS;
+      break;
+    case SERROR_LOAD_CHANNEL_GROUPS:
+      strError = SERROR_MSG_LOAD_CHANNEL_GROUPS;
+      break;
+    case SERROR_STREAM_URL:
+      strError = SERROR_MSG_STREAM_URL;
+      break;
+    case SERROR_AUTHORIZATION:
+      strError = SERROR_MSG_AUTHORIZATION;
+      break;
+  }
+  
+  if (!strError.empty())
+    XBMC->QueueNotification(QUEUE_ERROR, strError.c_str());
 }
 
 std::string SData::GetFilePath(std::string strPath, bool bUserPath)
@@ -143,7 +195,7 @@ bool SData::SaveCache()
   return true;
 }
 
-bool SData::InitAPI()
+SError SData::InitAPI()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
@@ -151,25 +203,23 @@ bool SData::InitAPI()
 
   if (!SAPI::Init()) {
     XBMC->Log(LOG_ERROR, "%s: failed to init api", __FUNCTION__);
-    return false;
+    return SERROR_API;
   }
 
   m_bInitedApi = true;
 
-  return true;
+  return SERROR_OK;
 }
 
-bool SData::DoHandshake()
+SError SData::DoHandshake()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   Json::Value parsed;
 
-  m_bDidHandshake = false;
-
   if (!SAPI::Handshake(m_identity, parsed)) {
     XBMC->Log(LOG_ERROR, "%s: Handshake failed", __FUNCTION__);
-    return false;
+    return SERROR_AUTHENTICATION;
   }
   
   if (parsed["js"].isMember("token"))
@@ -180,40 +230,37 @@ bool SData::DoHandshake()
   if (parsed["js"].isMember("not_valid"))
     m_identity.valid_token = !Utils::GetIntFromJsonValue(parsed["js"]["not_valid"]);
 
-  m_bDidHandshake = true;
-
-  return true;
+  return SERROR_OK;
 }
 
-bool SData::DoAuth()
+SError SData::DoAuth()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   Json::Value parsed;
-  bool result(false);
+  SError ret(SERROR_OK);
   
   if (!SAPI::DoAuth(m_identity, parsed)) {
     XBMC->Log(LOG_ERROR, "%s: DoAuth failed", __FUNCTION__);
-    return false;
+    return SERROR_AUTHENTICATION;
   }
   
-  if (parsed.isMember("js"))
-    result = parsed["js"].asBool();
+  if (parsed.isMember("js") && !parsed["js"].asBool())
+    ret = SERROR_AUTHENTICATION;
 
-  return result;
+  return ret;
 }
 
-bool SData::LoadProfile(bool bAuthSecondStep)
+SError SData::LoadProfile(bool bAuthSecondStep)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   Json::Value parsed;
-
-  m_bLoadedProfile = false;
+  SError ret(SERROR_OK);
 
   if (!SAPI::GetProfile(m_identity, bAuthSecondStep, parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetProfile failed", __FUNCTION__);
-    return false;
+    return SERROR_AUTHENTICATION;
   }
   
   sc_stb_profile_defaults(&m_profile);
@@ -224,11 +271,13 @@ bool SData::LoadProfile(bool bAuthSecondStep)
   if (parsed["js"].isMember("status"))
     m_profile.status = Utils::GetIntFromJsonValue(parsed["js"]["status"]);
   
-  if (parsed["js"].isMember("msg"))
-    SC_STR_SET(m_profile.msg, parsed["js"]["msg"].asCString());
+  SC_STR_SET(m_profile.msg, !parsed["js"].isMember("msg")
+    ? ""
+    : parsed["js"]["msg"].asCString());
   
-  if (parsed["js"].isMember("block_msg"))
-    SC_STR_SET(m_profile.block_msg, parsed["js"]["block_msg"].asCString());
+  SC_STR_SET(m_profile.block_msg, !parsed["js"].isMember("block_msg")
+    ? ""
+    : parsed["js"]["block_msg"].asCString());
   
   if (parsed["js"].isMember("watchdog_timeout"))
     m_profile.watchdog_timeout = Utils::GetIntFromJsonValue(parsed["js"]["watchdog_timeout"]);
@@ -239,53 +288,102 @@ bool SData::LoadProfile(bool bAuthSecondStep)
   XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __FUNCTION__, m_profile.timeslot);
   
   if (m_profile.store_auth_data_on_stb && !SaveCache())
-    return false;
+    return SERROR_UNKNOWN;
   
   switch (m_profile.status) {
     case 0:
-      m_bLoadedProfile = true;
       break;
     case 2:
-      if (!DoAuth()) {
-        XBMC->QueueNotification(QUEUE_ERROR, "Authentication failed.");
-        return false;
-      }
+      ret = DoAuth();
+      if (ret != SERROR_OK)
+        return ret;
       
       return LoadProfile(true);
     case 1:
     default:
+      m_strLastUnknownError = m_profile.msg;
       XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s",
         __FUNCTION__, m_profile.status, m_profile.msg, m_profile.block_msg);
-      return false;
+      return SERROR_UNKNOWN;
   }
 
-  return true;
+  return ret;
 }
 
-bool SData::Initialize()
+SError SData::Authenticate()
+{
+  SError ret(SERROR_OK);
+  int iMaxRetires = 5;
+  int iNumRetries = 0;
+  
+  m_bAuthenticated = false;
+  
+  while (!m_bAuthenticated && ++iNumRetries <= iMaxRetires) {
+    // notify once after the first try failed
+    if (iNumRetries == 2)
+      QueueErrorNotification(SERROR_AUTHENTICATION);
+
+    // don't sleep on first try
+    if (iNumRetries > 1)
+      usleep(5000000);
+
+    if (!m_bTokenManuallySet && SERROR_OK != (ret = DoHandshake()))
+      continue;
+
+    if (SERROR_OK != (ret = LoadProfile()))
+      continue;
+
+    m_bAuthenticated = true;
+  }
+
+  return ret;
+}
+
+SError SData::ReAuthenticate(bool bAuthorizationLost)
+{
+  SError ret(SERROR_OK);
+  
+  m_authMutex.Lock();
+  
+  if (bAuthorizationLost)
+    QueueErrorNotification(SERROR_AUTHORIZATION);
+  
+  ret = Authenticate();
+  
+  if (ret == SERROR_OK)
+    XBMC->QueueNotification(QUEUE_INFO, MSG_RE_AUTHENTICATED);
+  
+  m_authMutex.Unlock();
+  
+  return ret;
+}
+
+bool SData::IsInitialized()
+{
+  return (m_bInitedApi && m_bAuthenticated);
+}
+
+SError SData::Initialize()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  m_bInitialized = false;
-
-  if (!m_bInitedApi && !InitAPI())
-    return m_bInitialized;
   
-  if (!m_bDidHandshake && !DoHandshake())
-    return m_bInitialized;
+  SError ret;
 
-  if (!m_bLoadedProfile && !LoadProfile())
-    return m_bInitialized;
+  if (!m_bInitedApi && SERROR_OK != (ret = InitAPI()))
+    return ret;
   
-  if (!m_watchdog)
+  if (!m_bAuthenticated && SERROR_OK != (ret = Authenticate()))
+    return ret;
+  
+  if (!m_watchdog) {
     m_watchdog = new CWatchdog((int)m_profile.timeslot, m_identity);
-    
+    m_watchdog->SetData(this);
+  }
+  
   if (m_watchdog && !m_watchdog->IsRunning() && !m_watchdog->CreateThread())
     XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to start Watchdog");
-  
-  m_bInitialized = true;
 
-  return m_bInitialized;
+  return SERROR_OK;
 }
 
 int SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle)
@@ -379,16 +477,18 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
   return iEntriesTransfered;
 }
 
-bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+SError SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   uint32_t iPeriod;
   Scope scope;
   std::string xmltvPath;
+  uint64_t iNow;
   std::string strChannelId;
   int iEntriesTransfered(0);
 
+  //TODO limit period to 24 hours for GetEPGInfo. large amount of channels over too many days could exceed server max memory allowed for that request
   iPeriod = (iEnd - iStart) / 3600;
   
   if (g_iXmltvScope == REMOTE_URL) {
@@ -399,19 +499,26 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
     xmltvPath = g_strXmltvPath;
   }
 
-  if ((g_iGuidePreference != XMLTV_ONLY)
-    && !m_bGetEpgInfoAttempted)
-  {
-    m_bGetEpgInfoAttempted = true;
+  iNow = GetTimeMs();
+  if (m_iNextEpgLoadTime < iNow) {
+    m_iNextEpgLoadTime = iNow + 10 /*minutes*/ * 60000;
     
-    if (!SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData))
-      XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
-  }
-  
-  if ((g_iGuidePreference != PROVIDER_ONLY) && !xmltvPath.empty()
-    && m_xmltv && !m_xmltv->bParseAttempted && !m_xmltv->Parse(scope, xmltvPath))
-  {
-    XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+    if (g_iGuidePreference != XMLTV_ONLY) {
+      //TODO merge with LoadData() when multiple PVR clients are properly supported
+      //TODO replace with auth check
+      SError ret(SERROR_OK);
+      if (!IsInitialized())
+        ret = Initialize();
+
+      if (ret == SERROR_OK && !SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData))
+        XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
+    }
+    
+    if (g_iGuidePreference != PROVIDER_ONLY && !xmltvPath.empty()
+      && m_xmltv && !m_xmltv->Parse(scope, xmltvPath))
+    {
+      XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+    }
   }
   
   strChannelId = Utils::ToString(channel.iChannelId);
@@ -442,7 +549,7 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
       break;
   }
 
-  return true;
+  return SERROR_OK;
 }
 
 bool SData::ParseChannelGroups(Json::Value &parsed)
@@ -471,22 +578,25 @@ bool SData::ParseChannelGroups(Json::Value &parsed)
   return true;
 }
 
-bool SData::LoadChannelGroups()
+SError SData::LoadChannelGroups()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (!m_bInitialized && !Initialize())
-    return false;
-
+  SError ret;
   Json::Value parsed;
+
+  //TODO merge with LoadData() when multiple PVR clients are properly supported
+  //TODO replace with auth check
+  if (!IsInitialized() && SERROR_OK != (ret = Initialize()))
+    return ret;
 
   // genres are channel groups
   if (!SAPI::GetGenres(m_identity, parsed) || !ParseChannelGroups(parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetGenres|ParseChannelGroups failed", __FUNCTION__);
-    return false;
+    return SERROR_LOAD_CHANNEL_GROUPS;
   }
 
-  return true;
+  return SERROR_OK;
 }
 
 int SData::GetChannelId(const char * strChannelName, const char * strNumber)
@@ -539,21 +649,24 @@ bool SData::ParseChannels(Json::Value &parsed)
   return true;
 }
 
-bool SData::LoadChannels()
+SError SData::LoadChannels()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  if (!m_bInitialized && !Initialize())
-    return false;
-
+  SError ret;
   Json::Value parsed;
   int iGenre = 10;
   uint32_t iCurrentPage = 1;
   uint32_t iMaxPages = 1;
 
+  //TODO merge with LoadData() when multiple PVR clients are properly supported
+  //TODO replace with auth check
+  if (!IsInitialized() && SERROR_OK != (ret = Initialize()))
+    return ret;
+
   if (!SAPI::GetAllChannels(m_identity, parsed) || !ParseChannels(parsed)) {
     XBMC->Log(LOG_ERROR, "%s: GetAllChannels failed", __FUNCTION__);
-    return false;
+    return SERROR_LOAD_CHANNELS;
   }
 
   parsed.clear();
@@ -561,7 +674,7 @@ bool SData::LoadChannels()
   while (iCurrentPage <= iMaxPages) {
     if (!SAPI::GetOrderedList(iGenre, iCurrentPage, m_identity, parsed) || !ParseChannels(parsed)) {
       XBMC->Log(LOG_ERROR, "%s: GetOrderedList failed", __FUNCTION__);
-      return false;
+      return SERROR_LOAD_CHANNELS;
     }
 
     int iTotalItems = Utils::GetIntFromJsonValue(parsed["js"]["total_items"]);
@@ -574,7 +687,7 @@ bool SData::LoadChannels()
       __FUNCTION__, iTotalItems, iMaxPageItems, iCurrentPage, iMaxPages);
   }
 
-  return true;
+  return SERROR_OK;
 }
 
 bool SData::LoadData(void)
@@ -593,10 +706,12 @@ bool SData::LoadData(void)
   SC_STR_SET(m_identity.signature, g_strSignature.c_str());
 
   // skip handshake if token setting was set
-  if (strlen(m_identity.token) > 0)
-    m_bDidHandshake = true;
-  else if (!LoadCache())
+  if (strlen(m_identity.token) > 0) {
+    m_bTokenManuallySet = true;
+  } else if (!LoadCache()) {
+    QueueErrorNotification(SERROR_INITIALIZE);
     return false;
+  }
 
   return true;
 }
@@ -604,8 +719,9 @@ bool SData::LoadData(void)
 PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
+  
   SChannel *thisChannel = NULL;
+  SError ret;
 
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++) {
     thisChannel = &m_channels.at(iChannelPtr);
@@ -623,7 +739,9 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
   XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s",
     __FUNCTION__, iStart, iEnd, thisChannel->iChannelNumber, thisChannel->strChannelName.c_str());
 
-  if (!LoadEPGForChannel(*thisChannel, iStart, iEnd, handle)) {
+  ret = LoadEPGForChannel(*thisChannel, iStart, iEnd, handle);
+  if (ret != SERROR_OK) {
+    QueueErrorNotification(ret);
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -638,13 +756,15 @@ int SData::GetChannelGroupsAmount(void)
 PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  
+  SError ret;
 
-  if (bRadio) {
+  if (bRadio)
     return PVR_ERROR_NO_ERROR;
-  }
 
-  if (!LoadChannelGroups()) {
-    XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channel groups.");
+  ret = LoadChannelGroups();
+  if (ret != SERROR_OK) {
+    QueueErrorNotification(ret);
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -708,12 +828,15 @@ int SData::GetChannelsAmount(void)
 PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  
+  SError ret;
 
   if (bRadio)
     return PVR_ERROR_NO_ERROR;
 
-  if (!LoadChannels()) {
-    XBMC->QueueNotification(QUEUE_ERROR, "Unable to load channels.");
+  ret = LoadChannels();
+  if (ret != SERROR_OK) {
+    QueueErrorNotification(ret);
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -740,6 +863,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   SChannel *thisChannel = NULL;
+  Json::Value parsed;
   std::string strCmd;
   size_t pos;
 
@@ -761,17 +885,19 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
   if (thisChannel->bUseHttpTmpLink || thisChannel->bUseLoadBalancing) {
     XBMC->Log(LOG_DEBUG, "%s: getting temp stream url", __FUNCTION__);
 
-    Json::Value parsed;
+    //TODO merge with LoadData() when multiple PVR clients are properly supported
+    //TODO replace with auth check
+    SError ret(SERROR_OK);
+    if (!IsInitialized())
+      ret = Initialize();
 
-    if (!SAPI::CreateLink(thisChannel->strCmd, m_identity, parsed)) {
+    if (ret == SERROR_OK && SAPI::CreateLink(thisChannel->strCmd, m_identity, parsed)) {
+      if (parsed["js"].isMember("cmd"))
+        strCmd = parsed["js"]["cmd"].asString();
+    } else {
       XBMC->Log(LOG_ERROR, "%s: CreateLink failed", __FUNCTION__);
-      return "";
     }
-
-    if (parsed["js"].isMember("cmd"))
-      strCmd = parsed["js"]["cmd"].asString();
-  }
-  else {
+  } else {
     strCmd = thisChannel->strCmd;
   }
 
@@ -784,16 +910,15 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
   if (m_PlaybackURL.empty()) {
     XBMC->Log(LOG_ERROR, "%s: no stream url found", __FUNCTION__);
-    return "";
-  }
-  
-  /* some protocols don't strip the protocol options.
-  some servers handle it, others don't. */
-  //TODO other protocols may need to be excluded
-  if (m_PlaybackURL.find("rtmp://") == std::string::npos)
-    m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
+    QueueErrorNotification(SERROR_STREAM_URL);
+  } else {
+    // protocol options for http(s) urls only
+    // <= zero disables timeout
+    if (m_PlaybackURL.find("http") == 0 && g_iConnectionTimeout > 0)
+      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
 
-  XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
+    XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
+  }
 
   return m_PlaybackURL.c_str();
 }

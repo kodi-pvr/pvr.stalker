@@ -32,6 +32,18 @@
 #include "CWatchdog.h"
 #include "XMLTV.h"
 
+typedef enum {
+  SERROR_OK = 1,
+  SERROR_UNKNOWN = -1,
+  SERROR_INITIALIZE = -2,
+  SERROR_API = -3,
+  SERROR_AUTHENTICATION = -4,
+  SERROR_LOAD_CHANNELS = -5,
+  SERROR_LOAD_CHANNEL_GROUPS = -6,
+  SERROR_STREAM_URL = -7,
+  SERROR_AUTHORIZATION = -8
+} SError;
+
 struct SChannelGroup
 {
   std::string strGroupName;
@@ -69,32 +81,38 @@ public:
   virtual int GetChannelsAmount(void);
   virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
+  
+  virtual SError ReAuthenticate(bool bAuthorizationLost = false);
 protected:
   virtual bool LoadCache();
   virtual bool SaveCache();
-  virtual bool InitAPI();
-  virtual bool DoHandshake();
-  virtual bool DoAuth();
-  virtual bool LoadProfile(bool bAuthSecondStep = false);
-  virtual bool Initialize();
+  virtual SError InitAPI();
+  virtual SError DoHandshake();
+  virtual SError DoAuth();
+  virtual SError LoadProfile(bool bAuthSecondStep = false);
+  virtual SError Authenticate();
+  virtual bool IsInitialized();
+  virtual SError Initialize();
   virtual int ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
   virtual int ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual SError LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
   virtual bool ParseChannelGroups(Json::Value &parsed);
-  virtual bool LoadChannelGroups();
+  virtual SError LoadChannelGroups();
   virtual bool ParseChannels(Json::Value &parsed);
-  virtual bool LoadChannels();
+  virtual SError LoadChannels();
 
+  virtual void QueueErrorNotification(SError error);
   virtual std::string GetFilePath(std::string strPath, bool bUserPath = true);
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 private:
+  std::string                 m_strLastUnknownError;
   bool                        m_bInitedApi;
-  bool                        m_bDidHandshake;
-  bool                        m_bLoadedProfile;
-  bool                        m_bInitialized;
-  bool                        m_bGetEpgInfoAttempted;
+  bool                        m_bTokenManuallySet;
+  bool                        m_bAuthenticated;
+  uint64_t                    m_iNextEpgLoadTime;
   
   sc_identity_t               m_identity;
+  PLATFORM::CMutex            m_authMutex;
   sc_stb_profile_t            m_profile;
   Json::Value                 m_epgData;
   std::vector<SChannelGroup>  m_channelGroups;

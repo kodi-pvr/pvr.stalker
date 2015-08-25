@@ -29,6 +29,7 @@
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/request.h"
 #include "HTTPSocket.h"
+#include "SData.h"
 
 #define AUTHORIZATION_FAILED "Authorization failed."
 
@@ -36,7 +37,7 @@ class SAPI
 {
 public:
   static bool Init();
-  static bool StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed);
+  static SError StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed);
   static bool Handshake(sc_identity_t &identity, Json::Value &parsed);
   static bool GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value &parsed);
   static bool DoAuth(sc_identity_t &identity, Json::Value &parsed);
@@ -45,5 +46,5 @@ public:
   static bool CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &parsed);
   static bool GetGenres(sc_identity_t &identity, Json::Value &parsed);
   static bool GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed);
-  static bool GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed);
+  static SError GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed);
 };

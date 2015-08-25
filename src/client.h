@@ -33,7 +33,7 @@
 #define DEFAULT_TIME_ZONE           "Europe/Kiev"
 #define DEFAULT_LOGIN               ""
 #define DEFAULT_PASSWORD            ""
-#define DEFAULT_CONNECTION_TIMEOUT  5
+#define DEFAULT_CONNECTION_TIMEOUT  1 // 5 seconds
 #define DEFAULT_GUIDE_PREFERENCE    0 // prefer provider
 #define DEFAULT_XMLTV_SCOPE         0 // remote url
 #define DEFAULT_XMLTV_URL           ""

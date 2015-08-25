@@ -31,9 +31,12 @@ class CWatchdog : public PLATFORM::CThread
 public:
   CWatchdog(int iInterval, sc_identity_t &m_identity);
   ~CWatchdog(void);
+  
+  virtual void SetData(void *data);
 private:
   virtual void *Process(void);
   
   int           m_iInterval;
   sc_identity_t &m_identity;
+  void          *m_data;
 };

@@ -24,6 +24,7 @@
 
 #include "client.h"
 #include "SAPI.h"
+#include "SData.h"
 
 using namespace ADDON;
 
@@ -34,6 +35,12 @@ CWatchdog::CWatchdog(int iInterval, sc_identity_t &identity)
 
 CWatchdog::~CWatchdog()
 {
+  StopThread();
+}
+
+void CWatchdog::SetData(void *data)
+{
+  m_data = data;
 }
 
 void *CWatchdog::Process()
@@ -44,6 +51,7 @@ void *CWatchdog::Process()
     int iCurPlayType;
     int iEventActiveId;
     Json::Value parsed;
+    SError ret;
     uint64_t iNow;
     uint64_t iTarget;
     
@@ -51,8 +59,21 @@ void *CWatchdog::Process()
     iCurPlayType = 1; // tv
     iEventActiveId = 0;
     
-    if (!SAPI::GetEvents(iCurPlayType, iEventActiveId, m_identity, parsed))
+    ret = SAPI::GetEvents(iCurPlayType, iEventActiveId, m_identity, parsed);
+    if (ret != SERROR_OK) {
       XBMC->Log(LOG_ERROR, "%s: GetEvents failed", __FUNCTION__);
+      
+      if (ret == SERROR_AUTHORIZATION) {
+        if (!m_data) {
+          XBMC->Log(LOG_NOTICE, "%s: data not set. unable request re-authentication", __FUNCTION__);
+          return NULL;
+        }
+        
+        ret = ((SData *)m_data)->ReAuthenticate(true);
+        /*if (ret != SERROR_OK)
+          break;*/
+      }
+    }
     
     // ignore the result. don't confirm events (yet)
     

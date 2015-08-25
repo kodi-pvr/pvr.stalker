@@ -123,6 +123,8 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   
   GET_SETTING_INT("active_portal", g_iActivePortal, DEFAULT_ACTIVE_PORTAL);
   GET_SETTING_INT("connection_timeout", g_iConnectionTimeout, DEFAULT_CONNECTION_TIMEOUT);
+  // calc based on index (5 second steps)
+  g_iConnectionTimeout *= 5;
   
   GET_SETTING_STR2(setting, "mac", buffer, g_strMac, DEFAULT_MAC);
   GET_SETTING_STR2(setting, "server", buffer, g_strServer, DEFAULT_SERVER);
@@ -158,7 +160,6 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   XBMC->Log(LOG_DEBUG, "signature=%s", g_strSignature.c_str());
 
   if (!m_data->LoadData()) {
-    XBMC->QueueNotification(QUEUE_ERROR, "Startup failed.");
     ADDON_Destroy();
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
   }
@@ -329,9 +330,6 @@ const char* GetLiveStreamURL(const PVR_CHANNEL& channel)
 
   if (m_data)
     url = m_data->GetChannelStreamURL(channel);
-
-  if (strlen(url) == 0)
-    XBMC->QueueNotification(QUEUE_ERROR, "Failed to get stream URL.");
 
   return url;
 }

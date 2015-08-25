@@ -22,6 +22,8 @@
 
 #include "HTTPSocket.h"
 
+#include <algorithm>
+
 #include "platform/util/StringUtils.h"
 #include "platform/sockets/tcp.h"
 
@@ -33,7 +35,7 @@
 using namespace ADDON;
 using namespace PLATFORM;
 
-HTTPSocket::HTTPSocket(int iTimeout)
+HTTPSocket::HTTPSocket(uint32_t iTimeout)
   : m_iTimeout(iTimeout)
 {
   UrlOption option;
@@ -41,8 +43,11 @@ HTTPSocket::HTTPSocket(int iTimeout)
   option = { "User-Agent", "Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG200 stbapp ver: 2 rev: 250 Safari/533.3" };
   m_defaultOptions.push_back(option);
 
-  option = { "Connection-Timeout", Utils::ToString(m_iTimeout) };
-  m_defaultOptions.push_back(option);
+  // <= zero disables timeout
+  if (m_iTimeout > 0) {
+    option = { "Connection-Timeout", Utils::ToString(m_iTimeout) };
+    m_defaultOptions.push_back(option);
+  }
 }
 
 HTTPSocket::~HTTPSocket()
@@ -138,9 +143,11 @@ bool HTTPSocket::Execute(Request &request, Response &response)
   return true;
 }
 
-HTTPSocketRaw::HTTPSocketRaw(int iTimeout)
+HTTPSocketRaw::HTTPSocketRaw(uint32_t iTimeout)
   : HTTPSocket(iTimeout)
 {
+  // set minimum timeout
+  m_iTimeout = std::max(MINIMUM_TIMEOUT, (const int) m_iTimeout);
 }
 
 HTTPSocketRaw::~HTTPSocketRaw()
@@ -200,6 +207,13 @@ void HTTPSocketRaw::BuildRequestString(Request &request, std::string &strRequest
   strRequest += "\r\n\r\n";
 
   strRequest += request.body;
+
+  XBMC->Log(LOG_DEBUG, "%s: method=%s | path=%s | host=%s | port=%d",
+    __FUNCTION__, strMethod.c_str(), strUri.c_str(),
+    m_host.c_str(), m_port);
+  
+  XBMC->Log(LOG_DEBUG, "%s: request=%s",
+    __FUNCTION__, strRequest.substr(0, 512).c_str());
 }
 
 bool HTTPSocketRaw::Open()
