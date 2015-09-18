@@ -411,6 +411,7 @@ int SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChanne
     tag.startTime = iStartTimestamp;
     tag.endTime = iStopTimestamp;
     tag.strPlot = (*it)["descr"].asCString();
+    tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
 
     PVR->TransferEpgEntry(handle, &tag);
     iEntriesTransfered++;
@@ -469,6 +470,7 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
     tag.iStarRating = Utils::StringToInt(it->strStarRating.substr(0, 1)); // numerator only
     tag.iEpisodeNumber = it->iEpisodeNumber;
     tag.strEpisodeName = it->strSubTitle.c_str();
+    tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
     
     PVR->TransferEpgEntry(handle, &tag);
     iEntriesTransfered++;
