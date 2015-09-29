@@ -32,6 +32,8 @@ bool sc_watchdog_get_events_defaults(sc_param_request_t *params) {
   param = sc_param_link(param, sc_param_create_integer("event_active_id", 0, true));
 
   params->param = param->first;
+  
+  param = NULL;
 
   return true;
 }
@@ -64,11 +66,14 @@ bool sc_watchdog_prep_request(sc_param_request_t *params, sc_request_t *request)
 
   switch (params->action) {
     case WATCHDOG_GET_EVENTS:
-      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_events"));
+      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_events"));
       break;
   }
 
   request->method = "GET";
+  
+  paramPrev = NULL;
+  param = NULL;
 
   return true;
 }

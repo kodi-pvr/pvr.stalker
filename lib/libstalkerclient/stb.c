@@ -58,6 +58,8 @@ bool sc_stb_get_profile_defaults(sc_param_request_t *params) {
   param = sc_param_link(param, sc_param_create_string("hw_version", "1.7-BD-00", true));
 
   params->param = param->first;
+  
+  param = NULL;
 
   return true;
 }
@@ -73,6 +75,8 @@ bool sc_stb_do_auth_defaults(sc_param_request_t *params) {
   param = sc_param_link(param, sc_param_create_string("device_id2", "", false));
 
   params->param = param->first;
+  
+  param = NULL;
 
   return true;
 }
@@ -109,23 +113,26 @@ bool sc_stb_prep_request(sc_param_request_t *params, sc_request_t *request) {
 
   switch (params->action) {
     case STB_HANDSHAKE:
-      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "handshake"));
+      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "handshake"));
       break;
     case STB_GET_PROFILE:
-      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_profile"));
+      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_profile"));
       break;
     case STB_DO_AUTH:
-      paramPrev = sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "do_auth"));
+      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "do_auth"));
       break;
   }
 
   request->method = "GET";
+  
+  paramPrev = NULL;
+  param = NULL;
 
   return true;
 }
 
 void sc_stb_profile_defaults(sc_stb_profile_t *profile) {
-  memset(profile, 0, sizeof (profile));
+  memset(profile, 0, sizeof (*profile));
 
   profile->store_auth_data_on_stb = false;
   profile->status = -1;

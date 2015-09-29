@@ -28,8 +28,8 @@
 
 using namespace ADDON;
 
-CWatchdog::CWatchdog(int iInterval, sc_identity_t &identity)
-  : CThread(), m_iInterval(iInterval), m_identity(identity)
+CWatchdog::CWatchdog(uint32_t iInterval, sc_identity_t &identity)
+  : CThread(), m_iInterval(iInterval), m_identity(identity), m_data(NULL)
 {
 }
 
@@ -52,8 +52,8 @@ void *CWatchdog::Process()
     int iEventActiveId;
     Json::Value parsed;
     SError ret;
-    uint64_t iNow;
-    uint64_t iTarget;
+    uint32_t iNow;
+    uint32_t iTarget;
     
     // hardcode values for now
     iCurPlayType = 1; // tv

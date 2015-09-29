@@ -144,7 +144,7 @@ bool HTTPSocket::Execute(Request &request, Response &response)
 }
 
 HTTPSocketRaw::HTTPSocketRaw(uint32_t iTimeout)
-  : HTTPSocket(iTimeout)
+  : HTTPSocket(iTimeout), m_port(80), m_socket(NULL)
 {
   // set minimum timeout
   m_iTimeout = std::max(MINIMUM_TIMEOUT, (const int) m_iTimeout);
@@ -240,13 +240,14 @@ bool HTTPSocketRaw::Open()
 
 void HTTPSocketRaw::Close()
 {
+  if (!m_socket)
+    return;
+  
   if (m_socket->IsOpen())
     m_socket->Close();
-
-  if (m_socket) {
-    delete m_socket;
-    m_socket = NULL;
-  }
+  
+  delete m_socket;
+  m_socket = NULL;
 }
 
 bool HTTPSocketRaw::Execute(Request &request, Response &response)
