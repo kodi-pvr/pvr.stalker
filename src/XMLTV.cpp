@@ -145,8 +145,19 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
       programme.strDesc = elem->GetText();
     
     elem = element->FirstChildElement("credits");
-    if (elem)
+    if (elem) {
       ReadCredits(elem, &programme);
+      
+      std::vector<Credit> cast;
+      std::vector<Credit> cast2;
+      cast = XMLTV::FilterCredits(programme.credits, ACTOR);
+      Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(programme.credits, GUEST)));
+      Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(programme.credits, PRESENTER)));
+      
+      programme.strCast = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(cast));
+      programme.strDirectors = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(programme.credits, DIRECTOR));
+      programme.strWriters = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(programme.credits, WRITER));
+    }
     
     elem = element->FirstChildElement("date");
     if (elem && elem->GetText())
@@ -158,6 +169,7 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
       if (elem->GetText())
         programme.categories.push_back(elem->GetText());
     }
+    programme.strCategories = Utils::ConcatenateStringList(programme.categories);
     
     elem = element->FirstChildElement("episode-num");
     if (elem) {
@@ -286,13 +298,10 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
       std::string gen = genre->second; StringUtils::ToLower(gen);
       
       if (gen.find(cat) != std::string::npos) {
+        // find the genre match count, if found previously
         std::map<int, int>::iterator match = matches.find(genre->first);
+        // increment the number of matches for the genre
         matches[genre->first] = match != matches.end() ? match->second + 1 : 1;
-        
-        // set the first category match as the initial final match
-        // useful when there is no dominant genre
-        if (finalMatch == matches.end())
-          finalMatch = matches.find(genre->first);
       }
     }
   }
@@ -301,7 +310,9 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
     return EPG_GENRE_USE_STRING;
   
   for (std::map<int, int>::iterator match = matches.begin(); match != matches.end(); ++match) {
-    if (match->second > finalMatch->second)
+    // set the first category match as the initial final match
+    // useful when there is no dominant genre
+    if (finalMatch == matches.end() || match->second > finalMatch->second)
       finalMatch = match;
   }
   

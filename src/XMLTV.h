@@ -57,8 +57,12 @@ struct Programme
   std::string               strSubTitle;
   std::string               strDesc;
   std::vector<Credit>       credits;
+  std::string               strCast;
+  std::string               strDirectors;
+  std::string               strWriters;
   std::string               strDate;
   std::vector<std::string>  categories;
+  std::string               strCategories;
   int                       iEpisodeNumber;
   time_t                    previouslyShown;
   std::string               strStarRating;

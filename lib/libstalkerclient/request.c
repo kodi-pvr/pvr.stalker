@@ -136,6 +136,7 @@ void sc_request_build_headers(sc_identity_t *identity, sc_request_t *request, sc
   }
 
   header->next = NULL;
+  header = NULL;
 }
 
 void sc_request_build_query_params(sc_param_request_t *params, sc_request_t *request) {
@@ -181,39 +182,48 @@ void sc_request_build_query_params(sc_param_request_t *params, sc_request_t *req
 
 bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_request_t *request) {
   sc_param_request_t *final_params;
+  bool result = true;
 
   final_params = (sc_param_request_t *) malloc(sizeof (sc_param_request_t));
-  memset(final_params, 0, sizeof (final_params));
+  memset(final_params, 0, sizeof (*final_params));
   final_params->action = params->action;
 
   switch (final_params->action) {
     case STB_HANDSHAKE:
     case STB_GET_PROFILE:
     case STB_DO_AUTH:
-      sc_stb_defaults(final_params);
-      sc_stb_prep_request(params, request);
+      if (!sc_stb_defaults(final_params)
+        || !sc_stb_prep_request(params, request))
+        result = false;
       break;
     case ITV_GET_ALL_CHANNELS:
     case ITV_GET_ORDERED_LIST:
     case ITV_CREATE_LINK:
     case ITV_GET_GENRES:
     case ITV_GET_EPG_INFO:
-      sc_itv_defaults(final_params);
-      sc_itv_prep_request(params, request);
+      if (!sc_itv_defaults(final_params)
+        || !sc_itv_prep_request(params, request))
+        result = false;
       break;
     case WATCHDOG_GET_EVENTS:
-      sc_watchdog_defaults(final_params);
-      sc_watchdog_prep_request(params, request);
+      if (!sc_watchdog_defaults(final_params)
+        || !sc_watchdog_prep_request(params, request))
+        result = false;
       break;
   }
 
-  sc_request_set_missing_required(params, final_params);
-  sc_request_remove_default_non_required(final_params, params);
+  if (result) {
+    sc_request_set_missing_required(params, final_params);
+    sc_request_remove_default_non_required(final_params, params);
 
-  sc_request_build_headers(identity, request, final_params->action);
-  sc_request_build_query_params(final_params, request);
+    sc_request_build_headers(identity, request, final_params->action);
+    sc_request_build_query_params(final_params, request);
+  }
+  
+  free(final_params);
+  final_params = NULL;
 
-  return true;
+  return result;
 }
 
 void sc_request_free_nameVal(sc_request_nameVal_t *header) {

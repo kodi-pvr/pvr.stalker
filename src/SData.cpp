@@ -50,12 +50,15 @@ using namespace PLATFORM;
 
 SData::SData(void)
 {
-  m_bInitedApi            = false;
-  m_bTokenManuallySet     = false;
-  m_bAuthenticated        = false;
-  m_iNextEpgLoadTime      = 0;
-  m_watchdog              = NULL;
-  m_xmltv                 = new XMLTV;
+  m_bInitedApi        = false;
+  m_bTokenManuallySet = false;
+  m_bAuthenticated    = false;
+  m_iNextEpgLoadTime  = 0;
+  m_watchdog          = NULL;
+  m_xmltv             = new XMLTV;
+  
+  sc_identity_defaults(&m_identity);
+  sc_stb_profile_defaults(&m_profile);
 }
 
 SData::~SData(void)
@@ -446,26 +449,20 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
     EPG_TAG tag;
     memset(&tag, 0, sizeof(EPG_TAG));
     
-    std::vector<Credit> cast;
-    std::vector<Credit> cast2;
-    cast = XMLTV::FilterCredits(it->credits, ACTOR);
-    Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(it->credits, GUEST)));
-    Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(it->credits, PRESENTER)));
-
     tag.iUniqueBroadcastId = it->iBroadcastId;
     tag.strTitle = it->strTitle.c_str();
     tag.iChannelNumber = iChannelNumber;
     tag.startTime = it->start;
     tag.endTime = it->stop;
     tag.strPlot = it->strDesc.c_str();
-    tag.strCast = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(cast)).c_str();
-    tag.strDirector = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(it->credits, DIRECTOR)).c_str();
-    tag.strWriter = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(it->credits, WRITER)).c_str();
+    tag.strCast = it->strCast.c_str();
+    tag.strDirector = it->strDirectors.c_str();
+    tag.strWriter = it->strWriters.c_str();
     tag.iYear = Utils::StringToInt(it->strDate.substr(0, 4)); // year only
     tag.strIconPath = it->strIcon.c_str();
     tag.iGenreType = m_xmltv->EPGGenreByCategory(it->categories);
     if (tag.iGenreType == EPG_GENRE_USE_STRING)
-      tag.strGenreDescription = Utils::ConcatenateStringList(it->categories).c_str();
+      tag.strGenreDescription = it->strCategories.c_str();
     tag.firstAired = it->previouslyShown;
     tag.iStarRating = Utils::StringToInt(it->strStarRating.substr(0, 1)); // numerator only
     tag.iEpisodeNumber = it->iEpisodeNumber;
@@ -674,19 +671,25 @@ SError SData::LoadChannels()
   parsed.clear();
 
   while (iCurrentPage <= iMaxPages) {
+    XBMC->Log(LOG_DEBUG, "%s: iCurrentPage: %d", __FUNCTION__, iCurrentPage);
+
     if (!SAPI::GetOrderedList(iGenre, iCurrentPage, m_identity, parsed) || !ParseChannels(parsed)) {
       XBMC->Log(LOG_ERROR, "%s: GetOrderedList failed", __FUNCTION__);
       return SERROR_LOAD_CHANNELS;
     }
 
-    int iTotalItems = Utils::GetIntFromJsonValue(parsed["js"]["total_items"]);
-    int iMaxPageItems = Utils::GetIntFromJsonValue(parsed["js"]["max_page_items"]);
-    iMaxPages = static_cast<uint32_t>(ceil((double)iTotalItems / iMaxPageItems));
+    if (iCurrentPage == 1) {
+      int iTotalItems = Utils::GetIntFromJsonValue(parsed["js"]["total_items"]);
+      int iMaxPageItems = Utils::GetIntFromJsonValue(parsed["js"]["max_page_items"]);
+
+      if (iTotalItems > 0 && iMaxPageItems > 0)
+        iMaxPages = static_cast<uint32_t>(ceil((double)iTotalItems / iMaxPageItems));
+      
+      XBMC->Log(LOG_DEBUG, "%s: iTotalItems: %d | iMaxPageItems: %d | iMaxPages: %d",
+        __FUNCTION__, iTotalItems, iMaxPageItems, iMaxPages);
+    }
 
     iCurrentPage++;
-
-    XBMC->Log(LOG_DEBUG, "%s: iTotalItems: %d | iMaxPageItems: %d | iCurrentPage: %d | iMaxPages: %d",
-      __FUNCTION__, iTotalItems, iMaxPageItems, iCurrentPage, iMaxPages);
   }
 
   return SERROR_OK;
