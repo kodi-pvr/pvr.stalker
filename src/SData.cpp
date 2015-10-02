@@ -34,16 +34,15 @@
 #include "SAPI.h"
 #include "Utils.h"
 
-//TODO move strings to resources
-#define SERROR_MSG_UNKNOWN "Unknown error. See log for details."
-#define SERROR_MSG_INITIALIZE "Startup failed."
-#define SERROR_MSG_API "Failed to connect to server."
-#define SERROR_MSG_AUTHENTICATION "Authentication failed. Retrying."
-#define SERROR_MSG_LOAD_CHANNELS "Unable to load channels."
-#define SERROR_MSG_LOAD_CHANNEL_GROUPS "Unable to load channel groups."
-#define SERROR_MSG_STREAM_URL "Failed to get stream URL."
-#define SERROR_MSG_AUTHORIZATION "Authorization lost. Re-authenticating."
-#define MSG_RE_AUTHENTICATED "Re-authenticated."
+#define SERROR_MSG_UNKNOWN              30501
+#define SERROR_MSG_INITIALIZE           30502
+#define SERROR_MSG_API                  30503
+#define SERROR_MSG_AUTHENTICATION       30504
+#define SERROR_MSG_LOAD_CHANNELS        30505
+#define SERROR_MSG_LOAD_CHANNEL_GROUPS  30506
+#define SERROR_MSG_STREAM_URL           30507
+#define SERROR_MSG_AUTHORIZATION        30508
+#define MSG_RE_AUTHENTICATED            30509
 
 using namespace ADDON;
 using namespace PLATFORM;
@@ -75,42 +74,42 @@ SData::~SData(void)
 
 void SData::QueueErrorNotification(SError error)
 {
-  std::string strError;
+  int iErrorMsg = 0;
   
   switch (error) {
     case SERROR_UNKNOWN:
       if (m_strLastUnknownError.empty()) {
-        strError = SERROR_MSG_UNKNOWN;
+        iErrorMsg = SERROR_MSG_UNKNOWN;
         break;
       }
-      strError = m_strLastUnknownError;
+      XBMC->QueueNotification(QUEUE_ERROR, m_strLastUnknownError.c_str());
       m_strLastUnknownError.clear();
       break;
     case SERROR_INITIALIZE:
-      strError = SERROR_MSG_INITIALIZE;
+      iErrorMsg = SERROR_MSG_INITIALIZE;
       break;
     case SERROR_API:
-      strError = SERROR_MSG_API;
+      iErrorMsg = SERROR_MSG_API;
       break;
     case SERROR_AUTHENTICATION:
-      strError = SERROR_MSG_AUTHENTICATION;
+      iErrorMsg = SERROR_MSG_AUTHENTICATION;
       break;
     case SERROR_LOAD_CHANNELS:
-      strError = SERROR_MSG_LOAD_CHANNELS;
+      iErrorMsg = SERROR_MSG_LOAD_CHANNELS;
       break;
     case SERROR_LOAD_CHANNEL_GROUPS:
-      strError = SERROR_MSG_LOAD_CHANNEL_GROUPS;
+      iErrorMsg = SERROR_MSG_LOAD_CHANNEL_GROUPS;
       break;
     case SERROR_STREAM_URL:
-      strError = SERROR_MSG_STREAM_URL;
+      iErrorMsg = SERROR_MSG_STREAM_URL;
       break;
     case SERROR_AUTHORIZATION:
-      strError = SERROR_MSG_AUTHORIZATION;
+      iErrorMsg = SERROR_MSG_AUTHORIZATION;
       break;
   }
   
-  if (!strError.empty())
-    XBMC->QueueNotification(QUEUE_ERROR, strError.c_str());
+  if (iErrorMsg > 0)
+    XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(iErrorMsg));
 }
 
 std::string SData::GetFilePath(std::string strPath, bool bUserPath)
@@ -354,7 +353,8 @@ SError SData::ReAuthenticate(bool bAuthorizationLost)
   ret = Authenticate();
   
   if (ret == SERROR_OK)
-    XBMC->QueueNotification(QUEUE_INFO, MSG_RE_AUTHENTICATED);
+    XBMC->QueueNotification(QUEUE_INFO,
+      XBMC->GetLocalizedString(MSG_RE_AUTHENTICATED));
   
   m_authMutex.Unlock();
   

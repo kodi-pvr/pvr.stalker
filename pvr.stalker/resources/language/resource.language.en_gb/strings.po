@@ -124,7 +124,45 @@ msgctxt "#30122"
 msgid "Signature"
 msgstr ""
 
-#empty strings from id 30123 to 30999
+#empty strings from id 30123 to 30500
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr ""
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr ""
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr ""
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr ""
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr ""
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr ""
+
+msgctxt "#30507"
+msgid "Failed to get stream URL."
+msgstr ""
+
+msgctxt "#30508"
+msgid "Authorization lost. Re-authenticating."
+msgstr ""
+
+msgctxt "#30509"
+msgid "Re-authenticated."
+msgstr ""
+
+#empty strings from id 30510 to 30999
 
 msgctxt "#31000"
 msgid "Portal 1"
