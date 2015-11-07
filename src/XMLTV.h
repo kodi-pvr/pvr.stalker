@@ -96,7 +96,7 @@ protected:
       return 0;
     
     std::tm timeinfo;
-    int iHourOffset = 0;
+    int iOffset = 0;
     time_t time;
     
     sscanf(strTime, "%04d%02d%02d%02d%02d%02d",
@@ -108,13 +108,24 @@ protected:
     timeinfo.tm_isdst = -1;
     
     if (strlen(strTime) == 20) {
-      sscanf(&strTime[16], "%02d", &iHourOffset);
+      char strSign[2] = {0};
+      int iHourOffset = 0;
+      int iMinOffset = 0;
+      
+      sscanf(&strTime[15], "%01s%02d%02d",
+        &strSign, &iHourOffset, &iMinOffset);
+      
       iHourOffset *= 3600;
+      iMinOffset *= 60;
+      iOffset = iHourOffset + iMinOffset;
+      if (strcmp(strSign, "-") == 0)
+        iOffset *= -1;
     }
     
     time = mktime(&timeinfo);
-    time += timeinfo.tm_isdst != 0 ? 3600 : -3600;
-    time += iHourOffset - timezone;
+    if (timeinfo.tm_isdst > 0)
+      time += 3600;
+    time += iOffset - timezone;
 
     return time;
   }

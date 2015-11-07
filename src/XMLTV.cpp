@@ -171,14 +171,14 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
     }
     programme.strCategories = Utils::ConcatenateStringList(programme.categories);
     
-    elem = element->FirstChildElement("episode-num");
-    if (elem) {
-      std::string strSystem;
-      
-      if (elem->Attribute("system"))
-        strSystem = elem->Attribute("system");
-      
-      if (strSystem.compare("onscreen") == 0 && elem->GetText()) {
+    programme.iEpisodeNumber = 0;
+    for (elem = element->FirstChildElement("episode-num"); elem != NULL;
+      elem = elem->NextSiblingElement("episode-num"))
+    {
+      if (elem->Attribute("system")
+        && strcmp(elem->Attribute("system"), "onscreen") == 0
+        && elem->GetText())
+      {
         try {
           programme.iEpisodeNumber = Utils::StringToInt(elem->GetText());
         } catch (...) { }
