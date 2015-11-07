@@ -302,17 +302,19 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
         std::map<int, int>::iterator match = matches.find(genre->first);
         // increment the number of matches for the genre
         matches[genre->first] = match != matches.end() ? match->second + 1 : 1;
+        // set final match to the first match
+        // in the case that no dominant genre set is found this will be used
+        if (finalMatch == matches.end())
+          finalMatch = matches.find(genre->first);
       }
     }
   }
   
-  if (matches.empty())
+  if (matches.empty() || finalMatch == matches.end())
     return EPG_GENRE_USE_STRING;
   
   for (std::map<int, int>::iterator match = matches.begin(); match != matches.end(); ++match) {
-    // set the first category match as the initial final match
-    // useful when there is no dominant genre
-    if (finalMatch == matches.end() || match->second > finalMatch->second)
+    if (match->second > finalMatch->second)
       finalMatch = match;
   }
   
