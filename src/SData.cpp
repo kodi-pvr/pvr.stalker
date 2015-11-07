@@ -912,6 +912,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     Request request;
     Response response;
     HTTPSocket sock(g_iConnectionTimeout);
+    boolean bFailed(false);
 
     strSplit = StringUtils::Split(thisChannel->strCmd, "/");
     if (!strSplit.empty()) {
@@ -927,12 +928,21 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
           strCmd = strSplit.back();
         } else {
           XBMC->Log(LOG_ERROR, "%s: empty response?", __FUNCTION__);
+          bFailed = true;
         }
       } else {
         XBMC->Log(LOG_ERROR, "%s: matrix call failed", __FUNCTION__);
+        bFailed = true;
       }
     } else {
       XBMC->Log(LOG_ERROR, "%s: not a matrix channel?", __FUNCTION__);
+      bFailed = true;
+    }
+
+    // fall back. maybe this is a valid, regular cmd/url
+    if (bFailed) {
+      XBMC->Log(LOG_DEBUG, "%s: falling back to original channel cmd", __FUNCTION__);
+      strCmd = thisChannel->strCmd;
     }
   } else {
     strCmd = thisChannel->strCmd;
