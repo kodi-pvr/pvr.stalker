@@ -912,7 +912,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     Request request;
     Response response;
     HTTPSocket sock(g_iConnectionTimeout);
-    boolean bFailed(false);
+    bool bFailed(false);
 
     strSplit = StringUtils::Split(thisChannel->strCmd, "/");
     if (!strSplit.empty()) {
