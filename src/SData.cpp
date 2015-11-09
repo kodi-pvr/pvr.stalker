@@ -26,6 +26,7 @@
 
 #include "tinyxml.h"
 #include "platform/os.h"
+#include "platform/util/StringUtils.h"
 #include "platform/util/timeutils.h"
 #include "platform/util/util.h"
 
@@ -901,6 +902,47 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
         strCmd = parsed["js"]["cmd"].asString();
     } else {
       XBMC->Log(LOG_ERROR, "%s: CreateLink failed", __FUNCTION__);
+    }
+  } else if (thisChannel->strCmd.find("matrix") != std::string::npos) {
+    // non-standard call to server
+    XBMC->Log(LOG_DEBUG, "%s: getting matrix stream url", __FUNCTION__);
+
+    std::vector<std::string> strSplit;
+    std::ostringstream oss;
+    Request request;
+    Response response;
+    HTTPSocket sock(g_iConnectionTimeout);
+    boolean bFailed(false);
+
+    strSplit = StringUtils::Split(thisChannel->strCmd, "/");
+    if (!strSplit.empty()) {
+      oss << g_strApiBasePath;
+      oss << "server/api/matrix.php";
+      oss << "?channel=" << Utils::UrlEncode(strSplit.back());
+      oss << "&mac=" << Utils::UrlEncode(m_identity.mac);
+      request.url = oss.str();
+
+      if (sock.Execute(request, response)) {
+        strSplit = StringUtils::Split(response.body, " ");
+        if (!strSplit.empty()) {
+          strCmd = strSplit.back();
+        } else {
+          XBMC->Log(LOG_ERROR, "%s: empty response?", __FUNCTION__);
+          bFailed = true;
+        }
+      } else {
+        XBMC->Log(LOG_ERROR, "%s: matrix call failed", __FUNCTION__);
+        bFailed = true;
+      }
+    } else {
+      XBMC->Log(LOG_ERROR, "%s: not a matrix channel?", __FUNCTION__);
+      bFailed = true;
+    }
+
+    // fall back. maybe this is a valid, regular cmd/url
+    if (bFailed) {
+      XBMC->Log(LOG_DEBUG, "%s: falling back to original channel cmd", __FUNCTION__);
+      strCmd = thisChannel->strCmd;
     }
   } else {
     strCmd = thisChannel->strCmd;
