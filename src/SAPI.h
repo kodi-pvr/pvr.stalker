@@ -37,7 +37,8 @@ class SAPI
 {
 public:
   static bool Init();
-  static SError StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed);
+  static SError StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed,
+    bool bCache = false, std::string strCacheFile = "", uint32_t cacheExpiry = 0);
   static bool Handshake(sc_identity_t &identity, Json::Value &parsed);
   static bool GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value &parsed);
   static bool DoAuth(sc_identity_t &identity, Json::Value &parsed);
@@ -45,6 +46,7 @@ public:
   static bool GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::Value &parsed);
   static bool CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &parsed);
   static bool GetGenres(sc_identity_t &identity, Json::Value &parsed);
-  static bool GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed);
+  static bool GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed,
+    bool bCache, uint32_t cacheExpiry);
   static SError GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed);
 };

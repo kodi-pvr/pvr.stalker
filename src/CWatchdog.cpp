@@ -74,6 +74,10 @@ void *CWatchdog::Process()
       }
     }
     
+    // leverage watchdog to periodically unload epg data from memory
+    if (m_data)
+      ((SData *)m_data)->UnloadEPG();
+    
     iNow = 0;
     iTarget = m_iInterval * 1000;
 

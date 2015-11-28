@@ -35,6 +35,7 @@
 typedef enum {
   SERROR_AUTHORIZATION = -8,
   SERROR_STREAM_URL,
+  SERROR_LOAD_EPG,
   SERROR_LOAD_CHANNEL_GROUPS,
   SERROR_LOAD_CHANNELS,
   SERROR_AUTHENTICATION,
@@ -83,6 +84,7 @@ public:
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
   
   virtual SError ReAuthenticate(bool bAuthorizationLost = false);
+  virtual void UnloadEPG();
 protected:
   virtual bool LoadCache();
   virtual bool SaveCache();
@@ -95,21 +97,22 @@ protected:
   virtual SError Initialize();
   virtual int ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
   virtual int ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual SError LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual SError LoadEPG(time_t iStart, time_t iEnd);
   virtual bool ParseChannelGroups(Json::Value &parsed);
   virtual SError LoadChannelGroups();
   virtual bool ParseChannels(Json::Value &parsed);
   virtual SError LoadChannels();
 
   virtual void QueueErrorNotification(SError error);
-  virtual std::string GetFilePath(std::string strPath, bool bUserPath = true);
   virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 private:
   std::string                 m_strLastUnknownError;
   bool                        m_bInitedApi;
   bool                        m_bTokenManuallySet;
   bool                        m_bAuthenticated;
-  uint64_t                    m_iNextEpgLoadTime;
+  time_t                      m_iLastEpgAccessTime;
+  time_t                      m_iNextEpgLoadTime;
   
   sc_identity_t               m_identity;
   PLATFORM::CMutex            m_authMutex;
@@ -120,4 +123,5 @@ private:
   std::string                 m_PlaybackURL;
   CWatchdog                   *m_watchdog;
   XMLTV                       *m_xmltv;
+  PLATFORM::CMutex            m_epgMutex;
 };

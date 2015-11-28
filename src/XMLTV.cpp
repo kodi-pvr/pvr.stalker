@@ -209,7 +209,7 @@ bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
   return true;
 }
 
-bool XMLTV::Parse(Scope scope, std::string &strPath)
+bool XMLTV::Parse(Scope scope, std::string &strPath, bool bCache, uint32_t cacheExpiry)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
   
@@ -225,8 +225,22 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
   request.scope = scope;
   request.url = strPath;
   
-  if (!sock.Execute(request, response) || response.body.empty())
+  if (request.scope == REMOTE) {
+    request.cache = bCache;
+    request.cacheFile = Utils::GetFilePath("epg_xmltv.xml");
+    request.cacheExpiry = cacheExpiry;
+  }
+  
+  if (!sock.Execute(request, response) || response.body.empty()) {
+    if (XBMC->FileExists(request.cacheFile.c_str(), false)) {
+#ifdef TARGET_WINDOWS
+      DeleteFile(request.cacheFile.c_str());
+#else
+      XBMC->DeleteFile(request.cacheFile.c_str());
+#endif
+    }
     return false;
+  }
   
   doc.Parse(response.body.c_str());
   
@@ -244,7 +258,20 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
   
   doc.Clear();
   
+  if (!bRet && XBMC->FileExists(request.cacheFile.c_str(), false)) {
+#ifdef TARGET_WINDOWS
+    DeleteFile(request.cacheFile.c_str());
+#else
+    XBMC->DeleteFile(request.cacheFile.c_str());
+#endif
+  }
+  
   return bRet;
+}
+
+void XMLTV::Clear()
+{
+  m_channels.clear();
 }
 
 Channel* XMLTV::GetChannelById(std::string &strId)

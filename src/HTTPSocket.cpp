@@ -134,6 +134,9 @@ bool HTTPSocket::Execute(Request &request, Response &response)
     time_t now;
     time(&now);
     
+    XBMC->Log(LOG_DEBUG, "%s: now=%d | st_mtime=%d",
+      __FUNCTION__, now, statCached.st_mtime);
+    
     request.cache = (statCached.st_mtime + request.cacheExpiry) < now;
     if (!request.cache) {
       // override the request and load locally from cache file instead

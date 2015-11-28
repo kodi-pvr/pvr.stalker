@@ -14,16 +14,18 @@
     <setting id="password_0" type="text" option="hidden" label="30106" default="" />
     <setting id="sep2_0" type="lsep" label="30107" />
     <setting id="guide_preference_0" type="enum" label="30108" lvalues="30109|30110|30111|30112" default="0" />
-    <setting id="sep3_0" type="lsep" label="30113" />
-    <setting id="xmltv_scope_0" type="enum" label="30114" lvalues="30115|30116" default="0" />
-    <setting id="xmltv_url_0" type="text" label="30115" default="" visible="eq(-1,0)" />
-    <setting id="xmltv_path_0" type="file" label="30116" default="" visible="eq(-2,1)" />
-    <setting id="sep4_0" type="lsep" label="30117" />
-    <setting id="token_0" type="text" label="30118" default="" />
-    <setting id="serial_number_0" type="text" label="30119" default="" />
-    <setting id="device_id_0" type="text" label="30120" default="" />
-    <setting id="device_id2_0" type="text" label="30121" default="" />
-    <setting id="signature_0" type="text" label="30122" default="" />
+    <setting id="guide_cache_0" type="bool" label="30113" default="true" />
+    <setting id="guide_cache_hours_0" type="number" label="30114" default="24" />
+    <setting id="sep3_0" type="lsep" label="30115" />
+    <setting id="xmltv_scope_0" type="enum" label="30116" lvalues="30117|30118" default="0" />
+    <setting id="xmltv_url_0" type="text" label="30117" default="" visible="eq(-1,0)" />
+    <setting id="xmltv_path_0" type="file" label="30118" default="" visible="eq(-2,1)" />
+    <setting id="sep4_0" type="lsep" label="30119" />
+    <setting id="token_0" type="text" label="30120" default="" />
+    <setting id="serial_number_0" type="text" label="30121" default="" />
+    <setting id="device_id_0" type="text" label="30122" default="" />
+    <setting id="device_id2_0" type="text" label="30123" default="" />
+    <setting id="signature_0" type="text" label="30124" default="" />
   </category>
   <category label="32000">
     <setting id="mac_1" type="text" label="30101" default="00:1A:79:00:00:00" />
@@ -34,16 +36,18 @@
     <setting id="password_1" type="text" option="hidden" label="30106" default="" />
     <setting id="sep2_1" type="lsep" label="30107" />
     <setting id="guide_preference_1" type="enum" label="30108" lvalues="30109|30110|30111|30112" default="0" />
-    <setting id="sep3_1" type="lsep" label="30113" />
-    <setting id="xmltv_scope_1" type="enum" label="30114" lvalues="30115|30116" default="0" />
-    <setting id="xmltv_url_1" type="text" label="30115" default="" visible="eq(-1,0)" />
-    <setting id="xmltv_path_1" type="file" label="30116" default="" visible="eq(-2,1)" />
-    <setting id="sep4_1" type="lsep" label="30117" />
-    <setting id="token_1" type="text" label="30118" default="" />
-    <setting id="serial_number_1" type="text" label="30119" default="" />
-    <setting id="device_id_1" type="text" label="30120" default="" />
-    <setting id="device_id2_1" type="text" label="30121" default="" />
-    <setting id="signature_1" type="text" label="30122" default="" />
+    <setting id="guide_cache_1" type="bool" label="30113" default="true" />
+    <setting id="guide_cache_hours_1" type="number" label="30114" default="24" />
+    <setting id="sep3_1" type="lsep" label="30115" />
+    <setting id="xmltv_scope_1" type="enum" label="30116" lvalues="30117|30118" default="0" />
+    <setting id="xmltv_url_1" type="text" label="30117" default="" visible="eq(-1,0)" />
+    <setting id="xmltv_path_1" type="file" label="30118" default="" visible="eq(-2,1)" />
+    <setting id="sep4_1" type="lsep" label="30119" />
+    <setting id="token_1" type="text" label="30120" default="" />
+    <setting id="serial_number_1" type="text" label="30121" default="" />
+    <setting id="device_id_1" type="text" label="30122" default="" />
+    <setting id="device_id2_1" type="text" label="30123" default="" />
+    <setting id="signature_1" type="text" label="30124" default="" />
   </category>
   <category label="33000">
     <setting id="mac_2" type="text" label="30101" default="00:1A:79:00:00:00" />
@@ -54,16 +58,18 @@
     <setting id="password_2" type="text" option="hidden" label="30106" default="" />
     <setting id="sep2_2" type="lsep" label="30107" />
     <setting id="guide_preference_2" type="enum" label="30108" lvalues="30109|30110|30111|30112" default="0" />
-    <setting id="sep3_2" type="lsep" label="30113" />
-    <setting id="xmltv_scope_2" type="enum" label="30114" lvalues="30115|30116" default="0" />
-    <setting id="xmltv_url_2" type="text" label="30115" default="" visible="eq(-1,0)" />
-    <setting id="xmltv_path_2" type="file" label="30116" default="" visible="eq(-2,1)" />
-    <setting id="sep4_2" type="lsep" label="30117" />
-    <setting id="token_2" type="text" label="30118" default="" />
-    <setting id="serial_number_2" type="text" label="30119" default="" />
-    <setting id="device_id_2" type="text" label="30120" default="" />
-    <setting id="device_id2_2" type="text" label="30121" default="" />
-    <setting id="signature_2" type="text" label="30122" default="" />
+    <setting id="guide_cache_2" type="bool" label="30113" default="true" />
+    <setting id="guide_cache_hours_2" type="number" label="30114" default="24" />
+    <setting id="sep3_2" type="lsep" label="30115" />
+    <setting id="xmltv_scope_2" type="enum" label="30116" lvalues="30117|30118" default="0" />
+    <setting id="xmltv_url_2" type="text" label="30117" default="" visible="eq(-1,0)" />
+    <setting id="xmltv_path_2" type="file" label="30118" default="" visible="eq(-2,1)" />
+    <setting id="sep4_2" type="lsep" label="30119" />
+    <setting id="token_2" type="text" label="30120" default="" />
+    <setting id="serial_number_2" type="text" label="30121" default="" />
+    <setting id="device_id_2" type="text" label="30122" default="" />
+    <setting id="device_id2_2" type="text" label="30123" default="" />
+    <setting id="signature_2" type="text" label="30124" default="" />
   </category>
   <category label="34000">
     <setting id="mac_3" type="text" label="30101" default="00:1A:79:00:00:00" />
@@ -74,16 +80,18 @@
     <setting id="password_3" type="text" option="hidden" label="30106" default="" />
     <setting id="sep2_3" type="lsep" label="30107" />
     <setting id="guide_preference_3" type="enum" label="30108" lvalues="30109|30110|30111|30112" default="0" />
-    <setting id="sep3_3" type="lsep" label="30113" />
-    <setting id="xmltv_scope_3" type="enum" label="30114" lvalues="30115|30116" default="0" />
-    <setting id="xmltv_url_3" type="text" label="30115" default="" visible="eq(-1,0)" />
-    <setting id="xmltv_path_3" type="file" label="30116" default="" visible="eq(-2,1)" />
-    <setting id="sep4_3" type="lsep" label="30117" />
-    <setting id="token_3" type="text" label="30118" default="" />
-    <setting id="serial_number_3" type="text" label="30119" default="" />
-    <setting id="device_id_3" type="text" label="30120" default="" />
-    <setting id="device_id2_3" type="text" label="30121" default="" />
-    <setting id="signature_3" type="text" label="30122" default="" />
+    <setting id="guide_cache_3" type="bool" label="30113" default="true" />
+    <setting id="guide_cache_hours_3" type="number" label="30114" default="24" />
+    <setting id="sep3_3" type="lsep" label="30115" />
+    <setting id="xmltv_scope_3" type="enum" label="30116" lvalues="30117|30118" default="0" />
+    <setting id="xmltv_url_3" type="text" label="30117" default="" visible="eq(-1,0)" />
+    <setting id="xmltv_path_3" type="file" label="30118" default="" visible="eq(-2,1)" />
+    <setting id="sep4_3" type="lsep" label="30119" />
+    <setting id="token_3" type="text" label="30120" default="" />
+    <setting id="serial_number_3" type="text" label="30121" default="" />
+    <setting id="device_id_3" type="text" label="30122" default="" />
+    <setting id="device_id2_3" type="text" label="30123" default="" />
+    <setting id="signature_3" type="text" label="30124" default="" />
   </category>
   <category label="35000">
     <setting id="mac_4" type="text" label="30101" default="00:1A:79:00:00:00" />
@@ -94,15 +102,17 @@
     <setting id="password_4" type="text" option="hidden" label="30106" default="" />
     <setting id="sep2_4" type="lsep" label="30107" />
     <setting id="guide_preference_4" type="enum" label="30108" lvalues="30109|30110|30111|30112" default="0" />
-    <setting id="sep3_4" type="lsep" label="30113" />
-    <setting id="xmltv_scope_4" type="enum" label="30114" lvalues="30115|30116" default="0" />
-    <setting id="xmltv_url_4" type="text" label="30115" default="" visible="eq(-1,0)" />
-    <setting id="xmltv_path_4" type="file" label="30116" default="" visible="eq(-2,1)" />
-    <setting id="sep4_4" type="lsep" label="30117" />
-    <setting id="token_4" type="text" label="30118" default="" />
-    <setting id="serial_number_4" type="text" label="30119" default="" />
-    <setting id="device_id_4" type="text" label="30120" default="" />
-    <setting id="device_id2_4" type="text" label="30121" default="" />
-    <setting id="signature_4" type="text" label="30122" default="" />
+    <setting id="guide_cache_4" type="bool" label="30113" default="true" />
+    <setting id="guide_cache_hours_4" type="number" label="30114" default="24" />
+    <setting id="sep3_4" type="lsep" label="30115" />
+    <setting id="xmltv_scope_4" type="enum" label="30116" lvalues="30117|30118" default="0" />
+    <setting id="xmltv_url_4" type="text" label="30117" default="" visible="eq(-1,0)" />
+    <setting id="xmltv_path_4" type="file" label="30118" default="" visible="eq(-2,1)" />
+    <setting id="sep4_4" type="lsep" label="30119" />
+    <setting id="token_4" type="text" label="30120" default="" />
+    <setting id="serial_number_4" type="text" label="30121" default="" />
+    <setting id="device_id_4" type="text" label="30122" default="" />
+    <setting id="device_id2_4" type="text" label="30123" default="" />
+    <setting id="signature_4" type="text" label="30124" default="" />
   </category>
 </settings>

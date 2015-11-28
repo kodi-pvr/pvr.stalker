@@ -67,7 +67,8 @@ bool SAPI::Init()
   return true;
 }
 
-SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed)
+SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed,
+  bool bCache, std::string strCacheFile, uint32_t cacheExpiry)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
@@ -109,6 +110,9 @@ SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Re
   sc_request_free_nameVals(scRequest.params);
 
   request.url = oss.str();
+  request.cache = bCache;
+  request.cacheFile = strCacheFile;
+  request.cacheExpiry = cacheExpiry;
 
   if (!sock.Execute(request, response)) {
     XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
@@ -362,12 +366,14 @@ bool SAPI::GetGenres(sc_identity_t &identity, Json::Value &parsed)
   return ret == SERROR_OK;
 }
 
-bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed)
+bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed,
+  bool bCache, uint32_t cacheExpiry)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_param_request_t params;
   sc_param_t *param;
+  std::string strCacheFile;
   Response response;
   SError ret(SERROR_OK);
 
@@ -383,9 +389,20 @@ bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed)
     param->value.integer = iPeriod;
   }
 
-  ret = StalkerCall(identity, params, response, parsed);
+  strCacheFile = Utils::GetFilePath("epg_provider.json");
+
+  ret = StalkerCall(identity, params, response, parsed,
+    bCache, strCacheFile, cacheExpiry);
 
   sc_param_free_params(params.param);
+
+  if (ret != SERROR_OK && XBMC->FileExists(strCacheFile.c_str(), false)) {
+#ifdef TARGET_WINDOWS
+    DeleteFile(strCacheFile.c_str());
+#else
+    XBMC->DeleteFile(strCacheFile.c_str());
+#endif
+  }
 
   return ret == SERROR_OK;
 }
