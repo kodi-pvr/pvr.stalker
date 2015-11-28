@@ -218,6 +218,9 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
   Response response;
   TiXmlDocument doc;
   TiXmlElement *elemRoot;
+  bool bRet(false);
+  
+  m_channels.clear();
   
   request.scope = scope;
   request.url = strPath;
@@ -226,23 +229,22 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
     return false;
   
   doc.Parse(response.body.c_str());
-  if (doc.Error()) {
+  
+  if (!doc.Error()) {
+    elemRoot = doc.FirstChildElement("tv");
+    if (elemRoot) {
+      if (ReadChannels(elemRoot) && ReadProgrammes(elemRoot))
+        bRet = true;
+    } else {
+      XBMC->Log(LOG_ERROR, "%s: root \"tv\" element not found", __FUNCTION__);
+    }
+  } else {
     XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __FUNCTION__);
-    return false;
   }
   
-  elemRoot = doc.FirstChildElement("tv");
-  if (!elemRoot) {
-    XBMC->Log(LOG_ERROR, "%s: root \"tv\" element not found", __FUNCTION__);
-    return false;
-  }
+  doc.Clear();
   
-  m_channels.clear();
-  
-  if (!ReadChannels(elemRoot) || !ReadProgrammes(elemRoot))
-    return false;
-  
-  return true;
+  return bRet;
 }
 
 Channel* XMLTV::GetChannelById(std::string &strId)
