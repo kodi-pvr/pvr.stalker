@@ -629,7 +629,7 @@ bool SData::ParseChannels(Json::Value &parsed)
       channel.strStreamURL = "pvr://stream/" + Utils::ToString(channel.iUniqueId);
 
       std::string strLogo = (*it)["logo"].asString();
-      channel.strIconPath = strLogo.length() == 0 ? "" : std::string(g_strApiBasePath + SC_ITV_LOGO_PATH_320 + strLogo);
+      channel.strIconPath = strLogo.length() == 0 ? "" : std::string(g_strBasePath + SC_ITV_LOGO_PATH_320 + strLogo);
 
       channel.iChannelId = Utils::GetIntFromJsonValue((*it)["id"]);
       channel.strCmd = (*it)["cmd"].asString();
@@ -916,7 +916,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
     strSplit = StringUtils::Split(thisChannel->strCmd, "/");
     if (!strSplit.empty()) {
-      oss << g_strApiBasePath;
+      oss << g_strBasePath;
       oss << "server/api/matrix.php";
       oss << "?channel=" << Utils::UrlEncode(strSplit.back());
       oss << "&mac=" << Utils::UrlEncode(m_identity.mac);
