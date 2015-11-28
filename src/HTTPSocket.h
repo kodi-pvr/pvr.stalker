@@ -47,11 +47,14 @@ struct UrlOption
 
 struct Request
 {
-  Scope                   scope   = REMOTE;
-  Method                  method  = GET;
+  Scope                   scope         = REMOTE;
+  Method                  method        = GET;
   std::string             url;
   std::vector<UrlOption>  options;
   std::string             body;
+  bool                    cache         = false;
+  std::string             cacheFile;
+  uint32_t                cacheExpiry;
   
   void AddHeader(const std::string &name, const std::string &value)
   {
