@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="0.9.7"
+  version="1.0.0"
   name="Stalker Client"
-  provider-name="kenji123">
+  provider-name="Jamal Edey">
   <requires>
     <c-pluff version="0.1"/>
     <import addon="xbmc.pvr" version="4.1.0"/>
