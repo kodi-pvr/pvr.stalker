@@ -119,8 +119,9 @@ SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Re
     XBMC->Log(LOG_ERROR, "%s: parsing failed", __FUNCTION__);
     if (response.body.compare(AUTHORIZATION_FAILED) == 0) {
       XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
+      return SERROR_AUTHORIZATION;
     }
-    return SERROR_AUTHORIZATION;
+    return SERROR_UNKNOWN;
   }
 
   return SERROR_OK;
