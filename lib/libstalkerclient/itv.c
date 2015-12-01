@@ -51,13 +51,14 @@ bool sc_itv_create_link_defaults(sc_param_request_t *params) {
   sc_param_t *param;
 
   param = sc_param_create_string("cmd", "", true);
-  param->first = param;
+
+  if (!params->param)
+    param->first = param;
+  sc_param_append(params, param);
 
   param = sc_param_link(param, sc_param_create_string("forced_storage", "undefined", false));
-  param = sc_param_link(param, sc_param_create_integer("disable_ad", 0, false));
+  sc_param_link(param, sc_param_create_integer("disable_ad", 0, false));
 
-  params->param = param->first;
-  
   param = NULL;
 
   return true;
