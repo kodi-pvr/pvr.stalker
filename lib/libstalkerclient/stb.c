@@ -68,14 +68,15 @@ bool sc_stb_do_auth_defaults(sc_param_request_t *params) {
   sc_param_t *param;
 
   param = sc_param_create_string("login", "", true);
-  param->first = param;
+
+  if (!params->param)
+    param->first = param;
+  sc_param_append(params, param);
 
   param = sc_param_link(param, sc_param_create_string("password", "", true));
   param = sc_param_link(param, sc_param_create_string("device_id", "", false));
-  param = sc_param_link(param, sc_param_create_string("device_id2", "", false));
+  sc_param_link(param, sc_param_create_string("device_id2", "", false));
 
-  params->param = param->first;
-  
   param = NULL;
 
   return true;
