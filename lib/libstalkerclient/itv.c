@@ -34,14 +34,15 @@ bool sc_itv_get_ordered_list_defaults(sc_param_request_t *params) {
   sc_param_t *param;
 
   param = sc_param_create_string("genre", "*", false);
-  param->first = param;
+
+  if (!params->param)
+    param->first = param;
+  sc_param_append(params, param);
 
   param = sc_param_link(param, sc_param_create_integer("fav", 0, true));
   param = sc_param_link(param, sc_param_create_string("sortby", "number", true));
-  param = sc_param_link(param, sc_param_create_integer("p", 0, false));
+  sc_param_link(param, sc_param_create_integer("p", 0, false));
 
-  params->param = param->first;
-  
   param = NULL;
 
   return true;
