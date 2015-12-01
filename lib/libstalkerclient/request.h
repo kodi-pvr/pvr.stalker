@@ -51,6 +51,7 @@ extern "C" {
   void sc_request_remove_default_non_required(sc_param_request_t *dst_params, sc_param_request_t *src_params);
   sc_request_nameVal_t* sc_request_create_nameVal(const char *name, char *value);
   sc_request_nameVal_t* sc_request_link_nameVal(sc_request_nameVal_t *a, sc_request_nameVal_t *b);
+  void sc_request_append_nameVal(sc_request_t *request, sc_request_nameVal_t *header);
   void sc_request_build_headers(sc_identity_t *identity, sc_request_t *request, sc_action_t action);
   void sc_request_build_query_params(sc_param_request_t *params, sc_request_t *request);
   bool sc_request_build(sc_identity_t *identity, sc_param_request_t *params, sc_request_t *request);
