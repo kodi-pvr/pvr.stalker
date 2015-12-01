@@ -60,22 +60,19 @@ void *CWatchdog::Process()
     iEventActiveId = 0;
     
     ret = SAPI::GetEvents(iCurPlayType, iEventActiveId, m_identity, parsed);
-    if (ret != SERROR_OK) {
+    if (ret == SERROR_OK) {
+      // ignore the result. don't confirm events (yet)
+    } else {
       XBMC->Log(LOG_ERROR, "%s: GetEvents failed", __FUNCTION__);
       
       if (ret == SERROR_AUTHORIZATION) {
-        if (!m_data) {
-          XBMC->Log(LOG_NOTICE, "%s: data not set. unable request re-authentication", __FUNCTION__);
-          return NULL;
+        if (m_data) {
+          ret = ((SData *)m_data)->ReAuthenticate(true);
+        } else {
+          XBMC->Log(LOG_NOTICE, "%s: data not set. unable to request re-authentication", __FUNCTION__);
         }
-        
-        ret = ((SData *)m_data)->ReAuthenticate(true);
-        /*if (ret != SERROR_OK)
-          break;*/
       }
     }
-    
-    // ignore the result. don't confirm events (yet)
     
     iNow = 0;
     iTarget = m_iInterval * 1000;
