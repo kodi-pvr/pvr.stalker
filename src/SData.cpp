@@ -120,78 +120,82 @@ std::string SData::GetFilePath(std::string strPath, bool bUserPath)
 
 bool SData::LoadCache()
 {
-  std::string strUCacheFile;
-  bool bUCacheFileExists;
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
   std::string strCacheFile;
-  TiXmlDocument xml_doc;
+  TiXmlDocument doc;
   TiXmlElement *pRootElement = NULL;
   TiXmlElement *pTokenElement = NULL;
 
-  strUCacheFile = GetFilePath("cache.xml");
-  bUCacheFileExists = XBMC->FileExists(strUCacheFile.c_str(), false);
-  strCacheFile = bUCacheFileExists ? strUCacheFile : GetFilePath("cache.xml", false);
+  strCacheFile = GetFilePath("cache.xml");
 
-  if (!xml_doc.LoadFile(strCacheFile)) {
-    XBMC->Log(LOG_ERROR, "failed to load: %s", strCacheFile.c_str());
+  if (!doc.LoadFile(strCacheFile)) {
+    XBMC->Log(LOG_ERROR, "%s: failed to load: \"%s\"", __FUNCTION__, strCacheFile.c_str());
     return false;
   }
 
-  if (!bUCacheFileExists) {
-    XBMC->Log(LOG_DEBUG, "saving cache to user path");
+  pRootElement = doc.RootElement();
+  if (strcmp(pRootElement->Value(), "cache") != 0) {
+    XBMC->Log(LOG_ERROR, "%s: invalid xml doc. root element 'cache' not found", __FUNCTION__);
+    return false;
+  }
 
-    if (!xml_doc.SaveFile(strUCacheFile)) {
-      XBMC->Log(LOG_ERROR, "failed to save %s", strUCacheFile.c_str());
-      return false;
+  if (!m_bTokenManuallySet) {
+    pTokenElement = pRootElement->FirstChildElement("token");
+    if (!pTokenElement || !pTokenElement->GetText()) {
+      XBMC->Log(LOG_DEBUG, "%s: 'token' element not found", __FUNCTION__);
+    } else {
+      SC_STR_SET(m_identity.token, pTokenElement->GetText());
     }
 
-    XBMC->Log(LOG_DEBUG, "reloading cache from user path");
-    return LoadCache();
+    XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
   }
 
-  pRootElement = xml_doc.RootElement();
-  if (strcmp(pRootElement->Value(), "cache") != 0) {
-    XBMC->Log(LOG_ERROR, "invalid xml doc. root tag 'cache' not found");
-    return false;
-  }
-  
-  pTokenElement = pRootElement->FirstChildElement("token");
-  if (!pTokenElement)
-    XBMC->Log(LOG_DEBUG, "\"token\" element not found");
-  else if (pTokenElement->GetText())
-    SC_STR_SET(m_identity.token, pTokenElement->GetText());
-
-  XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
+  doc.Clear();
 
   return true;
 }
 
 bool SData::SaveCache()
 {
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
   std::string strCacheFile;
-  TiXmlDocument xml_doc;
+  bool bFailed(false);
+  TiXmlDocument doc;
   TiXmlElement *pRootElement = NULL;
   TiXmlElement *pTokenElement = NULL;
 
   strCacheFile = GetFilePath("cache.xml");
 
-  if (!xml_doc.LoadFile(strCacheFile)) {
-    XBMC->Log(LOG_ERROR, "failed to load \"%s\"", strCacheFile.c_str());
-    return false;
+  if ((bFailed = !doc.LoadFile(strCacheFile))) {
+    XBMC->Log(LOG_ERROR, "%s: failed to load \"%s\"", __FUNCTION__, strCacheFile.c_str());
+  } else {
+    pRootElement = doc.RootElement();
+    if (!pRootElement || strcmp(pRootElement->Value(), "cache") != 0) {
+      XBMC->Log(LOG_ERROR, "%s: invalid xml doc. root element 'cache' not found", __FUNCTION__);
+      bFailed = true;
+    }
   }
 
-  pRootElement = xml_doc.RootElement();
-  if (strcmp(pRootElement->Value(), "cache") != 0) {
-    XBMC->Log(LOG_ERROR, "invalid xml doc. root tag 'cache' not found");
-    return false;
+  if (bFailed) {
+    XBMC->Log(LOG_DEBUG, "%s: creating root element 'cache'", __FUNCTION__);
+
+    pRootElement = new TiXmlElement("cache");
+    doc.LinkEndChild(pRootElement);
   }
 
   pTokenElement = pRootElement->FirstChildElement("token");
+  if (!pTokenElement) {
+    pTokenElement = new TiXmlElement("token");
+    pRootElement->LinkEndChild(pTokenElement);
+  }
   pTokenElement->Clear();
-  pTokenElement->LinkEndChild(new TiXmlText(m_identity.token));
+  if (m_profile.store_auth_data_on_stb)
+    pTokenElement->LinkEndChild(new TiXmlText(m_identity.token));
 
-  strCacheFile = GetFilePath("cache.xml");
-  if (!xml_doc.SaveFile(strCacheFile)) {
-    XBMC->Log(LOG_ERROR, "failed to save \"%s\"", strCacheFile.c_str());
+  if (!doc.SaveFile(strCacheFile)) {
+    XBMC->Log(LOG_ERROR, "%s: failed to save \"%s\"", __FUNCTION__, strCacheFile.c_str());
     return false;
   }
 
@@ -712,12 +716,10 @@ bool SData::LoadData(void)
   SC_STR_SET(m_identity.signature, g_strSignature.c_str());
 
   // skip handshake if token setting was set
-  if (strlen(m_identity.token) > 0) {
+  if (strlen(m_identity.token) > 0)
     m_bTokenManuallySet = true;
-  } else if (!LoadCache()) {
-    QueueErrorNotification(SERROR_INITIALIZE);
-    return false;
-  }
+
+  LoadCache();
 
   return true;
 }
