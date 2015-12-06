@@ -69,6 +69,8 @@ std::string g_strLogin;
 std::string g_strPassword;
 int         g_iConnectionTimeout;
 int         g_iGuidePreference;
+bool        g_bGuideCache;
+int         g_iGuideCacheHours;
 int         g_iXmltvScope;
 std::string g_strXmltvUrl;
 std::string g_strXmltvPath;
@@ -132,6 +134,8 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   GET_SETTING_STR2(setting, "login", buffer, g_strLogin, DEFAULT_LOGIN);
   GET_SETTING_STR2(setting, "password", buffer, g_strPassword, DEFAULT_PASSWORD);
   GET_SETTING_INT2(setting, "guide_preference", g_iGuidePreference, DEFAULT_GUIDE_PREFERENCE);
+  GET_SETTING_INT2(setting, "guide_cache", g_bGuideCache, DEFAULT_GUIDE_CACHE);
+  GET_SETTING_INT2(setting, "guide_cache_hours", g_iGuideCacheHours, DEFAULT_GUIDE_CACHE_HOURS);
   GET_SETTING_INT2(setting, "xmltv_scope", g_iXmltvScope, DEFAULT_XMLTV_SCOPE);
   GET_SETTING_STR2(setting, "xmltv_url", buffer, g_strXmltvUrl, DEFAULT_XMLTV_URL);
   GET_SETTING_STR2(setting, "xmltv_path", buffer, g_strXmltvPath, DEFAULT_XMLTV_PATH);
@@ -150,6 +154,8 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   XBMC->Log(LOG_DEBUG, "login=%s", g_strLogin.c_str());
   XBMC->Log(LOG_DEBUG, "password=%s", g_strPassword.c_str());
   XBMC->Log(LOG_DEBUG, "guide_preference=%d", g_iGuidePreference);
+  XBMC->Log(LOG_DEBUG, "guide_cache=%d", g_bGuideCache);
+  XBMC->Log(LOG_DEBUG, "guide_cache_hours=%d", g_iGuideCacheHours);
   XBMC->Log(LOG_DEBUG, "xmltv_scope=%d", g_iXmltvScope);
   XBMC->Log(LOG_DEBUG, "xmltv_url=%s", g_strXmltvUrl.c_str());
   XBMC->Log(LOG_DEBUG, "xmltv_path=%s", g_strXmltvPath.c_str());

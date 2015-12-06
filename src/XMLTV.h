@@ -82,7 +82,8 @@ public:
   XMLTV();
   virtual ~XMLTV();
   
-  virtual bool Parse(Scope scope, std::string &strPath);
+  virtual bool Parse(Scope scope, std::string &strPath, bool bCache, uint32_t cacheExpiry);
+  virtual void Clear();
   virtual Channel* GetChannelById(std::string &strId);
   virtual Channel* GetChannelByDisplayName(std::string &strDisplayName);
   virtual int EPGGenreByCategory(std::vector<std::string> &categories);

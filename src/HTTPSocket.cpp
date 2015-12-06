@@ -123,7 +123,29 @@ bool HTTPSocket::Execute(Request &request, Response &response)
 {
   std::string strRequestUrl;
   bool result;
-
+  void *hdl;
+  
+  if (request.scope == REMOTE && request.method == GET
+    && request.cache && XBMC->FileExists(request.cacheFile.c_str(), true))
+  {
+    struct __stat64 statCached;
+    XBMC->StatFile(request.cacheFile.c_str(), &statCached);
+    
+    time_t now;
+    time(&now);
+    
+    XBMC->Log(LOG_DEBUG, "%s: now=%d | st_mtime=%d",
+      __FUNCTION__, now, statCached.st_mtime);
+    
+    request.cache = (statCached.st_mtime + request.cacheExpiry) < now;
+    if (!request.cache) {
+      // override the request and load locally from cache file instead
+      request.scope = LOCAL;
+      request.url = request.cacheFile;
+      request.cache = false;
+    }
+  }
+  
   BuildRequestUrl(request, strRequestUrl);
   
   switch (request.method) {
@@ -136,6 +158,20 @@ bool HTTPSocket::Execute(Request &request, Response &response)
   if (!result) {
     XBMC->Log(LOG_ERROR, "%s: request failed", __FUNCTION__);
     return false;
+  }
+  
+  if (request.scope == REMOTE && request.cache && !request.cacheFile.empty()) {
+    hdl = XBMC->OpenFileForWrite(request.cacheFile.c_str(), true);
+    if (hdl) {
+      ssize_t bytes = XBMC->WriteFile(hdl, response.body.c_str(), response.body.size());
+      if (bytes == -1)
+        XBMC->Log(LOG_ERROR, "%s: error when writing to file: %s=",
+          __FUNCTION__, request.cacheFile.c_str());
+      XBMC->CloseFile(hdl);
+    } else {
+      XBMC->Log(LOG_ERROR, "%s: failed to open file: %s=",
+        __FUNCTION__, request.cacheFile.c_str());
+    }
   }
   
   XBMC->Log(LOG_DEBUG, "%s", response.body.substr(0, 512).c_str()); // 512 is max

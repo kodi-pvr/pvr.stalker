@@ -27,6 +27,15 @@
 #include <iterator>
 #include <sstream>
 
+#include "platform/os.h"
+
+#include "client.h"
+
+std::string Utils::GetFilePath(std::string strPath, bool bUserPath)
+{
+  return (bUserPath ? g_strUserPath : g_strClientPath) + PATH_SEPARATOR_CHAR + strPath;
+}
+
 // http://stackoverflow.com/a/17708801
 std::string Utils::UrlEncode(const std::string &value)
 {

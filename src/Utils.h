@@ -31,6 +31,7 @@
 class Utils
 {
 public:
+  static std::string GetFilePath(std::string strPath, bool bUserPath = true);
   static std::string UrlEncode(const std::string &string);
   static double StringToDouble(const std::string &value);
   static int StringToInt(const std::string &value);

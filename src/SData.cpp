@@ -25,7 +25,6 @@
 #include <cmath>
 
 #include "tinyxml.h"
-#include "platform/os.h"
 #include "platform/util/StringUtils.h"
 #include "platform/util/timeutils.h"
 #include "platform/util/util.h"
@@ -41,21 +40,23 @@
 #define SERROR_MSG_AUTHENTICATION       30504
 #define SERROR_MSG_LOAD_CHANNELS        30505
 #define SERROR_MSG_LOAD_CHANNEL_GROUPS  30506
-#define SERROR_MSG_STREAM_URL           30507
-#define SERROR_MSG_AUTHORIZATION        30508
-#define MSG_RE_AUTHENTICATED            30509
+#define SERROR_MSG_LOAD_EPG             30507
+#define SERROR_MSG_STREAM_URL           30508
+#define SERROR_MSG_AUTHORIZATION        30509
+#define MSG_RE_AUTHENTICATED            30510
 
 using namespace ADDON;
 using namespace PLATFORM;
 
 SData::SData(void)
 {
-  m_bInitedApi        = false;
-  m_bTokenManuallySet = false;
-  m_bAuthenticated    = false;
-  m_iNextEpgLoadTime  = 0;
-  m_watchdog          = NULL;
-  m_xmltv             = new XMLTV;
+  m_bInitedApi          = false;
+  m_bTokenManuallySet   = false;
+  m_bAuthenticated      = false;
+  m_iLastEpgAccessTime  = 0;
+  m_iNextEpgLoadTime    = 0;
+  m_watchdog            = NULL;
+  m_xmltv               = new XMLTV;
   
   sc_identity_defaults(&m_identity);
   sc_stb_profile_defaults(&m_profile);
@@ -101,6 +102,9 @@ void SData::QueueErrorNotification(SError error)
     case SERROR_LOAD_CHANNEL_GROUPS:
       iErrorMsg = SERROR_MSG_LOAD_CHANNEL_GROUPS;
       break;
+    case SERROR_LOAD_EPG:
+      iErrorMsg = SERROR_MSG_LOAD_EPG;
+      break;
     case SERROR_STREAM_URL:
       iErrorMsg = SERROR_MSG_STREAM_URL;
       break;
@@ -113,11 +117,6 @@ void SData::QueueErrorNotification(SError error)
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(iErrorMsg));
 }
 
-std::string SData::GetFilePath(std::string strPath, bool bUserPath)
-{
-  return (bUserPath ? g_strUserPath : g_strClientPath) + PATH_SEPARATOR_CHAR + strPath;
-}
-
 bool SData::LoadCache()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
@@ -127,7 +126,7 @@ bool SData::LoadCache()
   TiXmlElement *pRootElement = NULL;
   TiXmlElement *pTokenElement = NULL;
 
-  strCacheFile = GetFilePath("cache.xml");
+  strCacheFile = Utils::GetFilePath("cache.xml");
 
   if (!doc.LoadFile(strCacheFile)) {
     XBMC->Log(LOG_ERROR, "%s: failed to load: \"%s\"", __FUNCTION__, strCacheFile.c_str());
@@ -166,7 +165,7 @@ bool SData::SaveCache()
   TiXmlElement *pRootElement = NULL;
   TiXmlElement *pTokenElement = NULL;
 
-  strCacheFile = GetFilePath("cache.xml");
+  strCacheFile = Utils::GetFilePath("cache.xml");
 
   if ((bFailed = !doc.LoadFile(strCacheFile))) {
     XBMC->Log(LOG_ERROR, "%s: failed to load \"%s\"", __FUNCTION__, strCacheFile.c_str());
@@ -481,49 +480,10 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
   return iEntriesTransfered;
 }
 
-SError SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
+bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  uint32_t iPeriod;
-  Scope scope;
-  std::string xmltvPath;
-  uint64_t iNow;
   std::string strChannelId;
   int iEntriesTransfered(0);
-
-  //TODO limit period to 24 hours for GetEPGInfo. large amount of channels over too many days could exceed server max memory allowed for that request
-  iPeriod = (iEnd - iStart) / 3600;
-  
-  if (g_iXmltvScope == REMOTE_URL) {
-    scope = REMOTE;
-    xmltvPath = g_strXmltvUrl;
-  } else {
-    scope = LOCAL;
-    xmltvPath = g_strXmltvPath;
-  }
-
-  iNow = GetTimeMs();
-  if (m_iNextEpgLoadTime < iNow) {
-    m_iNextEpgLoadTime = iNow + 10 /*minutes*/ * 60000;
-    
-    if (g_iGuidePreference != XMLTV_ONLY) {
-      //TODO merge with LoadData() when multiple PVR clients are properly supported
-      //TODO replace with auth check
-      SError ret(SERROR_OK);
-      if (!IsInitialized())
-        ret = Initialize();
-
-      if (ret == SERROR_OK && !SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData))
-        XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
-    }
-    
-    if (g_iGuidePreference != PROVIDER_ONLY && !xmltvPath.empty()
-      && m_xmltv && !m_xmltv->Parse(scope, xmltvPath))
-    {
-      XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
-    }
-  }
   
   strChannelId = Utils::ToString(channel.iChannelId);
   
@@ -536,13 +496,14 @@ SError SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, A
       if (g_iGuidePreference == PROVIDER_ONLY)
         break;
       
-      if (iEntriesTransfered == 0)
+      if (iEntriesTransfered == 0 && m_xmltv)
         ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
       
       break;
     case PREFER_XMLTV:
     case XMLTV_ONLY:
-      iEntriesTransfered = ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
+      if (m_xmltv)
+        iEntriesTransfered = ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
       
       if (g_iGuidePreference == XMLTV_ONLY)
         break;
@@ -553,7 +514,85 @@ SError SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, A
       break;
   }
 
-  return SERROR_OK;
+  return true;
+}
+
+SError SData::LoadEPG(time_t iStart, time_t iEnd)
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  uint32_t iPeriod;
+  Scope scope;
+  std::string strXmltvPath;
+  uint32_t iCacheExpiry;
+  int iMaxRetires(5);
+  int iNumRetries(0);
+  bool bLoadedProvider(false);
+  bool bLoadedXmltv(false);
+
+  m_epgMutex.Lock();
+
+  //TODO limit period to 24 hours for GetEPGInfo. large amount of channels over too many days could exceed server max memory allowed for that request
+  iPeriod = (iEnd - iStart) / 3600;
+
+  if (g_iXmltvScope == REMOTE_URL) {
+    scope = REMOTE;
+    strXmltvPath = g_strXmltvUrl;
+  } else {
+    scope = LOCAL;
+    strXmltvPath = g_strXmltvPath;
+  }
+
+  iCacheExpiry = g_iGuideCacheHours * 3600;
+
+  //TODO merge with LoadData() when multiple PVR clients are properly supported
+  //TODO replace with auth check
+  if (g_iGuidePreference != XMLTV_ONLY && (IsInitialized() || SERROR_OK == Initialize())) {
+    while (!bLoadedProvider && ++iNumRetries <= iMaxRetires) {
+      // don't sleep on first try
+      if (iNumRetries > 1)
+        usleep(5000000);
+
+      if (!(bLoadedProvider = SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData, g_bGuideCache, iCacheExpiry)))
+        XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
+    }
+  }
+
+  iNumRetries = 0;
+
+  if (g_iGuidePreference != PROVIDER_ONLY && !strXmltvPath.empty() && m_xmltv) {
+    while (!bLoadedXmltv && ++iNumRetries <= iMaxRetires) {
+      // don't sleep on first try
+      if (iNumRetries > 1)
+        usleep(5000000);
+
+      if (!(bLoadedXmltv = m_xmltv->Parse(scope, strXmltvPath, g_bGuideCache, iCacheExpiry)))
+        XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+    }
+  }
+
+  m_epgMutex.Unlock();
+
+  return (bLoadedProvider || bLoadedXmltv) ? SERROR_OK : SERROR_LOAD_EPG;
+}
+
+void SData::UnloadEPG()
+{
+  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+
+  time_t now;
+
+  m_epgMutex.Lock();
+
+  time(&now);
+  if ((m_iLastEpgAccessTime + 30 * 60) < now) {
+    m_epgData.clear();
+
+    if (m_xmltv)
+      m_xmltv->Clear();
+  }
+
+  m_epgMutex.Unlock();
 }
 
 bool SData::ParseChannelGroups(Json::Value &parsed)
@@ -729,6 +768,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
   
   SChannel *thisChannel = NULL;
+  time_t now;
   SError ret;
 
   for (unsigned int iChannelPtr = 0; iChannelPtr < m_channels.size(); iChannelPtr++) {
@@ -747,11 +787,20 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
   XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s",
     __FUNCTION__, iStart, iEnd, thisChannel->iChannelNumber, thisChannel->strChannelName.c_str());
 
-  ret = LoadEPGForChannel(*thisChannel, iStart, iEnd, handle);
-  if (ret != SERROR_OK) {
-    QueueErrorNotification(ret);
-    return PVR_ERROR_SERVER_ERROR;
+  time(&now);
+  m_iLastEpgAccessTime = now;
+  if (m_iNextEpgLoadTime < now) {
+    // limit to 1 hour if caching is disabled
+    m_iNextEpgLoadTime = now + (g_bGuideCache ? g_iGuideCacheHours : 1) * 3600;
+    XBMC->Log(LOG_DEBUG, "%s: m_iNextEpgLoadTime=%d", __FUNCTION__, m_iNextEpgLoadTime);
+
+    ret = LoadEPG(iStart, iEnd);
+    if (ret != SERROR_OK)
+      QueueErrorNotification(ret);
   }
+
+  if (!LoadEPGForChannel(*thisChannel, iStart, iEnd, handle))
+    return PVR_ERROR_UNKNOWN;
 
   return PVR_ERROR_NO_ERROR;
 }

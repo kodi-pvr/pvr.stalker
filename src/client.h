@@ -35,6 +35,8 @@
 #define DEFAULT_PASSWORD            ""
 #define DEFAULT_CONNECTION_TIMEOUT  1 // 5 seconds
 #define DEFAULT_GUIDE_PREFERENCE    0 // prefer provider
+#define DEFAULT_GUIDE_CACHE         1 // true
+#define DEFAULT_GUIDE_CACHE_HOURS   24
 #define DEFAULT_XMLTV_SCOPE         0 // remote url
 #define DEFAULT_XMLTV_URL           ""
 #define DEFAULT_XMLTV_PATH          ""
@@ -71,6 +73,8 @@ extern std::string  g_strLogin;
 extern std::string  g_strPassword;
 extern int          g_iConnectionTimeout;
 extern int          g_iGuidePreference;
+extern bool         g_bGuideCache;
+extern int          g_iGuideCacheHours;
 extern int          g_iXmltvScope;
 extern std::string  g_strXmltvUrl;
 extern std::string  g_strXmltvPath;
