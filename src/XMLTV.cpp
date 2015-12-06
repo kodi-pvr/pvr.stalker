@@ -218,6 +218,9 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
   Response response;
   TiXmlDocument doc;
   TiXmlElement *elemRoot;
+  bool bRet(false);
+  
+  m_channels.clear();
   
   request.scope = scope;
   request.url = strPath;
@@ -226,23 +229,22 @@ bool XMLTV::Parse(Scope scope, std::string &strPath)
     return false;
   
   doc.Parse(response.body.c_str());
-  if (doc.Error()) {
+  
+  if (!doc.Error()) {
+    elemRoot = doc.FirstChildElement("tv");
+    if (elemRoot) {
+      if (ReadChannels(elemRoot) && ReadProgrammes(elemRoot))
+        bRet = true;
+    } else {
+      XBMC->Log(LOG_ERROR, "%s: root \"tv\" element not found", __FUNCTION__);
+    }
+  } else {
     XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __FUNCTION__);
-    return false;
   }
   
-  elemRoot = doc.FirstChildElement("tv");
-  if (!elemRoot) {
-    XBMC->Log(LOG_ERROR, "%s: root \"tv\" element not found", __FUNCTION__);
-    return false;
-  }
+  doc.Clear();
   
-  m_channels.clear();
-  
-  if (!ReadChannels(elemRoot) || !ReadProgrammes(elemRoot))
-    return false;
-  
-  return true;
+  return bRet;
 }
 
 Channel* XMLTV::GetChannelById(std::string &strId)
@@ -302,17 +304,19 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
         std::map<int, int>::iterator match = matches.find(genre->first);
         // increment the number of matches for the genre
         matches[genre->first] = match != matches.end() ? match->second + 1 : 1;
+        // set final match to the first match
+        // in the case that no dominant genre set is found this will be used
+        if (finalMatch == matches.end())
+          finalMatch = matches.find(genre->first);
       }
     }
   }
   
-  if (matches.empty())
+  if (matches.empty() || finalMatch == matches.end())
     return EPG_GENRE_USE_STRING;
   
   for (std::map<int, int>::iterator match = matches.begin(); match != matches.end(); ++match) {
-    // set the first category match as the initial final match
-    // useful when there is no dominant genre
-    if (finalMatch == matches.end() || match->second > finalMatch->second)
+    if (match->second > finalMatch->second)
       finalMatch = match;
   }
   

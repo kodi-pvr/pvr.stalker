@@ -113,6 +113,23 @@ sc_request_nameVal_t* sc_request_link_nameVal(sc_request_nameVal_t *a, sc_reques
   return b;
 }
 
+void sc_request_append_nameVal(sc_request_t *request, sc_request_nameVal_t *header) {
+  sc_request_nameVal_t *oheader;
+
+  if (!request->headers) {
+    request->headers = header;
+  } else {
+    oheader = request->headers;
+    while (oheader && oheader->next) {
+      oheader = oheader->next;
+    }
+
+    sc_request_link_nameVal(oheader, header);
+  }
+
+  header->next = NULL;
+}
+
 void sc_request_build_headers(sc_identity_t *identity, sc_request_t *request, sc_action_t action) {
   sc_request_nameVal_t *header;
   char buffer[256];
@@ -122,20 +139,16 @@ void sc_request_build_headers(sc_identity_t *identity, sc_request_t *request, sc
     identity->mac, identity->lang, identity->time_zone);
   header = sc_request_create_nameVal("Cookie", buffer);
 
-  if (!request->headers) {
+  if (!request->headers)
     header->first = header;
-    request->headers = header;
-  } else {
-    header = sc_request_link_nameVal(request->headers, header);
-  }
+  sc_request_append_nameVal(request, header);
 
   if (action != STB_HANDSHAKE) {
     memset(&buffer, 0, sizeof (buffer));
     sprintf(buffer, "Bearer %s", identity->token);
-    header = sc_request_link_nameVal(header, sc_request_create_nameVal("Authorization", buffer));
+    sc_request_link_nameVal(header, sc_request_create_nameVal("Authorization", buffer));
   }
 
-  header->next = NULL;
   header = NULL;
 }
 

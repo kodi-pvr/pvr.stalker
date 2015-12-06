@@ -37,112 +37,32 @@
 
 using namespace ADDON;
 
-/*bool SAPI::Init()
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  std::string strServer;
-  bool isHttp;
-  Request request;
-  Response response;
-  HTTPSocket *sock = NULL;
-  size_t pos;
-  std::string strRealServer;
-
-  if (g_strServer.find("://") == std::string::npos)
-    strServer = "http://";
-  
-  strServer += g_strServer;
-  isHttp = strServer.find("http://") == 0;
-
-  sock = isHttp
-    ? new HTTPSocketRaw(g_iConnectionTimeout)
-    : new HTTPSocket(g_iConnectionTimeout);
-
-  request.url = strServer;
-
-  if (!sock->Execute(request, response) || (!isHttp && response.body.empty())) {
-    XBMC->Log(LOG_ERROR, "%s: api init failed", __FUNCTION__);
-    return false;
-  }
-
-  if (isHttp) {
-    // check for location header
-    if ((pos = response.headers.find("Location: ")) != std::string::npos) {
-      strRealServer = response.headers.substr(pos + 10, response.headers.find("\r\n", pos) - (pos + 10));
-    }
-    else {
-      XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from location header", __FUNCTION__);
-
-      // convert to lower case
-      std::transform(response.body.begin(), response.body.end(), response.body.begin(), ::tolower);
-
-      // check for meta refresh tag
-      if ((pos = response.body.find("url=")) != std::string::npos)
-        strRealServer = strServer + "/" + response.body.substr(pos + 4, response.body.find("\"", pos) - (pos + 4));
-      else
-        XBMC->Log(LOG_DEBUG, "%s: failed to get api endpoint from meta refresh tag", __FUNCTION__);
-    }
-  }
-
-  if (strRealServer.empty()) {
-    // assume current url is the intended location
-    XBMC->Log(LOG_DEBUG, "%s: assuming current url is the intended location", __FUNCTION__);
-    strRealServer = strServer;
-  }
-
-  // xpcom.common.js > get_server_params()
-  if ((pos = strRealServer.find_last_of("/")) == std::string::npos || strRealServer.substr(pos - 2, 3).compare("/c/") != 0) {
-    XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
-    return false;
-  }
-
-  // strip tail from url path and set api endpoint and referer
-  g_strApiBasePath = strRealServer.substr(0, pos - 1);
-  g_strApiEndpoint = g_strApiBasePath + "server/load.php";
-  g_strReferer = strRealServer.substr(0, pos + 1);
-
-  XBMC->Log(LOG_DEBUG, "api_endpoint=%s", g_strApiEndpoint.c_str());
-  XBMC->Log(LOG_DEBUG, "referer=%s", g_strReferer.c_str());
-
-  return true;
-}*/
-
 bool SAPI::Init()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   std::string strServer;
-  Request request;
-  Response response;
-  HTTPSocket *sock = NULL;
   size_t pos;
 
   if (g_strServer.find("://") == std::string::npos)
     strServer = "http://";
-  
   strServer += g_strServer;
-  sock = new HTTPSocket(g_iConnectionTimeout);
-  request.url = strServer;
-
-  if (!sock->Execute(request, response)) {
-    XBMC->Log(LOG_ERROR, "%s: api init failed", __FUNCTION__);
-    return false;
-  }
 
   // xpcom.common.js > get_server_params()
-  if ((pos = strServer.find_last_of("/")) == std::string::npos || strServer.substr(pos - 2, 3).compare("/c/") != 0) {
+  if ((pos = strServer.find_last_of("/")) == std::string::npos
+    || strServer.substr(pos - 2, 3).compare("/c/") != 0)
+  {
     XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
     return false;
   }
 
-  // strip tail from url path and set api endpoint and referer
-  g_strApiBasePath = strServer.substr(0, pos - 1);
-  g_strApiEndpoint = g_strApiBasePath + "server/load.php";
+  // strip tail from url path and set endpoint and referer
+  g_strBasePath = strServer.substr(0, pos - 1);
+  g_strEndpoint = g_strBasePath + "server/load.php";
   g_strReferer = strServer.substr(0, pos + 1);
 
-  XBMC->Log(LOG_DEBUG, "api_endpoint=%s", g_strApiEndpoint.c_str());
-  XBMC->Log(LOG_DEBUG, "referer=%s", g_strReferer.c_str());
+  XBMC->Log(LOG_DEBUG, "%s: g_strEndpoint=%s", __FUNCTION__, g_strEndpoint.c_str());
+  XBMC->Log(LOG_DEBUG, "%s: g_strReferer=%s", __FUNCTION__, g_strReferer.c_str());
 
   return true;
 }
@@ -174,7 +94,7 @@ SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Re
 
   sc_request_free_nameVals(scRequest.headers);
 
-  oss << g_strApiEndpoint << "?";
+  oss << g_strEndpoint << "?";
   scNameVal = scRequest.params;
   while (scNameVal) {
     oss << scNameVal->name << "=";
@@ -199,8 +119,9 @@ SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Re
     XBMC->Log(LOG_ERROR, "%s: parsing failed", __FUNCTION__);
     if (response.body.compare(AUTHORIZATION_FAILED) == 0) {
       XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
+      return SERROR_AUTHORIZATION;
     }
-    return SERROR_AUTHORIZATION;
+    return SERROR_UNKNOWN;
   }
 
   return SERROR_OK;

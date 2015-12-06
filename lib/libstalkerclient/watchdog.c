@@ -26,13 +26,14 @@ bool sc_watchdog_get_events_defaults(sc_param_request_t *params) {
   sc_param_t *param;
 
   param = sc_param_create_boolean("init", false, true);
-  param->first = param;
+
+  if (!params->param)
+    param->first = param;
+  sc_param_append(params, param);
 
   param = sc_param_link(param, sc_param_create_integer("cur_play_type", 0, true));
-  param = sc_param_link(param, sc_param_create_integer("event_active_id", 0, true));
+  sc_param_link(param, sc_param_create_integer("event_active_id", 0, true));
 
-  params->param = param->first;
-  
   param = NULL;
 
   return true;
