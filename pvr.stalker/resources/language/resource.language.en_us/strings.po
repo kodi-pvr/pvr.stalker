@@ -1,7 +1,7 @@
 # Kodi Media Center language file
 # Addon Name: Stalker Client
 # Addon id: pvr.stalker
-# Addon Provider: dvbken
+# Addon Provider: Jamal Edey
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
@@ -27,10 +27,6 @@ msgstr "Active Portal"
 msgctxt "#30002"
 msgid "Misc"
 msgstr "Misc"
-
-msgctxt "#30003"
-msgid "Connection Timeout"
-msgstr "Connection Timeout"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -80,43 +76,43 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "XMLTV Only"
 
-msgctxt "#30113"
+msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
 
-msgctxt "#30114"
+msgctxt "#30116"
 msgid "Scope"
 msgstr "Scope"
 
-msgctxt "#30115"
+msgctxt "#30117"
 msgid "Remote URL"
 msgstr "Remote URL"
 
-msgctxt "#30116"
+msgctxt "#30118"
 msgid "Local Path"
 msgstr "Local Path"
 
-msgctxt "#30117"
+msgctxt "#30119"
 msgid "Advanced"
 msgstr "Advanced"
 
-msgctxt "#30118"
+msgctxt "#30120"
 msgid "Token"
 msgstr "Token"
 
-msgctxt "#30119"
+msgctxt "#30121"
 msgid "Serial Number"
 msgstr "Serial Number"
 
-msgctxt "#30120"
+msgctxt "#30122"
 msgid "Device ID"
 msgstr "Device ID"
 
-msgctxt "#30121"
+msgctxt "#30123"
 msgid "Device ID2"
 msgstr "Device ID2"
 
-msgctxt "#30122"
+msgctxt "#30124"
 msgid "Signature"
 msgstr "Signature"
 

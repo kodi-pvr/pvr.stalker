@@ -1,7 +1,7 @@
 # Kodi Media Center language file
 # Addon Name: Stalker Client
 # Addon id: pvr.stalker
-# Addon Provider: dvbken
+# Addon Provider: Jamal Edey
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
@@ -16,14 +16,122 @@ msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "常规"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "活动入口"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "杂项"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "MAC 地址"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "服务器地址"
 
 msgctxt "#30103"
 msgid "Time Zone"
 msgstr "时区"
 
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "可信凭证"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "登录"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "密码"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "指南"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "偏好设置"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "首选提供者"
+
 msgctxt "#30110"
 msgid "Prefer XMLTV"
 msgstr "首选 XMLTV"
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "仅提供者"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "仅 XMLTV"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr "范围"
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr "远程 URL"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "本地路径"
+
+msgctxt "#30119"
+msgid "Advanced"
+msgstr "高级"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "令牌"
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr "序列号"
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr "设备 ID"
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr "设备 ID2"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "签名"
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "入口 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "入口 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "入口 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "入口 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "入口 5"
