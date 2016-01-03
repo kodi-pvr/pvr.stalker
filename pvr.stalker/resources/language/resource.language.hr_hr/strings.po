@@ -80,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Samo XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Predmemorija podataka EPG vodiča"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Trajanje predmemorije (sati)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -143,6 +151,10 @@ msgstr "Nemoguće učitavanje podataka"
 msgctxt "#30506"
 msgid "Unable to load channel groups."
 msgstr "Nemoguće učitavanje grupe programa."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Nemoguće učitavanje EPG vodiča."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."

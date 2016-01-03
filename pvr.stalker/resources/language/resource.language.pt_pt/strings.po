@@ -116,6 +116,10 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Assinatura"
 
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "A autenticação falhou. Tentae novamente."
+
 msgctxt "#31000"
 msgid "Portal 1"
 msgstr "Portal 1"

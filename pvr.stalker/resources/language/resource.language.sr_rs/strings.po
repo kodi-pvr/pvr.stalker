@@ -16,14 +16,174 @@ msgstr ""
 "Language: sr_RS\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "Опште"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "Активни портал"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "Остало"
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Истек времена за повезивање (секунде)"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC адреса"
+
 msgctxt "#30102"
 msgid "Server Address"
 msgstr "Адреса Сервера"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "Временска Зона"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "Акредитиви за аутентикацију"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "Пријава"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Лозинка"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Водич"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "Подешавање"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "Дати Предност Провајдеру"
 
 msgctxt "#30110"
 msgid "Prefer XMLTV"
 msgstr "Дати предност XMLTV"
 
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "Само Провајдер"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "Само XMLTV"
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Кеширај податке Водича"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Кеширај Време (Сати)"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr "Обим"
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr "Удаљени URL"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "Локална Путања"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Напредно"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "Token"
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr "Серијски Број"
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr "ID Уређаја"
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr "ID2 Уређаја"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "Потпис"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Непозната грешка. Погледајте евиденцију за детаље."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Неуспело покретање."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Није могуће повезивање са сервером."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Провера идентитета неуспела. Поновни покушај."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Није могуће учитати канале."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Није могуће учитати групе канала."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Није могуће учитати водич."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Неуспело добијање URL-а записа."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Овлашћење изгубљено. Поновна провера идентитета."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Идентитет проверен."
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "Портал 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "Портал 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "Портал 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "Портал 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "Портал 5"

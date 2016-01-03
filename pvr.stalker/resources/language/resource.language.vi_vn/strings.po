@@ -16,6 +16,14 @@ msgstr ""
 "Language: vi_VN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "Tổng quan"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "Cổng hoạt động"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Nâng cao"

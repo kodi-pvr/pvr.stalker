@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "Разное"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Ожидание подключения (секунд)"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "MAC адрес"
@@ -76,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Только XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Кешировать данные программы"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Время кеширования (часы)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -115,6 +127,46 @@ msgstr "ID2 устройства"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "Подпись"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Не известная ошибка. См. журнал."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Не удалось запустить."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Сбой соединения с сервером."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Аутентификация не удалась. Повторяем."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Не удалось загрузить каналы."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Не удалось загрузить группы каналов."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Не удалось загрузить программу."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Сбой получения URL потока."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Авторизация потеряна. Повторная авторизация."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Успешная повторная авторизация."
 
 msgctxt "#31000"
 msgid "Portal 1"

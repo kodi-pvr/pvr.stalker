@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "Ýmislegt"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Tengitími rennur út (sekúndur)"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "MAC vistfang"
@@ -115,6 +119,26 @@ msgstr "Kenni 2 tækis"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "Undirskrift"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Óþekkt villa. Athugaðu atburðaskrá."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Mistókst að ræsa."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Mistókst að tengjast þjóni."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Mistókst að sækja rásir."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Mistókst að streyma URL."
 
 msgctxt "#31000"
 msgid "Portal 1"

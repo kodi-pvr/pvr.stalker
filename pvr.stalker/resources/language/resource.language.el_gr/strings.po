@@ -38,7 +38,7 @@ msgstr "Διεύθυνση Διακομιστή"
 
 msgctxt "#30103"
 msgid "Time Zone"
-msgstr "Ζώνη ώρας"
+msgstr "Ζώνη Ώρας"
 
 msgctxt "#30104"
 msgid "Auth Credentials"
@@ -62,7 +62,7 @@ msgstr "Προτίμηση"
 
 msgctxt "#30109"
 msgid "Prefer Provider"
-msgstr "Προτίμηση πάροχου"
+msgstr "Προτίμηση Πάροχου"
 
 msgctxt "#30110"
 msgid "Prefer XMLTV"
@@ -70,11 +70,11 @@ msgstr "Προτίμηση XMLTV"
 
 msgctxt "#30111"
 msgid "Provider Only"
-msgstr "Πάροχος Μόνο"
+msgstr "Μόνο Πάροχος"
 
 msgctxt "#30112"
 msgid "XMLTV Only"
-msgstr "XMLTV Μόνο"
+msgstr "Μόνο XMLTV"
 
 msgctxt "#30115"
 msgid "XMLTV"
@@ -90,7 +90,7 @@ msgstr "Απομακρυσμένο URL"
 
 msgctxt "#30118"
 msgid "Local Path"
-msgstr "Τοπική διαδρομή"
+msgstr "Τοπική Διαδρομή"
 
 msgctxt "#30119"
 msgid "Advanced"

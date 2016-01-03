@@ -80,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "EnkelXMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Buffer gids data"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Buffer tijd (uren)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -143,6 +151,10 @@ msgstr "Niet gelukt kanalen te laden."
 msgctxt "#30506"
 msgid "Unable to load channel groups."
 msgstr "Niet gelukt kanaalgroepen te laden."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Niet gelukt de gids te laden."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
