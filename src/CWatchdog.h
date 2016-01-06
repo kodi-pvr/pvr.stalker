@@ -22,11 +22,11 @@
  *
  */
 
-#include "platform/threads/threads.h"
+#include "p8-platform/threads/threads.h"
 
 #include "libstalkerclient/identity.h"
 
-class CWatchdog : public PLATFORM::CThread
+class CWatchdog : public P8PLATFORM::CThread
 {
 public:
   CWatchdog(uint32_t iInterval, sc_identity_t &m_identity);

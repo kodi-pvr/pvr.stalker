@@ -24,7 +24,7 @@
 
 #include "kodi/xbmc_pvr_dll.h"
 #include "kodi/libKODI_guilib.h"
-#include "platform/util/util.h"
+#include "p8-platform/util/util.h"
 
 #include "SData.h"
 
