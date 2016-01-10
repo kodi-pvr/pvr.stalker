@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="1.0.2"
+  version="1.0.3"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>
@@ -126,7 +126,7 @@
     <disclaimer lang="nl_NL">Dit is instabiele software! De makers zijn op geen enkele wijze verantwoordelijk voor foutieve opnames, incorrecte timers, verloren uren, of andere ongewenste bijverschijnselen.</disclaimer>
     <disclaimer lang="pl_PL">Oprogramowanie nadal jest w fazie rozwoju i jest niestabilne! Autorzy w żaden sposób nie są odpowiedzialni za nieudane nagrania, błędy w harmonogramie nagrań, zmarnowany czas ani jakiekolwiek inne niepożądane efekty.</disclaimer>
     <disclaimer lang="pt_BR">Este é um software instável! Os autores não são responsáveis por falhas nas gravações, agendamentos incorretos, horas dispendidas, ou quaisquer outros efeitos indesejáveis</disclaimer>
-    <disclaimer lang="pt_PT">Este software é instável! Os autores não se responsabilizam por falhas nas gravações, temporizadores incorrectos, horas perdidas ou outro qualquer efeito não desejado...</disclaimer>
+    <disclaimer lang="pt_PT">Este software é instável! Os autores não podem ser responsabilizados por gravações falhadas, temporizadores incorretos, horas desperdiçadas ou qualquer outro tipo de efeitos indesejáveis...</disclaimer>
     <disclaimer lang="ro_RO">Acesta nu este o aplicație definitivă! Autorii nu sunt în nici un fel responsabili pentru înregistrări eșuate, cronometre incorecte, ore pierdute, sau orice alte efecte nedorite...</disclaimer>
     <disclaimer lang="ru_RU">Это тестовая программа! Авторы не несут ответственности за неудачные записи, неверные таймеры, потраченное время и прочие нежелательные эффекты..</disclaimer>
     <disclaimer lang="si_LK">මෙය අස්ථිර මෘදුකාංගයකි! මෙහි සිදුවන පටිගත කිරීම් අසාර්ථක වීම්, සාවද්‍ය මුහුර්තක, නාස්ති වූ කාලයන්, හෝ වෙනත් යමිකිසි නුසුදුසු බලපෑම් සඳහා කතෘ වග කියනු නොලැබේ.</disclaimer>
