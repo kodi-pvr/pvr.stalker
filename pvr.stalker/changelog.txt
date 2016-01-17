@@ -1,3 +1,5 @@
+2.0.0 (17-01-2016)
+- Initial Kodi Krypton version.
 1.0.3 (10-01-2016)
 - updated language files from Transifex
 1.0.2 (03-01-2016)
