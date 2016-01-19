@@ -404,6 +404,7 @@ void PauseStream(bool bPaused) {}
 bool SeekTime(int time, bool backwards, double *startpts) { return false; }
 void SetSpeed(int speed) {}
 bool IsTimeshifting(void) { return false; }
+bool IsRealTimeStream(void) { return true; }
 time_t GetPlayingTime() { return 0; }
 time_t GetBufferTimeStart() { return 0; }
 time_t GetBufferTimeEnd() { return 0; }
