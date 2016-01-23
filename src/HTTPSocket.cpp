@@ -24,8 +24,8 @@
 
 #include <algorithm>
 
-#include "platform/util/StringUtils.h"
-#include "platform/sockets/tcp.h"
+#include "p8-platform/util/StringUtils.h"
+#include "p8-platform/sockets/tcp.h"
 
 #include "client.h"
 #include "Utils.h"
@@ -33,7 +33,7 @@
 #define TEMP_BUFFER_SIZE 1024
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 HTTPSocket::HTTPSocket(uint32_t iTimeout)
   : m_iTimeout(iTimeout)

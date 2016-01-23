@@ -85,7 +85,7 @@ protected:
   std::vector<UrlOption>  m_defaultOptions;
 };
 
-namespace PLATFORM
+namespace P8PLATFORM
 {
   class CTcpConnection;
 }
@@ -105,5 +105,5 @@ protected:
 private:
   std::string               m_host;
   int                       m_port;
-  PLATFORM::CTcpConnection  *m_socket;
+  P8PLATFORM::CTcpConnection  *m_socket;
 };

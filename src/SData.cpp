@@ -25,9 +25,9 @@
 #include <cmath>
 
 #include "tinyxml.h"
-#include "platform/util/StringUtils.h"
-#include "platform/util/timeutils.h"
-#include "platform/util/util.h"
+#include "p8-platform/util/StringUtils.h"
+#include "p8-platform/util/timeutils.h"
+#include "p8-platform/util/util.h"
 
 #include "libstalkerclient/itv.h"
 #include "libstalkerclient/util.h"
@@ -46,7 +46,7 @@
 #define MSG_RE_AUTHENTICATED            30510
 
 using namespace ADDON;
-using namespace PLATFORM;
+using namespace P8PLATFORM;
 
 SData::SData(void)
 {

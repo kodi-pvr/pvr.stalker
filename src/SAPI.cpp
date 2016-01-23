@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <sstream>
  
-#include "platform/os.h"
+#include "p8-platform/os.h"
 
 #include "libstalkerclient/itv.h"
 #include "libstalkerclient/param.h"

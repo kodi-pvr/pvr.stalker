@@ -115,7 +115,7 @@ private:
   time_t                      m_iNextEpgLoadTime;
   
   sc_identity_t               m_identity;
-  PLATFORM::CMutex            m_authMutex;
+  P8PLATFORM::CMutex            m_authMutex;
   sc_stb_profile_t            m_profile;
   Json::Value                 m_epgData;
   std::vector<SChannelGroup>  m_channelGroups;
@@ -123,5 +123,5 @@ private:
   std::string                 m_PlaybackURL;
   CWatchdog                   *m_watchdog;
   XMLTV                       *m_xmltv;
-  PLATFORM::CMutex            m_epgMutex;
+  P8PLATFORM::CMutex            m_epgMutex;
 };
