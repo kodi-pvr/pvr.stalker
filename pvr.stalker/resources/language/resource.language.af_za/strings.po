@@ -16,6 +16,10 @@ msgstr ""
 "Language: af_ZA\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr "Verkies XMLTV"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Gevorderde"

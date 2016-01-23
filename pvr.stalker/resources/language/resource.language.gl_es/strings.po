@@ -116,6 +116,30 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Sinatura"
 
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Erro descoñecido. Ver o rexistro para máis detalles."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Non se puido conectar co servidor."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Non se poden cargar as canles."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Non se poden cargar os grupos de canles."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Non se pode cargar a guía."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Non se puido obter o URL do fluxo."
+
 msgctxt "#31000"
 msgid "Portal 1"
 msgstr "Portal 1"
