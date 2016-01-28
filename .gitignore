@@ -1,0 +1,23 @@
+# build artifacts
+build/
+debian/changelog
+debian/files
+debian/kodi-pvr-stalker-dbg.debhelper.log
+debian/kodi-pvr-stalker-dbg.substvars
+debian/kodi-pvr-stalker-dbg/
+debian/kodi-pvr-stalker.debhelper.log
+debian/kodi-pvr-stalker.postinst.debhelper
+debian/kodi-pvr-stalker.postrm.debhelper
+debian/kodi-pvr-stalker.substvars
+debian/kodi-pvr-stalker/
+debian/tmp/
+obj-x86_64-linux-gnu/
+pvr.stalker/addon.xml
+
+# clion
+.idea/
+
+# Eclipse/CDT
+.cproject
+.project
+.settings/
