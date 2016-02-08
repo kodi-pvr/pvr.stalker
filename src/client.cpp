@@ -23,7 +23,6 @@
 #include "client.h"
 
 #include "kodi/xbmc_pvr_dll.h"
-#include "kodi/libKODI_guilib.h"
 #include "p8-platform/util/util.h"
 
 #include "SData.h"
@@ -242,12 +241,12 @@ const char* GetMininumPVRAPIVersion(void)
 
 const char* GetGUIAPIVersion(void)
 {
-  return KODI_GUILIB_API_VERSION;
+  return ""; // GUI API not used
 }
 
 const char* GetMininumGUIAPIVersion(void)
 {
-  return KODI_GUILIB_MIN_API_VERSION;
+  return ""; // GUI API not used
 }
 
 PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
