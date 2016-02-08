@@ -385,7 +385,6 @@ int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
 long long PositionLiveStream(void) { return -1; }
 long long LengthLiveStream(void) { return -1; }
-int GetCurrentClientChannel(void) { return -1; }
 bool SwitchChannel(const PVR_CHANNEL& channel) { return false; }
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties) { return PVR_ERROR_NOT_IMPLEMENTED; }
