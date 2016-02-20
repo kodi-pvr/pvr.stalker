@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="1.0.3"
+  version="1.0.4"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>
@@ -12,6 +12,7 @@
     point="xbmc.pvrclient"
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
+    <summary lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</summary>
     <summary lang="bg_BG">ПВР клиент за свързване на Kodi с Stalker Middleware</summary>
     <summary lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</summary>
     <summary lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</summary>
@@ -34,6 +35,7 @@
     <summary lang="is_IS">Upptökubiðlari til að tengja Kodi við Stalker Middleware</summary>
     <summary lang="it_IT">Client PVR per connettere Kodi a Stalker Middleware</summary>
     <summary lang="lt_LT">PVR klientas Kodi sujungimui su Stalker Middleware</summary>
+    <summary lang="lv_LV">PVR klients, lai pieslēgtu Kodi pie Stalker Middleware</summary>
     <summary lang="ms_MY">Klien PVR untuk sambungkan Kodi dengan Stalker Middleware</summary>
     <summary lang="nb_NO">PVR Klient for å koble Kodi til Stalker Mellomvare</summary>
     <summary lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</summary>
@@ -49,6 +51,7 @@
     <summary lang="sv_SE">PVR-klient för anslutning av Kodi till Stalker Middleware</summary>
     <summary lang="vi_VN">Trình PVR để kết nối Kodi với Stalker Middleware</summary>
     <summary lang="zh_CN">Kodi 连接 Stalker Middleware 的 PVR 客户端</summary>
+    <description lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</description>
     <description lang="bg_BG">ПВР клиент за свързване на Kodi със Stalker Middleware</description>
     <description lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</description>
     <description lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</description>
@@ -71,6 +74,7 @@
     <description lang="is_IS">Upptökubiðlari til að tengja Kodi við Stalker Middleware</description>
     <description lang="it_IT">Client PVR per connettere Kodi a Stalker Middleware</description>
     <description lang="lt_LT">PVR klientas Kodi sujungimui su Stalker Middleware</description>
+    <description lang="lv_LV">PVR klients, lai pieslēgtu Kodi pie Stalker Middleware</description>
     <description lang="ms_MY">Klien PVR untuk sambungkan Kodi dengan Stalker Middleware</description>
     <description lang="nb_NO">PVR Klient for å koble Kodi til Stalker Mellomvare</description>
     <description lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</description>

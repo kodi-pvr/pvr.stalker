@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "Pelbagai"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Had Masa tamat Smbungan (saat)"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "Alamat MAC"
@@ -76,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "XMLTV Sahaja"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Cache Data Panduan"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Cache Masa (jam)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -115,6 +127,46 @@ msgstr "ID Peranti2"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "Tandatangan"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Ralat tidak diketahui. Lihat log untuk perincian."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Permulaan gagal."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "gagal menyambung ke pelayan."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Pengesahihan gagal. Mencuba sekali lagi."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Tidak boleh muatkan saluran."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Tidak boleh muatkan kumpulan saluran."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Tidak boleh muatkan panduan."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Gagal dapatkan URL strim."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Pengesahihan hilang. Disahihkan-semula."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Disahihkan-semula."
 
 msgctxt "#31000"
 msgid "Portal 1"

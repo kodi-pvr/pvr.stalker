@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "שונות"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "זמן מירבי לניסיון חיבור (שנ')"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "כתובת MAC"
@@ -76,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "XMLTV בלבד"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "מטמון לוח שידורים"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "זמן מטמון (שעות) "
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -115,6 +127,22 @@ msgstr "מזהה מכשיר 2 (ID2)"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "חתימה"
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "התחברות לשרת נכשלה."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "אימות נכשל. מנסה שוב."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "נכשל בטעינת לוח שידורים."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "אומת מחדש."
 
 msgctxt "#31000"
 msgid "Portal 1"
