@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "Övrigt"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Anslutnings Avbrott (sekunder)"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "Hårdvaruadress"
@@ -76,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Endast XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Cache Guide Data"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Cache Tid (timmar)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -116,9 +128,21 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Signatur"
 
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Oväntat fel. Kolla loggarna för detaljer."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Uppstart misslyckades."
+
 msgctxt "#30503"
 msgid "Failed to connect to server."
 msgstr "Kunde inte ansluta till server."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Autentisering misslyckades. Försöker igen."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
@@ -127,6 +151,22 @@ msgstr "Kunde inte ladda kanaler."
 msgctxt "#30506"
 msgid "Unable to load channel groups."
 msgstr "Kunde inte ladda kanalgrupper."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Kan inte ladda guide."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Kunde inte hämta stream URL."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Tillstånd förlorades. Åter-autentiseringar."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Åter-autentiserad."
 
 msgctxt "#31000"
 msgid "Portal 1"
