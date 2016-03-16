@@ -50,7 +50,7 @@ msgstr "Données d'identification"
 
 msgctxt "#30105"
 msgid "Login"
-msgstr "Connexion"
+msgstr "Identification"
 
 msgctxt "#30106"
 msgid "Password"

@@ -128,6 +128,14 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "חתימה"
 
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "שגיאה לא ידועה. עיין ביומן לקבלת פרטים."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "האתחול נכשל."
+
 msgctxt "#30503"
 msgid "Failed to connect to server."
 msgstr "התחברות לשרת נכשלה."
@@ -136,9 +144,25 @@ msgctxt "#30504"
 msgid "Authentication failed. Retrying."
 msgstr "אימות נכשל. מנסה שוב."
 
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "לא ניתן לטעון ערוצים."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "לא ניתן לטעון קבוצות ערוצים."
+
 msgctxt "#30507"
 msgid "Unable to load guide."
 msgstr "נכשל בטעינת לוח שידורים."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "הזרמת URL נכשלה."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "האימות נכשל. מבצע אימות מחדש."
 
 msgctxt "#30510"
 msgid "Re-authenticated."
