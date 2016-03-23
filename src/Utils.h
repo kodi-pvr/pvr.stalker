@@ -39,6 +39,7 @@ public:
   static int GetIntFromJsonValue(Json::Value &value, int defaultValue = 0);
   static double GetDoubleFromJsonValue(Json::Value &value, double defaultValue = 0);
   static bool GetBoolFromJsonValue(Json::Value &value, bool defaultValue = false);
+  static std::string DetermineLogoURI(std::string &logo);
   
   template<typename T> static std::string ToString(const T &value)
   {

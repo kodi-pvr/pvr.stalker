@@ -29,7 +29,6 @@
 #include "p8-platform/util/timeutils.h"
 #include "p8-platform/util/util.h"
 
-#include "libstalkerclient/itv.h"
 #include "libstalkerclient/util.h"
 #include "SAPI.h"
 #include "Utils.h"
@@ -672,7 +671,7 @@ bool SData::ParseChannels(Json::Value &parsed)
       channel.strStreamURL = "pvr://stream/" + Utils::ToString(channel.iUniqueId);
 
       std::string strLogo = (*it)["logo"].asString();
-      channel.strIconPath = strLogo.length() == 0 ? "" : std::string(g_strBasePath + SC_ITV_LOGO_PATH_320 + strLogo);
+      channel.strIconPath = Utils::DetermineLogoURI(strLogo);
 
       channel.iChannelId = Utils::GetIntFromJsonValue((*it)["id"]);
       channel.strCmd = (*it)["cmd"].asString();

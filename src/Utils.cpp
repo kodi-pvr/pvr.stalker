@@ -29,6 +29,7 @@
 
 #include "p8-platform/os.h"
 
+#include "libstalkerclient/itv.h"
 #include "client.h"
 
 std::string Utils::GetFilePath(std::string strPath, bool bUserPath)
@@ -128,4 +129,19 @@ bool Utils::GetBoolFromJsonValue(Json::Value &value, bool defaultValue)
   }
 
   return res;
+}
+
+std::string Utils::DetermineLogoURI(std::string &logo)
+{
+  std::string uri;
+
+  if (logo.length() > 5 && logo.substr(0, 5).compare("data:") == 0) {
+    return uri;
+  } else if (logo.find("://") != std::string::npos) {
+    uri = logo;
+  } else if (logo.length() != 0) {
+    uri = g_strBasePath + SC_ITV_LOGO_PATH_320 + logo;
+  }
+
+  return uri;
 }
