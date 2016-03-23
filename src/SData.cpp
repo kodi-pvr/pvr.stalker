@@ -272,7 +272,7 @@ SError SData::LoadProfile(bool bAuthSecondStep)
   sc_stb_profile_defaults(&m_profile);
   
   if (parsed["js"].isMember("store_auth_data_on_stb"))
-    m_profile.store_auth_data_on_stb = !!Utils::GetIntFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
+    m_profile.store_auth_data_on_stb = Utils::GetBoolFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
   
   if (parsed["js"].isMember("status"))
     m_profile.status = Utils::GetIntFromJsonValue(parsed["js"]["status"]);

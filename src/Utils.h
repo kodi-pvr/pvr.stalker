@@ -38,6 +38,7 @@ public:
   static std::string ConcatenateStringList(const std::vector<std::string> &list);
   static int GetIntFromJsonValue(Json::Value &value, int defaultValue = 0);
   static double GetDoubleFromJsonValue(Json::Value &value, double defaultValue = 0);
+  static bool GetBoolFromJsonValue(Json::Value &value, bool defaultValue = false);
   
   template<typename T> static std::string ToString(const T &value)
   {

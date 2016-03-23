@@ -93,7 +93,7 @@ int Utils::GetIntFromJsonValue(Json::Value &value, int defaultValue)
 {
   int iTemp = defaultValue;
 
-  // some json responses have have ints formated as strings
+  // some json responses have ints formated as strings
   if (value.isString())
     iTemp = StringToInt(value.asString());
   else if (value.isInt())
@@ -106,7 +106,7 @@ double Utils::GetDoubleFromJsonValue(Json::Value &value, double defaultValue)
 {
   double dTemp = defaultValue;
 
-  /* some json responses have have doubles formated as strings,
+  /* some json responses have doubles formated as strings,
   or an expected double is formated as an int */
   if (value.isString())
     dTemp = StringToDouble(value.asString());
@@ -114,4 +114,18 @@ double Utils::GetDoubleFromJsonValue(Json::Value &value, double defaultValue)
     dTemp = value.asDouble();
 
   return dTemp;
+}
+
+bool Utils::GetBoolFromJsonValue(Json::Value &value, bool defaultValue)
+{
+  bool res = defaultValue;
+
+  // some json responses have string bools formated as string literals
+  if (value.isString()) {
+    res = value.asString().compare("true") == 0;
+  } else {
+    res = value.asBool();
+  }
+
+  return res;
 }
