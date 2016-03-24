@@ -42,25 +42,37 @@ bool SAPI::Init()
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   std::string strServer;
+  size_t startPos;
   size_t pos;
 
-  if (g_strServer.find("://") == std::string::npos)
+  if ((startPos = g_strServer.find("://")) == std::string::npos) {
     strServer = "http://";
+    startPos = 4;
+  }
   strServer += g_strServer;
+  startPos += 3;
 
   // xpcom.common.js > get_server_params()
-  if ((pos = strServer.find_last_of("/")) == std::string::npos
-    || strServer.substr(pos - 2, 3).compare("/c/") != 0)
+  if ((pos = strServer.substr(startPos).find_last_of('/')) == std::string::npos) {
+    strServer += '/';
+    pos = strServer.length() - startPos;
+  }
+  pos += startPos;
+
+  if (strServer.substr(pos - 2, 3).compare("/c/") == 0
+    && strServer.substr(pos + 1).find(".php") == std::string::npos)
   {
-    XBMC->Log(LOG_ERROR, "%s: failed to get api endpoint", __FUNCTION__);
-    return false;
+    // strip tail from url path and set endpoint and referer
+    g_strBasePath = strServer.substr(0, pos - 1);
+    g_strEndpoint = g_strBasePath + "server/load.php";
+    g_strReferer = strServer.substr(0, pos + 1);
+  } else {
+    g_strBasePath = strServer.substr(0, pos + 1);
+    g_strEndpoint = strServer;
+    g_strReferer = g_strBasePath;
   }
 
-  // strip tail from url path and set endpoint and referer
-  g_strBasePath = strServer.substr(0, pos - 1);
-  g_strEndpoint = g_strBasePath + "server/load.php";
-  g_strReferer = strServer.substr(0, pos + 1);
-
+  XBMC->Log(LOG_DEBUG, "%s: g_strBasePath=%s", __FUNCTION__, g_strBasePath.c_str());
   XBMC->Log(LOG_DEBUG, "%s: g_strEndpoint=%s", __FUNCTION__, g_strEndpoint.c_str());
   XBMC->Log(LOG_DEBUG, "%s: g_strReferer=%s", __FUNCTION__, g_strReferer.c_str());
 

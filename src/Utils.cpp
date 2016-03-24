@@ -29,6 +29,7 @@
 
 #include "platform/os.h"
 
+#include "libstalkerclient/itv.h"
 #include "client.h"
 
 std::string Utils::GetFilePath(std::string strPath, bool bUserPath)
@@ -93,7 +94,7 @@ int Utils::GetIntFromJsonValue(Json::Value &value, int defaultValue)
 {
   int iTemp = defaultValue;
 
-  // some json responses have have ints formated as strings
+  // some json responses have ints formated as strings
   if (value.isString())
     iTemp = StringToInt(value.asString());
   else if (value.isInt())
@@ -106,7 +107,7 @@ double Utils::GetDoubleFromJsonValue(Json::Value &value, double defaultValue)
 {
   double dTemp = defaultValue;
 
-  /* some json responses have have doubles formated as strings,
+  /* some json responses have doubles formated as strings,
   or an expected double is formated as an int */
   if (value.isString())
     dTemp = StringToDouble(value.asString());
@@ -114,4 +115,33 @@ double Utils::GetDoubleFromJsonValue(Json::Value &value, double defaultValue)
     dTemp = value.asDouble();
 
   return dTemp;
+}
+
+bool Utils::GetBoolFromJsonValue(Json::Value &value, bool defaultValue)
+{
+  bool res = defaultValue;
+
+  // some json responses have string bools formated as string literals
+  if (value.isString()) {
+    res = value.asString().compare("true") == 0;
+  } else {
+    res = value.asBool();
+  }
+
+  return res;
+}
+
+std::string Utils::DetermineLogoURI(std::string &logo)
+{
+  std::string uri;
+
+  if (logo.length() > 5 && logo.substr(0, 5).compare("data:") == 0) {
+    return uri;
+  } else if (logo.find("://") != std::string::npos) {
+    uri = logo;
+  } else if (logo.length() != 0) {
+    uri = g_strBasePath + SC_ITV_LOGO_PATH_320 + logo;
+  }
+
+  return uri;
 }

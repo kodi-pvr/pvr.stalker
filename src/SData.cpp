@@ -29,7 +29,6 @@
 #include "platform/util/timeutils.h"
 #include "platform/util/util.h"
 
-#include "libstalkerclient/itv.h"
 #include "libstalkerclient/util.h"
 #include "SAPI.h"
 #include "Utils.h"
@@ -272,7 +271,7 @@ SError SData::LoadProfile(bool bAuthSecondStep)
   sc_stb_profile_defaults(&m_profile);
   
   if (parsed["js"].isMember("store_auth_data_on_stb"))
-    m_profile.store_auth_data_on_stb = !!Utils::GetIntFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
+    m_profile.store_auth_data_on_stb = Utils::GetBoolFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
   
   if (parsed["js"].isMember("status"))
     m_profile.status = Utils::GetIntFromJsonValue(parsed["js"]["status"]);
@@ -672,7 +671,7 @@ bool SData::ParseChannels(Json::Value &parsed)
       channel.strStreamURL = "pvr://stream/" + Utils::ToString(channel.iUniqueId);
 
       std::string strLogo = (*it)["logo"].asString();
-      channel.strIconPath = strLogo.length() == 0 ? "" : std::string(g_strBasePath + SC_ITV_LOGO_PATH_320 + strLogo);
+      channel.strIconPath = Utils::DetermineLogoURI(strLogo);
 
       channel.iChannelId = Utils::GetIntFromJsonValue((*it)["id"]);
       channel.strCmd = (*it)["cmd"].asString();
