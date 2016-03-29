@@ -84,26 +84,3 @@ protected:
   uint32_t                m_iTimeout;
   std::vector<UrlOption>  m_defaultOptions;
 };
-
-namespace P8PLATFORM
-{
-  class CTcpConnection;
-}
-
-class HTTPSocketRaw : public HTTPSocket
-{
-public:
-  HTTPSocketRaw(uint32_t iTimeout = MINIMUM_TIMEOUT);
-  ~HTTPSocketRaw();
-  
-  void SetURL(const std::string &url);
-  bool Execute(Request &request, Response &response);
-protected:
-  void BuildRequestString(Request &request, std::string &strRequest);
-  bool Open();
-  void Close();
-private:
-  std::string               m_host;
-  int                       m_port;
-  P8PLATFORM::CTcpConnection  *m_socket;
-};
