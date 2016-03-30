@@ -97,13 +97,13 @@ SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Re
 
   scNameVal = scRequest.headers;
   while (scNameVal) {
-    request.AddHeader(scNameVal->name, scNameVal->value);
+    request.AddURLOption(scNameVal->name, scNameVal->value);
 
     scNameVal = scNameVal->next;
   }
 
-  request.AddHeader("Referer", g_strReferer);
-  request.AddHeader("X-User-Agent", "Model: MAG250; Link: WiFi");
+  request.AddURLOption("Referer", g_strReferer);
+  request.AddURLOption("X-User-Agent", "Model: MAG250; Link: WiFi");
 
   sc_request_free_nameVals(scRequest.headers);
 
@@ -122,9 +122,9 @@ SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Re
   sc_request_free_nameVals(scRequest.params);
 
   request.url = oss.str();
-  request.cache = bCache;
-  request.cacheFile = strCacheFile;
-  request.cacheExpiry = cacheExpiry;
+  response.useCache = bCache;
+  response.url = strCacheFile;
+  response.expiry = cacheExpiry;
 
   if (!sock.Execute(request, response)) {
     XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);

@@ -226,17 +226,17 @@ bool XMLTV::Parse(Scope scope, std::string &strPath, bool bCache, uint32_t cache
   request.url = strPath;
   
   if (request.scope == REMOTE) {
-    request.cache = bCache;
-    request.cacheFile = Utils::GetFilePath("epg_xmltv.xml");
-    request.cacheExpiry = cacheExpiry;
+    response.useCache = bCache;
+    response.url = Utils::GetFilePath("epg_xmltv.xml");
+    response.expiry = cacheExpiry;
   }
   
   if (!sock.Execute(request, response) || response.body.empty()) {
-    if (XBMC->FileExists(request.cacheFile.c_str(), false)) {
+    if (XBMC->FileExists(response.url.c_str(), false)) {
 #ifdef TARGET_WINDOWS
-      DeleteFile(request.cacheFile.c_str());
+      DeleteFile(response.url.c_str());
 #else
-      XBMC->DeleteFile(request.cacheFile.c_str());
+      XBMC->DeleteFile(response.url.c_str());
 #endif
     }
     return false;
@@ -258,11 +258,11 @@ bool XMLTV::Parse(Scope scope, std::string &strPath, bool bCache, uint32_t cache
   
   doc.Clear();
   
-  if (!bRet && XBMC->FileExists(request.cacheFile.c_str(), false)) {
+  if (!bRet && XBMC->FileExists(response.url.c_str(), false)) {
 #ifdef TARGET_WINDOWS
-    DeleteFile(request.cacheFile.c_str());
+    DeleteFile(response.url.c_str());
 #else
-    XBMC->DeleteFile(request.cacheFile.c_str());
+    XBMC->DeleteFile(response.url.c_str());
 #endif
   }
   
