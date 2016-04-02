@@ -28,6 +28,8 @@
 
 #include "p8-platform/util/StringUtils.h"
 
+#include "libstalkerclient/list.h"
+#include "libstalkerclient/xmltv.h"
 #include "client.h"
 #include "Utils.h"
 
@@ -41,232 +43,118 @@ XMLTV::~XMLTV() {
   m_channels.clear();
 }
 
-bool XMLTV::ReadChannels(TiXmlElement *elemRoot)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
-  TiXmlElement *element;
-  
-  for (element = elemRoot->FirstChildElement("channel"); element != NULL;
-    element = element->NextSiblingElement("channel"))
-  {
-    Channel chan;
-    TiXmlElement *elem;
-    
-    chan.strId = element->Attribute("id");
-    
-    for (elem = element->FirstChildElement("display-name"); elem != NULL;
-      elem = elem->NextSiblingElement("display-name"))
-    {
-      if (elem->GetText())
-        chan.displayNames.push_back(elem->GetText());
-    }
-    
-    m_channels.push_back(chan);
-    
-    XBMC->Log(LOG_DEBUG, "%s: id=%s | displayName=%s",
-      __FUNCTION__, chan.strId.c_str(),
-      !chan.displayNames.empty() ? chan.displayNames.front().c_str() : "");
-  }
-  
-  return true;
-}
-
-bool XMLTV::ReadCredits(TiXmlElement *elemRoot, Programme *programme)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
-  TiXmlElement *element;
-
-  for (element = elemRoot->FirstChildElement("actor"); element != NULL;
-    element = element->NextSiblingElement("actor"))
-      AddCredit(programme->credits, ACTOR, element->GetText());
-  
-  for (element = elemRoot->FirstChildElement("director"); element != NULL;
-    element = element->NextSiblingElement("director"))
-      AddCredit(programme->credits, DIRECTOR, element->GetText());
-  
-  for (element = elemRoot->FirstChildElement("guest"); element != NULL;
-    element = element->NextSiblingElement("guest"))
-      AddCredit(programme->credits, GUEST, element->GetText());
-
-  for (element = elemRoot->FirstChildElement("presenter"); element != NULL;
-    element = element->NextSiblingElement("presenter"))
-      AddCredit(programme->credits, PRESENTER, element->GetText());
-
-  for (element = elemRoot->FirstChildElement("producer"); element != NULL;
-    element = element->NextSiblingElement("producer"))
-      AddCredit(programme->credits, PRODUCER, element->GetText());
-
-  for (element = elemRoot->FirstChildElement("writer"); element != NULL;
-    element = element->NextSiblingElement("writer"))
-      AddCredit(programme->credits, WRITER, element->GetText());
-  
-  return true;
-}
-
-bool XMLTV::ReadProgrammes(TiXmlElement *elemRoot)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
-  TiXmlElement *element;
-  int iBroadcastId = 0;
-  
-  for (element = elemRoot->FirstChildElement("programme"); element != NULL;
-    element = element->NextSiblingElement("programme"))
-  {
-    std::string strChanId;
-    Channel *chan = NULL;
-    TiXmlElement *elem;
-    Programme programme;
-    
-    strChanId = element->Attribute("channel");
-    chan = GetChannelById(strChanId);
-    if (!chan) {
-      XBMC->Log(LOG_DEBUG, "%s: channel \"%s\" not found",
-        __FUNCTION__, strChanId.c_str());
-      continue;
-    }
-    
-    programme.iBroadcastId = ++iBroadcastId;
-    programme.start = XmlTvToUnixTime(element->Attribute("start"));
-    programme.stop = XmlTvToUnixTime(element->Attribute("stop"));
-    
-    elem = element->FirstChildElement("title");
-    if (elem && elem->GetText())
-      programme.strTitle = elem->GetText();
-    
-    elem = element->FirstChildElement("sub-title");
-    if (elem && elem->GetText())
-      programme.strSubTitle = elem->GetText();
-    
-    elem = element->FirstChildElement("desc");
-    if (elem && elem->GetText())
-      programme.strDesc = elem->GetText();
-    
-    elem = element->FirstChildElement("credits");
-    if (elem) {
-      ReadCredits(elem, &programme);
-      
-      std::vector<Credit> cast;
-      std::vector<Credit> cast2;
-      cast = XMLTV::FilterCredits(programme.credits, ACTOR);
-      Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(programme.credits, GUEST)));
-      Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(programme.credits, PRESENTER)));
-      
-      programme.strCast = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(cast));
-      programme.strDirectors = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(programme.credits, DIRECTOR));
-      programme.strWriters = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(programme.credits, WRITER));
-    }
-    
-    elem = element->FirstChildElement("date");
-    if (elem && elem->GetText())
-      programme.strDate = elem->GetText();
-    
-    for (elem = element->FirstChildElement("category"); elem != NULL;
-      elem = elem->NextSiblingElement("category"))
-    {
-      if (elem->GetText())
-        programme.categories.push_back(elem->GetText());
-    }
-    programme.strCategories = Utils::ConcatenateStringList(programme.categories);
-    
-    programme.iEpisodeNumber = 0;
-    for (elem = element->FirstChildElement("episode-num"); elem != NULL;
-      elem = elem->NextSiblingElement("episode-num"))
-    {
-      if (elem->Attribute("system")
-        && strcmp(elem->Attribute("system"), "onscreen") == 0
-        && elem->GetText())
-      {
-        try {
-          programme.iEpisodeNumber = Utils::StringToInt(elem->GetText());
-        } catch (...) { }
-      }
-    }
-    
-    elem = element->FirstChildElement("previously-shown");
-    if (elem)
-      programme.previouslyShown = XmlTvToUnixTime(elem->Attribute("start"));
-    
-    elem = element->FirstChildElement("star-rating");
-    if (elem) {
-      elem = elem->FirstChildElement("value");
-      if (elem && elem->GetText())
-        programme.strStarRating = elem->GetText();
-    }
-    
-    elem = element->FirstChildElement("icon");
-    if (elem && elem->Attribute("src"))
-      programme.strIcon = elem->Attribute("src");
-    
-    chan->programmes.push_back(programme);
-    
-    XBMC->Log(LOG_DEBUG, "%s: channel_id=%s | programme_title=%s",
-      __FUNCTION__, chan->strId.c_str(), programme.strTitle.c_str());
-  }
-  
-  return true;
-}
-
 bool XMLTV::Parse(Scope scope, std::string &strPath, bool bCache, uint32_t cacheExpiry)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   HTTPSocket sock(g_iConnectionTimeout);
   Request request;
   Response response;
-  TiXmlDocument doc;
-  TiXmlElement *elemRoot;
-  bool bRet(false);
-  
+  sc_list_t *xmltv_channels = NULL;
+
   m_channels.clear();
-  
+
   request.scope = scope;
   request.url = strPath;
-  
-  if (request.scope == REMOTE) {
-    response.useCache = bCache;
-    response.url = Utils::GetFilePath("epg_xmltv.xml");
-    response.expiry = cacheExpiry;
-  }
-  
-  if (!sock.Execute(request, response) || response.body.empty()) {
-    if (XBMC->FileExists(response.url.c_str(), false)) {
-#ifdef TARGET_WINDOWS
-      DeleteFile(response.url.c_str());
-#else
-      XBMC->DeleteFile(response.url.c_str());
-#endif
-    }
-    return false;
-  }
-  
-  doc.Parse(response.body.c_str());
-  
-  if (!doc.Error()) {
-    elemRoot = doc.FirstChildElement("tv");
-    if (elemRoot) {
-      if (ReadChannels(elemRoot) && ReadProgrammes(elemRoot))
-        bRet = true;
-    } else {
-      XBMC->Log(LOG_ERROR, "%s: root \"tv\" element not found", __FUNCTION__);
-    }
-  } else {
+
+  response.useCache = true;
+  response.url = Utils::GetFilePath("epg_xmltv.xml");
+  response.expiry = cacheExpiry;
+  response.writeToBody = false;
+
+  if (!sock.Execute(request, response) || !(xmltv_channels = sc_xmltv_parse(response.url.c_str()))) {
     XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __FUNCTION__);
   }
-  
-  doc.Clear();
-  
-  if (!bRet && XBMC->FileExists(response.url.c_str(), false)) {
+
+  if ((!xmltv_channels || !bCache) && XBMC->FileExists(response.url.c_str(), false)) {
 #ifdef TARGET_WINDOWS
     DeleteFile(response.url.c_str());
 #else
     XBMC->DeleteFile(response.url.c_str());
 #endif
   }
-  
-  return bRet;
+
+  if (!xmltv_channels)
+    return false;
+
+  sc_list_node_t *node1 = xmltv_channels->first;
+  while (node1) {
+    sc_xmltv_channel_t *chan = (sc_xmltv_channel_t *)node1->data;
+
+    Channel c;
+    if (chan->id_) c.strId = chan->id_;
+
+    sc_list_node_t *node2 = chan->display_names->first;
+    while (node2) {
+      if (node2->data)
+        c.displayNames.push_back((const char *)node2->data);
+
+      XBMC->Log(LOG_DEBUG, "%s", c.displayNames.back().c_str());
+
+      node2 = node2->next;
+    }
+
+    node2 = chan->programmes->first;
+    int iBroadcastId = 0;
+    while (node2) {
+      sc_xmltv_programme_t *prog = (sc_xmltv_programme_t *)node2->data;
+
+      Programme p;
+      p.iBroadcastId = ++iBroadcastId;
+      p.start = prog->start;
+      p.stop = prog->stop;
+      if (prog->title) p.strTitle = prog->title;
+      if (prog->sub_title) p.strSubTitle = prog->sub_title;
+      if (prog->desc) p.strDesc = prog->desc;
+
+      sc_list_node_t *node3 = prog->credits->first;
+      while (node3) {
+        sc_xmltv_credit_t *cred = (sc_xmltv_credit_t *)node3->data;
+
+        AddCredit(p.credits, (CreditType)cred->type, (const char *)cred->name);
+
+        node3 = node3->next;
+      }
+      std::vector<Credit> cast;
+      std::vector<Credit> cast2;
+      cast = XMLTV::FilterCredits(p.credits, ACTOR);
+      Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(p.credits, GUEST)));
+      Utils::ConcatenateVectors(cast, (cast2 = XMLTV::FilterCredits(p.credits, PRESENTER)));
+      p.strCast = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(cast));
+      p.strDirectors = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(p.credits, DIRECTOR));
+      p.strWriters = Utils::ConcatenateStringList(XMLTV::StringListForCreditType(p.credits, WRITER));
+
+      if (prog->date) p.strDate = prog->date;
+
+      node3 = prog->categories->first;
+      while (node3) {
+        if (node3->data)
+          p.categories.push_back((const char *)node3->data);
+
+        node3 = node3->next;
+      }
+      p.strCategories = Utils::ConcatenateStringList(p.categories);
+
+      p.iEpisodeNumber = prog->episode_num;
+      p.previouslyShown = prog->previously_shown;
+      if (prog->star_rating) p.strStarRating = prog->star_rating;
+      if (prog->icon) p.strIcon = prog->icon;
+
+      c.programmes.push_back(p);
+
+      prog = NULL;
+      node2 = node2->next;
+    }
+
+    m_channels.push_back(c);
+
+    chan = NULL;
+    node1 = node1->next;
+  }
+
+  sc_xmltv_list_free(SC_XMLTV_CHANNEL, &xmltv_channels);
+
+  return true;
 }
 
 void XMLTV::Clear()
@@ -277,42 +165,42 @@ void XMLTV::Clear()
 Channel* XMLTV::GetChannelById(std::string &strId)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   Channel *chan = NULL;
-  
+
   for (std::vector<Channel>::iterator it = m_channels.begin(); it != m_channels.end(); ++it) {
     if (it->strId.compare(strId) == 0) {
       chan = &(*it);
       break;
     }
   }
-  
+
   return chan;
 }
 
 Channel* XMLTV::GetChannelByDisplayName(std::string &strDisplayName)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   std::vector<std::string>::iterator displayName;
   std::string strTemp;
   Channel *chan = NULL;
-  
+
   for (std::vector<Channel>::iterator it = m_channels.begin(); it != m_channels.end(); ++it) {
     displayName = std::find(it->displayNames.begin(), it->displayNames.end(), strDisplayName);
-    
+
     // try compensating for already unescaped chars that TinyXML ignores
     if (displayName == it->displayNames.end()) {
       strTemp = strDisplayName; StringUtils::Replace(strTemp, "&", "");
       displayName = std::find(it->displayNames.begin(), it->displayNames.end(), strTemp);
     }
-    
+
     if (displayName != it->displayNames.end()) {
       chan = &(*it);
       break;
     }
   }
-  
+
   return chan;
 }
 
@@ -320,12 +208,12 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
 {
   std::map<int, int> matches;
   std::map<int, int>::iterator finalMatch = matches.end();
-  
+
   for (std::vector<std::string>::iterator category = categories.begin(); category != categories.end(); ++category) {
     for (std::map<int, std::string>::iterator genre = m_genreMap.begin(); genre != m_genreMap.end(); ++genre) {
       std::string cat = *category; StringUtils::ToLower(cat);
       std::string gen = genre->second; StringUtils::ToLower(gen);
-      
+
       if (gen.find(cat) != std::string::npos) {
         // find the genre match count, if found previously
         std::map<int, int>::iterator match = matches.find(genre->first);
@@ -338,27 +226,27 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories)
       }
     }
   }
-  
+
   if (matches.empty() || finalMatch == matches.end())
     return EPG_GENRE_USE_STRING;
-  
+
   for (std::map<int, int>::iterator match = matches.begin(); match != matches.end(); ++match) {
     if (match->second > finalMatch->second)
       finalMatch = match;
   }
-  
+
   return finalMatch->first;
 }
 
 std::vector<Credit> XMLTV::FilterCredits(std::vector<Credit> &credits, CreditType type)
 {
   std::vector<Credit> filteredCredits;
-  
+
   for (std::vector<Credit>::iterator credit = credits.begin(); credit != credits.end(); ++credit) {
     if (credit->type == type)
       filteredCredits.push_back(*credit);
   }
-  
+
   return filteredCredits;
 }
 
@@ -366,13 +254,13 @@ std::vector<std::string> XMLTV::StringListForCreditType(std::vector<Credit> &cre
 {
   std::vector<Credit> filteredCredits;
   std::vector<std::string> creditList;
-  
+
   filteredCredits = type != ALL
     ? FilterCredits(credits, type)
     : credits;
-  
+
   for (std::vector<Credit>::iterator credit = filteredCredits.begin(); credit != filteredCredits.end(); ++credit)
     creditList.push_back(credit->strName);
-  
+
   return creditList;
 }

@@ -32,10 +32,6 @@
 
 #include "HTTPSocket.h"
 
-#if defined(_MSC_VER) && _MSC_VER >= 1900
-#define timezone _timezone
-#endif
-
 typedef enum {
   ALL,
   ACTOR,
@@ -95,46 +91,6 @@ public:
   static std::vector<Credit> FilterCredits(std::vector<Credit> &credits, CreditType type);
   static std::vector<std::string> StringListForCreditType(std::vector<Credit> &credits, CreditType type = ALL);
 protected:
-  static time_t XmlTvToUnixTime(const char *strTime)
-  {
-    if (!strTime)
-      return 0;
-    
-    std::tm timeinfo;
-    int iOffset = 0;
-    time_t time;
-    
-    sscanf(strTime, "%04d%02d%02d%02d%02d%02d",
-      &timeinfo.tm_year, &timeinfo.tm_mon, &timeinfo.tm_mday,
-      &timeinfo.tm_hour, &timeinfo.tm_min, &timeinfo.tm_sec);
-
-    timeinfo.tm_year -= 1900;
-    timeinfo.tm_mon -= 1;
-    timeinfo.tm_isdst = -1;
-    
-    if (strlen(strTime) == 20) {
-      char strSign[2] = {0};
-      int iHourOffset = 0;
-      int iMinOffset = 0;
-      
-      sscanf(&strTime[15], "%01s%02d%02d",
-        &strSign, &iHourOffset, &iMinOffset);
-      
-      iHourOffset *= 3600;
-      iMinOffset *= 60;
-      iOffset = iHourOffset + iMinOffset;
-      if (strcmp(strSign, "-") == 0)
-        iOffset *= -1;
-    }
-    
-    time = mktime(&timeinfo);
-    if (timeinfo.tm_isdst > 0)
-      time += 3600;
-    time += iOffset - timezone;
-
-    return time;
-  }
-  
   static void AddCredit(std::vector<Credit> &credits, CreditType type, const char *name)
   {
     if (!name)
@@ -165,10 +121,6 @@ protected:
     
     return genreMap;
   }
-  
-  virtual bool ReadChannels(TiXmlElement *elemRoot);
-  virtual bool ReadCredits(TiXmlElement *elemRoot, Programme *programme);
-  virtual bool ReadProgrammes(TiXmlElement *elemRoot);
 private:
   std::vector<Channel>        m_channels;
   std::map<int, std::string>  m_genreMap;
