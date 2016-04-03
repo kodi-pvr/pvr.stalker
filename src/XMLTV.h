@@ -27,101 +27,112 @@
 #include <string>
 #include <vector>
 
-#include "tinyxml.h"
 #include "xbmc_epg_types.h"
 
+#include "libstalkerclient/xmltv.h"
 #include "HTTPSocket.h"
 
-typedef enum {
-  ALL,
-  ACTOR,
-  DIRECTOR,
-  GUEST,
-  PRESENTER,
-  PRODUCER,
-  WRITER
-} CreditType;
-
-struct Credit
-{
-  CreditType  type;
-  std::string strName;
+struct Credit {
+    sc_xmltv_credit_type_t type;
+    std::string name;
 };
 
-struct Programme
-{
-  int                       iBroadcastId;
-  time_t                    start;
-  time_t                    stop;
-  std::string               strTitle;
-  std::string               strSubTitle;
-  std::string               strDesc;
-  std::vector<Credit>       credits;
-  std::string               strCast;
-  std::string               strDirectors;
-  std::string               strWriters;
-  std::string               strDate;
-  std::vector<std::string>  categories;
-  std::string               strCategories;
-  int                       iEpisodeNumber;
-  time_t                    previouslyShown;
-  std::string               strStarRating;
-  std::string               strIcon;
+struct ProgrammeExtra {
+    unsigned int broadcastId;
+    std::string cast;
+    std::string directors;
+    std::string writers;
+    int genreType;
+    std::string genreDescription;
 };
 
-struct Channel
-{
-  std::string               strId;
-  std::vector<std::string>  displayNames;
-  std::vector<Programme>    programmes;
+struct Programme {
+    time_t start;
+    time_t stop;
+    std::string title;
+    std::string subTitle;
+    std::string desc;
+    std::vector<Credit> credits;
+    std::string date;
+    std::vector<std::string> categories;
+    int episodeNumber;
+    time_t previouslyShown;
+    std::string starRating;
+    std::string icon;
+    ProgrammeExtra extra;
 };
 
-class XMLTV
-{
+struct Channel {
+    std::string id;
+    std::vector<std::string> displayNames;
+    std::vector<Programme> programmes;
+};
+
+class XMLTV {
 public:
-  XMLTV();
-  virtual ~XMLTV();
-  
-  virtual bool Parse(Scope scope, std::string &strPath, bool bCache, uint32_t cacheExpiry);
-  virtual void Clear();
-  virtual Channel* GetChannelById(std::string &strId);
-  virtual Channel* GetChannelByDisplayName(std::string &strDisplayName);
-  virtual int EPGGenreByCategory(std::vector<std::string> &categories);
-  
-  static std::vector<Credit> FilterCredits(std::vector<Credit> &credits, CreditType type);
-  static std::vector<std::string> StringListForCreditType(std::vector<Credit> &credits, CreditType type = ALL);
+    XMLTV();
+
+    virtual ~XMLTV();
+
+    virtual bool Parse(Scope scope, const std::string &path);
+
+    virtual void Clear();
+
+    virtual Channel *GetChannelById(const std::string &id);
+
+    virtual Channel *GetChannelByDisplayName(std::string &displayName);
+
+    virtual int EPGGenreByCategory(std::vector<std::string> &categories);
+
+    virtual void SetUseCache(bool useCache) {
+        m_useCache = useCache;
+    }
+
+    virtual void SetCacheFile(std::string cacheFile) {
+        m_cacheFile = cacheFile;
+    }
+
+    virtual void SetCacheExpiry(unsigned int cacheExpiry) {
+        m_cacheExpiry = cacheExpiry;
+    }
+
 protected:
-  static void AddCredit(std::vector<Credit> &credits, CreditType type, const char *name)
-  {
-    if (!name)
-      return;
-    
-    Credit credit;
-    credit.type = type;
-    credit.strName = name;
-    
-    credits.push_back(credit);
-  }
-  
-  static std::map<int, std::string> CreateGenreMap()
-  {
-    std::map<int, std::string> genreMap;
-    genreMap[EPG_EVENT_CONTENTMASK_UNDEFINED] = "Other";
-    genreMap[EPG_EVENT_CONTENTMASK_MOVIEDRAMA] = "Film, Movie, Movies";
-    genreMap[EPG_EVENT_CONTENTMASK_NEWSCURRENTAFFAIRS] = "News";
-    genreMap[EPG_EVENT_CONTENTMASK_SHOW] = "Episodic, Reality TV, Shows, Sitcoms, Talk Show, Series";
-    genreMap[EPG_EVENT_CONTENTMASK_SPORTS] = "Football, Golf, Sports";
-    genreMap[EPG_EVENT_CONTENTMASK_CHILDRENYOUTH] = "Animation, Children, Kids, Under 5";
-    genreMap[EPG_EVENT_CONTENTMASK_MUSICBALLETDANCE] = "";
-    genreMap[EPG_EVENT_CONTENTMASK_ARTSCULTURE] = "";
-    genreMap[EPG_EVENT_CONTENTMASK_SOCIALPOLITICALECONOMICS] = "";
-    genreMap[EPG_EVENT_CONTENTMASK_EDUCATIONALSCIENCE] = "Documentary, Educational, Science";
-    genreMap[EPG_EVENT_CONTENTMASK_LEISUREHOBBIES] = "Interests";
-    genreMap[EPG_EVENT_CONTENTMASK_SPECIAL] = "";
-    
-    return genreMap;
-  }
+    static std::vector<Credit> FilterCredits(std::vector<Credit> &credits, std::vector<sc_xmltv_credit_type_t> &types);
+
+    static std::string CreditsAsString(std::vector<Credit> &credits, std::vector<sc_xmltv_credit_type_t> &types);
+
+    static void AddCredit(std::vector<Credit> &credits, sc_xmltv_credit_type_t type, const char *name) {
+        if (!name) return;
+
+        Credit credit;
+        credit.type = type;
+        credit.name = name;
+
+        credits.push_back(credit);
+    }
+
+    static std::map<int, std::vector<std::string>> CreateGenreMap() {
+        std::map<int, std::vector<std::string>> genreMap;
+        genreMap[EPG_EVENT_CONTENTMASK_UNDEFINED] = {"other"};
+        genreMap[EPG_EVENT_CONTENTMASK_MOVIEDRAMA] = {"film", "movie", "movies"};
+        genreMap[EPG_EVENT_CONTENTMASK_NEWSCURRENTAFFAIRS] = {"news"};
+        genreMap[EPG_EVENT_CONTENTMASK_SHOW] = {"episodic", "reality tv", "shows", "sitcoms", "talk show", "series"};
+        genreMap[EPG_EVENT_CONTENTMASK_SPORTS] = {"football, golf, sports"};
+        genreMap[EPG_EVENT_CONTENTMASK_CHILDRENYOUTH] = {"animation", "children", "kids", "under 5"};
+        genreMap[EPG_EVENT_CONTENTMASK_MUSICBALLETDANCE] = {};
+        genreMap[EPG_EVENT_CONTENTMASK_ARTSCULTURE] = {};
+        genreMap[EPG_EVENT_CONTENTMASK_SOCIALPOLITICALECONOMICS] = {};
+        genreMap[EPG_EVENT_CONTENTMASK_EDUCATIONALSCIENCE] = {"documentary", "educational", "science"};
+        genreMap[EPG_EVENT_CONTENTMASK_LEISUREHOBBIES] = {"interests"};
+        genreMap[EPG_EVENT_CONTENTMASK_SPECIAL] = {};
+
+        return genreMap;
+    }
+
 private:
-  std::vector<Channel>        m_channels;
-  std::map<int, std::string>  m_genreMap;
+    bool m_useCache;
+    std::string m_cacheFile;
+    unsigned int m_cacheExpiry;
+    std::vector<Channel> m_channels;
+    std::map<int, std::vector<std::string>> m_genreMap;
 };

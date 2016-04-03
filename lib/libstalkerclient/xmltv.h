@@ -76,7 +76,8 @@ typedef struct sc_xmltv_programme {
 } sc_xmltv_programme_t;
 
 typedef enum sc_xmltv_credit_type {
-    SC_XMLTV_CREDIT_TYPE_ACTOR = 1,
+    SC_XMLTV_CREDIT_TYPE_UNKNOWN,
+    SC_XMLTV_CREDIT_TYPE_ACTOR,
     SC_XMLTV_CREDIT_TYPE_DIRECTOR,
     SC_XMLTV_CREDIT_TYPE_GUEST,
     SC_XMLTV_CREDIT_TYPE_PRESENTER,
@@ -110,4 +111,3 @@ sc_list_t *sc_xmltv_parse(const char *filename);
 #endif
 
 #endif /* XMLTV_H */
-

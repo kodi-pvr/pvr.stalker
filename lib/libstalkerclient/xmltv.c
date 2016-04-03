@@ -29,8 +29,8 @@
 #include "util.h"
 
 void *sc_xmltv_create(enum sc_xmltv_strct type) {
-    size_t size;
-    void *strct;
+    size_t size = 0;
+    void *strct = NULL;
 
     switch (type) {
         case SC_XMLTV_CHANNEL:
@@ -43,6 +43,9 @@ void *sc_xmltv_create(enum sc_xmltv_strct type) {
             size = sizeof(sc_xmltv_credit_t);
             break;
     }
+
+    if (size == 0)
+        return NULL;
 
     strct = malloc(size);
     memset(strct, 0, size);
@@ -134,7 +137,7 @@ void sc_xmltv_free(enum sc_xmltv_strct type, void *strct) {
         case SC_XMLTV_CREDIT: {
             sc_xmltv_credit_t *c = (sc_xmltv_credit_t *) strct;
 
-            c->type = 0;
+            c->type = SC_XMLTV_CREDIT_TYPE_UNKNOWN;
             if (c->name) free(c->name);
             c->name = NULL;
 
@@ -143,7 +146,7 @@ void sc_xmltv_free(enum sc_xmltv_strct type, void *strct) {
     }
 
     free(strct);
-    strct = NULL;
+//    strct = NULL;
 }
 
 time_t sc_xmltv_to_unix_time(const char *str_time) {
@@ -237,7 +240,7 @@ void sc_xmltv_parse_credits(xmlTextReaderPtr reader, sc_list_t **list) {
         }
 
         val = xmlTextReaderName(reader);
-        type = 0;
+        type = SC_XMLTV_CREDIT_TYPE_UNKNOWN;
         if ((!xmlStrcmp(val, (const xmlChar *) "actor"))) type = SC_XMLTV_CREDIT_TYPE_ACTOR;
         if ((!xmlStrcmp(val, (const xmlChar *) "director"))) type = SC_XMLTV_CREDIT_TYPE_DIRECTOR;
         if ((!xmlStrcmp(val, (const xmlChar *) "guest"))) type = SC_XMLTV_CREDIT_TYPE_GUEST;
@@ -258,7 +261,7 @@ void sc_xmltv_parse_credits(xmlTextReaderPtr reader, sc_list_t **list) {
         }
     }
 
-    node = NULL;
+//    node = NULL;
 }
 
 sc_xmltv_programme_t *sc_xmltv_parse_programme(xmlTextReaderPtr reader) {
@@ -308,7 +311,7 @@ sc_xmltv_programme_t *sc_xmltv_parse_programme(xmlTextReaderPtr reader) {
             sc_list_node_t *node = sc_list_node_create(NULL);
             sc_xmltv_get_reader_element_value(reader, (char **) (&node->data));
             sc_list_node_append(prog->categories, node);
-            node = NULL;
+//            node = NULL;
         }
         if (sc_xmltv_check_current_reader_node(reader, XML_READER_TYPE_ELEMENT, "episode-num",
                                                SC_XMLTV_PROGRAMME_DEPTH + 1)) {
@@ -372,7 +375,7 @@ sc_xmltv_channel_t *sc_xmltv_parse_channel(xmlTextReaderPtr reader) {
             sc_list_node_t *node = sc_list_node_create(NULL);
             sc_xmltv_get_reader_element_value(reader, (char **) (&node->data));
             sc_list_node_append(chan->display_names, node);
-            node = NULL;
+//            node = NULL;
         }
     }
 
@@ -402,9 +405,8 @@ sc_list_t *sc_xmltv_parse(const char *filename) {
     sc_list_node_t *node = NULL;
 
     reader = xmlNewTextReaderFilename(filename);
-    if (!reader) {
+    if (!reader)
         return NULL;
-    }
 
     channels = sc_list_create();
     programmes = sc_list_create();
