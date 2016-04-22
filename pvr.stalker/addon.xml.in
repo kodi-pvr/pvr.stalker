@@ -2,7 +2,7 @@
 <addon
   id="pvr.stalker"
   version="2.2.2"
-  name="Stalker Client"
+  name="Stalker PVR Client Addon"
   provider-name="Jamal Edey">
   <requires>
     <c-pluff version="0.1"/>
@@ -18,9 +18,9 @@
     <summary lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</summary>
     <summary lang="de_DE">PVR Client um Kodi mit Stalker Middleware zu verbinden</summary>
     <summary lang="el_GR">ΠελάτηςPVR για σύνδεση του Kodi με τοStalker Middleware</summary>
-    <summary lang="en_GB">PVR Client to connect Kodi to Stalker Middleware</summary>
-    <summary lang="en_NZ">PVR Client to connect Kodi to Stalker Middleware</summary>
-    <summary lang="en_US">PVR Client to connect Kodi to Stalker Middleware</summary>
+    <summary lang="en_GB">PVR Client Addon to connect Kodi to Stalker Middleware</summary>
+    <summary lang="en_NZ">PVR Client Addon to connect Kodi to Stalker Middleware</summary>
+    <summary lang="en_US">PVR Client Addon to connect Kodi to Stalker Middleware</summary>
     <summary lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</summary>
     <summary lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</summary>
     <summary lang="fi_FI">PVR-asiakas, joka kytkee Kodin Stalker Middlewareen</summary>
