@@ -24,6 +24,18 @@ msgctxt "#30001"
 msgid "Active Portal"
 msgstr "Cổng hoạt động"
 
+msgctxt "#30105"
+msgid "Login"
+msgstr "Đăng nhập"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Mật khẩu"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Hướng dẫn"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Nâng cao"
