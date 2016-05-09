@@ -138,7 +138,7 @@ msgstr "Start fehlgeschlagen."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
-msgstr "Verbindung zum Serve fehlgeschlagen."
+msgstr "Verbindung zum Server fehlgeschlagen."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
