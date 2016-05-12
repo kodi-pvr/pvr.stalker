@@ -22,88 +22,62 @@
  *
  */
 
-#include <cstdint>
 #include <string>
 #include <vector>
 
 #define MINIMUM_TIMEOUT 5
 
-typedef enum
-{
-  REMOTE,
-  LOCAL
+typedef enum {
+    REMOTE,
+    LOCAL
 } Scope;
 
-typedef enum
-{
-  GET
+typedef enum {
+    GET
 } Method;
 
-struct UrlOption
-{
-  std::string name;
-  std::string value;
+struct URLOption {
+    std::string name;
+    std::string value;
 };
 
-struct Request
-{
-  Scope                   scope         = REMOTE;
-  Method                  method        = GET;
-  std::string             url;
-  std::vector<UrlOption>  options;
-  std::string             body;
-  bool                    cache         = false;
-  std::string             cacheFile;
-  uint32_t                cacheExpiry;
-  
-  void AddHeader(const std::string &name, const std::string &value)
-  {
-    UrlOption option = { name.c_str(), value.c_str() };
-    options.push_back(option);
-  }
+struct Request {
+    Scope scope = REMOTE;
+    Method method = GET;
+    std::string url;
+    std::vector<URLOption> options;
+
+    void AddURLOption(const std::string &name, const std::string &value) {
+        URLOption option = {name, value};
+        options.push_back(option);
+    }
 };
 
-struct Response
-{
-  std::string headers;
-  std::string body;
+struct Response {
+    bool useCache = false;
+    std::string url;
+    unsigned int expiry = 0;
+    std::string body;
+    bool writeToBody = true;
 };
 
-class HTTPSocket
-{
+class HTTPSocket {
 public:
-  HTTPSocket(uint32_t iTimeout = MINIMUM_TIMEOUT);
-  virtual ~HTTPSocket();
+    HTTPSocket(unsigned int timeout = MINIMUM_TIMEOUT);
 
-  virtual bool Execute(Request &request, Response &response);
+    virtual ~HTTPSocket();
+
+    virtual bool Execute(Request &request, Response &response);
+
 protected:
-  virtual void SetDefaults(Request &request);
-  virtual void BuildRequestUrl(Request &request, std::string &strRequestUrl);
-  virtual bool Get(std::string &strRequestUrl, std::string &strResponse);
+    virtual void SetDefaults(Request &request);
 
-  uint32_t                m_iTimeout;
-  std::vector<UrlOption>  m_defaultOptions;
-};
+    virtual void BuildRequestURL(Request &request);
 
-namespace P8PLATFORM
-{
-  class CTcpConnection;
-}
+    virtual bool Get(Request &request, Response &response, bool reqUseCache);
 
-class HTTPSocketRaw : public HTTPSocket
-{
-public:
-  HTTPSocketRaw(uint32_t iTimeout = MINIMUM_TIMEOUT);
-  ~HTTPSocketRaw();
-  
-  void SetURL(const std::string &url);
-  bool Execute(Request &request, Response &response);
-protected:
-  void BuildRequestString(Request &request, std::string &strRequest);
-  bool Open();
-  void Close();
-private:
-  std::string               m_host;
-  int                       m_port;
-  P8PLATFORM::CTcpConnection  *m_socket;
+    virtual bool ResponseIsFresh(Response &response);
+
+    unsigned int m_timeout;
+    std::vector<URLOption> m_defaultOptions;
 };
