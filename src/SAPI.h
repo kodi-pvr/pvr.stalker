@@ -37,8 +37,8 @@ class SAPI
 {
 public:
   static bool Init();
-  static SError StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed,
-    bool bCache = false, std::string strCacheFile = "", uint32_t cacheExpiry = 0);
+  static SError StalkerCall(sc_identity_t &identity, sc_param_request_t &params, HTTPSocket::Response &response,
+    Json::Value &parsed, bool bCache = false, std::string strCacheFile = "", uint32_t cacheExpiry = 0);
   static bool Handshake(sc_identity_t &identity, Json::Value &parsed);
   static bool GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value &parsed);
   static bool DoAuth(sc_identity_t &identity, Json::Value &parsed);

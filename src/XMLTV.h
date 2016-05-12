@@ -74,7 +74,7 @@ public:
 
     virtual ~XMLTV();
 
-    virtual bool Parse(Scope scope, const std::string &path);
+    virtual bool Parse(HTTPSocket::Scope scope, const std::string &path);
 
     virtual void Clear();
 

@@ -73,7 +73,7 @@ void HTTPSocket::BuildRequestURL(Request &request) {
 
     std::string requestUrl(request.url);
 
-    if (request.scope == LOCAL)
+    if (request.scope == SCOPE_LOCAL)
         return;
 
     SetDefaults(request);
@@ -172,7 +172,7 @@ bool HTTPSocket::Execute(Request &request, Response &response) {
         reqUseCache = ResponseIsFresh(response);
 
     switch (request.method) {
-        case GET:
+        case METHOD_GET:
             result = Get(request, response, reqUseCache);
             break;
     }

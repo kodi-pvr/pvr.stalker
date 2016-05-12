@@ -525,7 +525,7 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   uint32_t iPeriod;
-  Scope scope;
+  HTTPSocket::Scope scope;
   std::string strXmltvPath;
   uint32_t iCacheExpiry;
   int iMaxRetires(5);
@@ -539,10 +539,10 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
   iPeriod = (iEnd - iStart) / 3600;
 
   if (g_iXmltvScope == REMOTE_URL) {
-    scope = REMOTE;
+    scope = HTTPSocket::SCOPE_REMOTE;
     strXmltvPath = g_strXmltvUrl;
   } else {
-    scope = LOCAL;
+    scope = HTTPSocket::SCOPE_LOCAL;
     strXmltvPath = g_strXmltvPath;
   }
 
@@ -963,8 +963,8 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
     std::vector<std::string> strSplit;
     std::ostringstream oss;
-    Request request;
-    Response response;
+    HTTPSocket::Request request;
+    HTTPSocket::Response response;
     HTTPSocket sock(g_iConnectionTimeout);
     bool bFailed(false);
 
