@@ -435,7 +435,7 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
   
   std::string strChanNum;
-  Channel *chan = NULL;
+  XMLTV::Channel *chan = NULL;
   int iEntriesTransfered(0);
   
   strChanNum = Utils::ToString(iChannelNumber);
@@ -449,7 +449,7 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
     return iEntriesTransfered;
   }
   
-  for (std::vector<Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
+  for (std::vector<XMLTV::Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
     if (!(it->start > iStart && it->stop < iEnd))
       continue;
 

@@ -32,44 +32,44 @@
 #include "libstalkerclient/xmltv.h"
 #include "HTTPSocket.h"
 
-struct Credit {
-    sc_xmltv_credit_type_t type;
-    std::string name;
-};
-
-struct ProgrammeExtra {
-    unsigned int broadcastId;
-    std::string cast;
-    std::string directors;
-    std::string writers;
-    int genreType;
-    std::string genreDescription;
-};
-
-struct Programme {
-    time_t start;
-    time_t stop;
-    std::string title;
-    std::string subTitle;
-    std::string desc;
-    std::vector<Credit> credits;
-    std::string date;
-    std::vector<std::string> categories;
-    int episodeNumber;
-    time_t previouslyShown;
-    std::string starRating;
-    std::string icon;
-    ProgrammeExtra extra;
-};
-
-struct Channel {
-    std::string id;
-    std::vector<std::string> displayNames;
-    std::vector<Programme> programmes;
-};
-
 class XMLTV {
 public:
+    struct Credit {
+        sc_xmltv_credit_type_t type;
+        std::string name;
+    };
+
+    struct ProgrammeExtra {
+        unsigned int broadcastId;
+        std::string cast;
+        std::string directors;
+        std::string writers;
+        int genreType;
+        std::string genreDescription;
+    };
+
+    struct Programme {
+        time_t start;
+        time_t stop;
+        std::string title;
+        std::string subTitle;
+        std::string desc;
+        std::vector<Credit> credits;
+        std::string date;
+        std::vector<std::string> categories;
+        int episodeNumber;
+        time_t previouslyShown;
+        std::string starRating;
+        std::string icon;
+        ProgrammeExtra extra;
+    };
+
+    struct Channel {
+        std::string id;
+        std::vector<std::string> displayNames;
+        std::vector<Programme> programmes;
+    };
+
     XMLTV();
 
     virtual ~XMLTV();

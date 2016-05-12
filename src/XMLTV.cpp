@@ -157,7 +157,7 @@ void XMLTV::Clear() {
     m_channels.clear();
 }
 
-Channel *XMLTV::GetChannelById(const std::string &id) {
+XMLTV::Channel *XMLTV::GetChannelById(const std::string &id) {
     std::vector<Channel>::iterator it;
     Channel *chan = NULL;
 
@@ -171,7 +171,7 @@ Channel *XMLTV::GetChannelById(const std::string &id) {
     return chan;
 }
 
-Channel *XMLTV::GetChannelByDisplayName(std::string &displayName) {
+XMLTV::Channel *XMLTV::GetChannelByDisplayName(std::string &displayName) {
     std::vector<Channel>::iterator it;
     Channel *chan = NULL;
 
@@ -230,7 +230,8 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string> &categories) {
     return finalMatch->first;
 }
 
-std::vector<Credit> XMLTV::FilterCredits(std::vector<Credit> &credits, std::vector<sc_xmltv_credit_type_t> &types) {
+std::vector<XMLTV::Credit> XMLTV::FilterCredits(std::vector<Credit> &credits,
+                                                std::vector<sc_xmltv_credit_type_t> &types) {
     std::vector<Credit> filteredCredits;
 
     std::copy_if(credits.begin(), credits.end(), std::back_inserter(filteredCredits),
