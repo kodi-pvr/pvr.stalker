@@ -1,3 +1,6 @@
+2.5.0 (20-05-2016)
+- [XMLTV] replaced tinyxml with libxml2
+
 2.4.0 (18-05-2016)
 - Cmake: rename find_package kodi to Kodi
 
@@ -15,20 +18,28 @@
 
 2.2.0 (08-03-2016)
 - Updated to PVR addon API v5.1.0
+
 2.1.0 (14-02-2016)
 - Updated to PVR addon API v5.0.0
+
 2.0.2 (25-01-2016)
 - Updated to PVR API v4.2.0
+
 2.0.1 (23-01-2016)
 - updated language files from Transifex
+
 2.0.0 (17-01-2016)
 - Initial Kodi Krypton version.
+
 1.0.3 (10-01-2016)
 - updated language files from Transifex
+
 1.0.2 (03-01-2016)
 - updated language files from Transifex
+
 1.0.1 (08-12-2015)
 - updated language files from Transifex
+
 1.0.0 (05-12-2015)
 - Added support for caching EPG data
 - Added support for 'matrix' CMDs/URLs
