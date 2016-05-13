@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "tinyxml.h"
-#include "kodi/xbmc_epg_types.h"
+#include "xbmc_epg_types.h"
 
 #include "HTTPSocket.h"
 
