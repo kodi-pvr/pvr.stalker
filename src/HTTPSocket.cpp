@@ -148,7 +148,7 @@ bool HTTPSocket::Get(Request &request, Response &response, bool reqUseCache) {
 bool HTTPSocket::ResponseIsFresh(Response &response) {
     bool result(false);
 
-    if (XBMC->FileExists(response.url.c_str(), true)) {
+    if (XBMC->FileExists(response.url.c_str(), false)) {
         struct __stat64 fileStat;
         XBMC->StatFile(response.url.c_str(), &fileStat);
 
