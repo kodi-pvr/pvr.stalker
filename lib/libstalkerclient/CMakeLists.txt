@@ -4,18 +4,15 @@ cmake_minimum_required(VERSION 2.6)
 
 enable_language(C)
 
-set(SOURCES identity.c
-            itv.c
-            param.c
-            request.c
-            stb.c
-            util.c
-            watchdog.c)
+find_package(ZLIB REQUIRED)
+find_package(LibXml2 REQUIRED)
 
-add_library(stalkerclient STATIC ${SOURCES})
+include_directories(${LIBXML2_INCLUDE_DIR})
+file(GLOB LIBSTALKER_SOURCES *.c)
+
+add_library(stalkerclient STATIC ${LIBSTALKER_SOURCES})
+target_link_libraries(stalkerclient ${ZLIB_LIBRARIES} ${LIBXML2_LIBRARIES})
 
 if(NOT WIN32)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-else()
-  target_link_libraries(stalkerclient ws2_32)
+  set_target_properties(stalkerclient PROPERTIES COMPILE_FLAGS "-fPIC")
 endif()

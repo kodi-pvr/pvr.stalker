@@ -79,15 +79,15 @@ bool SAPI::Init()
   return true;
 }
 
-SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, Response &response, Json::Value &parsed,
-  bool bCache, std::string strCacheFile, uint32_t cacheExpiry)
+SError SAPI::StalkerCall(sc_identity_t &identity, sc_param_request_t &params, HTTPSocket::Response &response,
+  Json::Value &parsed, bool bCache, std::string strCacheFile, uint32_t cacheExpiry)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_request_t scRequest;
   sc_request_nameVal_t *scNameVal;
   std::ostringstream oss;
-  Request request;
+  HTTPSocket::Request request;
   HTTPSocket sock(g_iConnectionTimeout);
   Json::Reader reader;
 
@@ -149,7 +149,7 @@ bool SAPI::Handshake(sc_identity_t &identity, Json::Value &parsed)
 
   sc_param_request_t params;
   sc_param_t *param;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -180,7 +180,7 @@ bool SAPI::GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value
 
   sc_param_request_t params;
   sc_param_t *param;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -232,7 +232,7 @@ bool SAPI::DoAuth(sc_identity_t &identity, Json::Value &parsed)
 
   sc_param_request_t params;
   sc_param_t *param;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -275,7 +275,7 @@ bool SAPI::GetAllChannels(sc_identity_t &identity, Json::Value &parsed)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_param_request_t params;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -299,7 +299,7 @@ bool SAPI::GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::
 
   sc_param_request_t params;
   sc_param_t *param;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -332,7 +332,7 @@ bool SAPI::CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &pa
 
   sc_param_request_t params;
   sc_param_t *param;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -360,7 +360,7 @@ bool SAPI::GetGenres(sc_identity_t &identity, Json::Value &parsed)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_param_request_t params;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -386,7 +386,7 @@ bool SAPI::GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed,
   sc_param_request_t params;
   sc_param_t *param;
   std::string strCacheFile;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));
@@ -425,7 +425,7 @@ SError SAPI::GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &iden
 
   sc_param_request_t params;
   sc_param_t *param;
-  Response response;
+  HTTPSocket::Response response;
   SError ret(SERROR_OK);
 
   memset(&params, 0, sizeof(params));

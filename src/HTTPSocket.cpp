@@ -73,7 +73,7 @@ void HTTPSocket::BuildRequestURL(Request &request) {
 
     std::string requestUrl(request.url);
 
-    if (request.scope == LOCAL)
+    if (request.scope == SCOPE_LOCAL)
         return;
 
     SetDefaults(request);
@@ -148,7 +148,7 @@ bool HTTPSocket::Get(Request &request, Response &response, bool reqUseCache) {
 bool HTTPSocket::ResponseIsFresh(Response &response) {
     bool result(false);
 
-    if (XBMC->FileExists(response.url.c_str(), true)) {
+    if (XBMC->FileExists(response.url.c_str(), false)) {
         struct __stat64 fileStat;
         XBMC->StatFile(response.url.c_str(), &fileStat);
 
@@ -172,7 +172,7 @@ bool HTTPSocket::Execute(Request &request, Response &response) {
         reqUseCache = ResponseIsFresh(response);
 
     switch (request.method) {
-        case GET:
+        case METHOD_GET:
             result = Get(request, response, reqUseCache);
             break;
     }

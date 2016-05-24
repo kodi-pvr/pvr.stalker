@@ -25,45 +25,45 @@
 #include <string>
 #include <vector>
 
-#define MINIMUM_TIMEOUT 5
-
-typedef enum {
-    REMOTE,
-    LOCAL
-} Scope;
-
-typedef enum {
-    GET
-} Method;
-
-struct URLOption {
-    std::string name;
-    std::string value;
-};
-
-struct Request {
-    Scope scope = REMOTE;
-    Method method = GET;
-    std::string url;
-    std::vector<URLOption> options;
-
-    void AddURLOption(const std::string &name, const std::string &value) {
-        URLOption option = {name, value};
-        options.push_back(option);
-    }
-};
-
-struct Response {
-    bool useCache = false;
-    std::string url;
-    unsigned int expiry = 0;
-    std::string body;
-    bool writeToBody = true;
-};
+#define HTTPSOCKET_MINIMUM_TIMEOUT 5
 
 class HTTPSocket {
 public:
-    HTTPSocket(unsigned int timeout = MINIMUM_TIMEOUT);
+    typedef enum {
+        SCOPE_REMOTE,
+        SCOPE_LOCAL
+    } Scope;
+
+    typedef enum {
+        METHOD_GET
+    } Method;
+
+    struct URLOption {
+        std::string name;
+        std::string value;
+    };
+
+    struct Request {
+        Scope scope = SCOPE_REMOTE;
+        Method method = METHOD_GET;
+        std::string url;
+        std::vector<URLOption> options;
+
+        void AddURLOption(const std::string &name, const std::string &value) {
+            URLOption option = {name, value};
+            options.push_back(option);
+        }
+    };
+
+    struct Response {
+        bool useCache = false;
+        std::string url;
+        unsigned int expiry = 0;
+        std::string body;
+        bool writeToBody = true;
+    };
+
+    HTTPSocket(unsigned int timeout = HTTPSOCKET_MINIMUM_TIMEOUT);
 
     virtual ~HTTPSocket();
 

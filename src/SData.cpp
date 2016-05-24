@@ -389,6 +389,10 @@ SError SData::Initialize()
   if (m_watchdog && !m_watchdog->IsRunning() && !m_watchdog->CreateThread())
     XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to start Watchdog");
 
+  m_xmltv->SetUseCache(g_bGuideCache);
+  m_xmltv->SetCacheFile(Utils::GetFilePath("epg_xmltv.xml"));
+  m_xmltv->SetCacheExpiry((unsigned int) g_iGuideCacheHours * 3600);
+
   return SERROR_OK;
 }
 
@@ -431,7 +435,7 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
   
   std::string strChanNum;
-  Channel *chan = NULL;
+  XMLTV::Channel *chan = NULL;
   int iEntriesTransfered(0);
   
   strChanNum = Utils::ToString(iChannelNumber);
@@ -445,31 +449,31 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
     return iEntriesTransfered;
   }
   
-  for (std::vector<Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
+  for (std::vector<XMLTV::Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
     if (!(it->start > iStart && it->stop < iEnd))
       continue;
 
     EPG_TAG tag;
     memset(&tag, 0, sizeof(EPG_TAG));
     
-    tag.iUniqueBroadcastId = it->iBroadcastId;
-    tag.strTitle = it->strTitle.c_str();
+    tag.iUniqueBroadcastId = it->extra.broadcastId;
+    tag.strTitle = it->title.c_str();
     tag.iChannelNumber = iChannelNumber;
     tag.startTime = it->start;
     tag.endTime = it->stop;
-    tag.strPlot = it->strDesc.c_str();
-    tag.strCast = it->strCast.c_str();
-    tag.strDirector = it->strDirectors.c_str();
-    tag.strWriter = it->strWriters.c_str();
-    tag.iYear = Utils::StringToInt(it->strDate.substr(0, 4)); // year only
-    tag.strIconPath = it->strIcon.c_str();
-    tag.iGenreType = m_xmltv->EPGGenreByCategory(it->categories);
+    tag.strPlot = it->desc.c_str();
+    tag.strCast = it->extra.cast.c_str();
+    tag.strDirector = it->extra.directors.c_str();
+    tag.strWriter = it->extra.writers.c_str();
+    tag.iYear = Utils::StringToInt(it->date.substr(0, 4)); // year only
+    tag.strIconPath = it->icon.c_str();
+    tag.iGenreType = it->extra.genreType;
     if (tag.iGenreType == EPG_GENRE_USE_STRING)
-      tag.strGenreDescription = it->strCategories.c_str();
+      tag.strGenreDescription = it->extra.genreDescription.c_str();
     tag.firstAired = it->previouslyShown;
-    tag.iStarRating = Utils::StringToInt(it->strStarRating.substr(0, 1)); // numerator only
-    tag.iEpisodeNumber = it->iEpisodeNumber;
-    tag.strEpisodeName = it->strSubTitle.c_str();
+    tag.iStarRating = Utils::StringToInt(it->starRating.substr(0, 1)); // numerator only
+    tag.iEpisodeNumber = it->episodeNumber;
+    tag.strEpisodeName = it->subTitle.c_str();
     tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
     
     PVR->TransferEpgEntry(handle, &tag);
@@ -521,7 +525,7 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   uint32_t iPeriod;
-  Scope scope;
+  HTTPSocket::Scope scope;
   std::string strXmltvPath;
   uint32_t iCacheExpiry;
   int iMaxRetires(5);
@@ -535,10 +539,10 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
   iPeriod = (iEnd - iStart) / 3600;
 
   if (g_iXmltvScope == REMOTE_URL) {
-    scope = REMOTE;
+    scope = HTTPSocket::SCOPE_REMOTE;
     strXmltvPath = g_strXmltvUrl;
   } else {
-    scope = LOCAL;
+    scope = HTTPSocket::SCOPE_LOCAL;
     strXmltvPath = g_strXmltvPath;
   }
 
@@ -565,7 +569,7 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
       if (iNumRetries > 1)
         usleep(5000000);
 
-      if (!(bLoadedXmltv = m_xmltv->Parse(scope, strXmltvPath, g_bGuideCache, iCacheExpiry)))
+      if (!(bLoadedXmltv = m_xmltv->Parse(scope, strXmltvPath)))
         XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
     }
   }
@@ -959,8 +963,8 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
     std::vector<std::string> strSplit;
     std::ostringstream oss;
-    Request request;
-    Response response;
+    HTTPSocket::Request request;
+    HTTPSocket::Response response;
     HTTPSocket sock(g_iConnectionTimeout);
     bool bFailed(false);
 
