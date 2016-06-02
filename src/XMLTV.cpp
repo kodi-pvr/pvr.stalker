@@ -23,6 +23,7 @@
 #include "XMLTV.h"
 
 #include <algorithm>
+#include <iterator>
 
 #include "p8-platform/util/StringUtils.h"
 
