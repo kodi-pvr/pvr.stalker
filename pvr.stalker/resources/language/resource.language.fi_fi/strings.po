@@ -132,6 +132,10 @@ msgctxt "#30504"
 msgid "Authentication failed. Retrying."
 msgstr "Todennus epäonnistui. Yritetään uudelleen."
 
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Kanavien lataaminen ei onnistu."
+
 msgctxt "#30507"
 msgid "Unable to load guide."
 msgstr "Oppaan lataaminen epäonnistui"

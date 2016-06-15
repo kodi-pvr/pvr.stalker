@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="1.0.11"
+  version="1.0.12"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>
@@ -41,7 +41,7 @@
     <summary lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</summary>
     <summary lang="pl_PL">Klient telewizji dla platformy Stalker Middleware</summary>
     <summary lang="pt_BR">Cliente PVR para conectar Kodi para o Middleware Stalker</summary>
-    <summary lang="pt_PT">Cliente PVR para ligar o Kodi ao Middleware Stalker</summary>
+    <summary lang="pt_PT">Cliente PVR para ligar o Kodi ao Stalker Middleware</summary>
     <summary lang="ro_RO">Client PVR pentru conectarea Kodi la platforma Stalker</summary>
     <summary lang="ru_RU">Клиент PVR для подключения Stalker Middleware к Kodi</summary>
     <summary lang="sk_SK">PVR klient na prepojenie Kodi so Stalker softverom</summary>
