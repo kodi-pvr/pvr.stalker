@@ -50,6 +50,7 @@
     <summary lang="sv_SE">PVR-klient för anslutning av Kodi till Stalker Middleware</summary>
     <summary lang="vi_VN">Trình PVR để kết nối Kodi với Stalker Middleware</summary>
     <summary lang="zh_CN">Kodi 连接 Stalker Middleware 的 PVR 客户端</summary>
+    <summary lang="zh_TW">Kodi 連接 Stalker Middleware 的 PVR 客戶端</summary>	
     <description lang="bg_BG">ПВР клиент за свързване на Kodi със Stalker Middleware</description>
     <description lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</description>
     <description lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</description>
@@ -88,6 +89,7 @@
     <description lang="sv_SE">PVR-klient för anslutning av Kodi till Stalker Middleware</description>
     <description lang="vi_VN">Trình PVR để kết nối Kodi với Stalker Middleware</description>
     <description lang="zh_CN">Kodi 连接 Stalker Middleware 的 PVR 客户端</description>
+    <description lang="zh_TW">Kodi 連接 Stalker Middleware 的 PVR 客戶端</description>	
     <disclaimer lang="af_ZA">Hierdie is onstabiele sagteware! Die outeurs is op geen manier verantwoordelik vir gefaalde opnames, inkorrekte tydhouers, gemorsde ure, of enige ander ongewensde effekte.</disclaimer>
     <disclaimer lang="be_BY">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects..</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляно време и други нежелани ефекти.</disclaimer>
