@@ -56,6 +56,10 @@ msgctxt "#30108"
 msgid "Preference"
 msgstr "Предпочитания"
 
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr "Предпочитай XMLTV"
+
 msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Само XMLTV"

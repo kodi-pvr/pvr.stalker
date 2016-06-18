@@ -16,10 +16,174 @@ msgstr ""
 "Language: af_ZA\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "Algemeen"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "Aktiewe Portaal"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "Diverse"
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Konneksie tydverstreke (sekondes)"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC Adres"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "Bediener Adres"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "Tyd Sone"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "Waarmerk Bewyse"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "Teken in"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Wagwoord"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Gids"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "Voorkeur"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "Verkies Verskaffer"
+
 msgctxt "#30110"
 msgid "Prefer XMLTV"
 msgstr "Verkies XMLTV"
 
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "Net Verskaffer"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "Net XMLTV"
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Kas Gids Data"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Kas Tyd (ure)"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr "Omvang"
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr "Afgeleë URL"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "Lokale Pad"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Gevorderde"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "Teken"
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr "Serie Nommer"
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr "Toestel ID"
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr "Toestel ID2"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "Handtekening"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Onbekende fout. Sien log vir besonderhede."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Begin het gefaal."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Gefaal om aan bediener te konnekteer."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Waarmerking het gefaal. Probeer weer."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Kan nie kanale laai nie."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Kan nie kanaal groepe laai nie."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Kan nie gids laai nie."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Kry van stroom URL het gefaal."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Magtiging verloor. Her-waarmerk."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Ge-her-waarmerk."
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "Portaal 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "Portaal 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "Portaal 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "Portaal 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "Portaal 5"

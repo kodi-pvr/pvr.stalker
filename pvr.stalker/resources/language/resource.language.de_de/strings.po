@@ -80,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Nur XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Guide-Daten cachen"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Cache-Zeit (Stunden)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -130,7 +138,7 @@ msgstr "Start fehlgeschlagen."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
-msgstr "Verbindung zum Serve fehlgeschlagen."
+msgstr "Verbindung zum Server fehlgeschlagen."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
@@ -143,6 +151,10 @@ msgstr "Laden von Kanälen nicht möglich."
 msgctxt "#30506"
 msgid "Unable to load channel groups."
 msgstr "Laden von Kanalgruppen nicht möglich."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Guide konnte nicht geladen werden."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."

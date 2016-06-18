@@ -116,6 +116,38 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Υπογραφή"
 
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Αγνωστο σφάλμα. Δείτε το αρχείο για λεπτομέρειες "
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "αποτυχία εκκίνησης"
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "αποτυχία σύνδεσης με τον διακομιστή"
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Ελεγχος ταυτότητος απέτυχε.  Ξαναδοκιμάστε"
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "αδυναμία φόρτωσης καναλιών"
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "αδυναμία φόρτωσης ομάδας  καναλιών"
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "αδυναμία φόρτωσης οδηγού"
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Εκ νέου ελεγχος ταυτότητας"
+
 msgctxt "#31000"
 msgid "Portal 1"
 msgstr "Πύλη 1"
