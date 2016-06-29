@@ -3,7 +3,7 @@ Priority: extra
 Maintainer: Nobody <nobody@kodi.tv>
 Build-Depends: debhelper (>= 9.0.0), cmake, kodi-pvr-dev,
                libkodiplatform-dev (>= 16.0.0), kodi-addon-dev,
-               libjsoncpp-dev, libtinyxml-dev
+               libjsoncpp-dev, libtinyxml-dev, libxml2-dev
 Standards-Version: 3.9.4
 Section: libs
 
