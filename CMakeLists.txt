@@ -29,13 +29,18 @@ if(WIN32)
   list(APPEND DEPLIBS ws2_32)
 endif()
 
-set(STALKER_SOURCES src/client.cpp
-                    src/CWatchdog.cpp
-                    src/HTTPSocket.cpp
-                    src/SAPI.cpp
-                    src/SData.cpp
-                    src/Utils.cpp
-                    src/XMLTV.cpp)
+set(BASE_SOURCES src/base/Cache.cpp)
+
+set(SOURCES src/client.cpp
+            src/CWatchdog.cpp
+            src/HTTPSocket.cpp
+            src/SAPI.cpp
+            src/SData.cpp
+            src/Utils.cpp
+            src/XMLTV.cpp)
+
+set(STALKER_SOURCES ${BASE_SOURCES}
+                    ${SOURCES})
 
 build_addon(pvr.stalker STALKER DEPLIBS)
 

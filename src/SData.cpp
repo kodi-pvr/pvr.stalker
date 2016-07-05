@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,7 +24,6 @@
 
 #include <cmath>
 
-#include "tinyxml.h"
 #include "p8-platform/util/StringUtils.h"
 #include "p8-platform/util/timeutils.h"
 #include "p8-platform/util/util.h"
@@ -47,7 +46,7 @@
 using namespace ADDON;
 using namespace P8PLATFORM;
 
-SData::SData(void)
+SData::SData(void) : Base::Cache()
 {
   m_bInitedApi          = false;
   m_bTokenManuallySet   = false;
@@ -120,36 +119,50 @@ bool SData::LoadCache()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  std::string strCacheFile;
-  TiXmlDocument doc;
-  TiXmlElement *pRootElement = NULL;
-  TiXmlElement *pTokenElement = NULL;
+  std::string cacheFile;
+  xmlDocPtr doc = NULL;
+  xmlNodePtr rootNode = NULL;
+  xmlNodePtr node = NULL;
+  xmlNodePtr portalsNode = NULL;
+  xmlNodePtr portalNode = NULL;
+  std::string portalNum = Utils::ToString(g_iActivePortal);
 
-  strCacheFile = Utils::GetFilePath("cache.xml");
+  cacheFile = Utils::GetFilePath("cache.xml");
 
-  if (!doc.LoadFile(strCacheFile)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to load: \"%s\"", __FUNCTION__, strCacheFile.c_str());
+  if (!Open(cacheFile, doc, rootNode, "cache")) {
+    xmlFreeDoc(doc);
     return false;
   }
 
-  pRootElement = doc.RootElement();
-  if (strcmp(pRootElement->Value(), "cache") != 0) {
-    XBMC->Log(LOG_ERROR, "%s: invalid xml doc. root element 'cache' not found", __FUNCTION__);
-    return false;
-  }
-
-  if (!m_bTokenManuallySet) {
-    pTokenElement = pRootElement->FirstChildElement("token");
-    if (!pTokenElement || !pTokenElement->GetText()) {
-      XBMC->Log(LOG_DEBUG, "%s: 'token' element not found", __FUNCTION__);
-    } else {
-      SC_STR_SET(m_identity.token, pTokenElement->GetText());
+  portalsNode = FindNodeByName(rootNode->children, (const xmlChar *) "portals");
+  if (!portalsNode) {
+    XBMC->Log(LOG_DEBUG, "%s: 'portals' element not found", __FUNCTION__);
+  } else {
+    xmlChar *num = NULL;
+    bool found = false;
+    for (node = portalsNode->children; node; node = node->next) {
+      if (!xmlStrcmp(node->name, (const xmlChar *) "portal")) {
+        num = xmlGetProp(node, (const xmlChar *) "num");
+        if (num && !xmlStrcmp(num, (const xmlChar *) portalNum.c_str())) {
+          portalNode = node;
+          found = true;
+        }
+        xmlFree(num);
+        if (found) break;
+      }
     }
+    if (portalNode) {
+      std::string val;
+      if (!m_bTokenManuallySet) {
+        FindAndGetNodeValue(portalNode, (const xmlChar *) "token", val);
+        SC_STR_SET(m_identity.token, val.c_str());
 
-    XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
+        XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
+      }
+    }
   }
 
-  doc.Clear();
+  xmlFreeDoc(doc);
 
   return true;
 }
@@ -158,46 +171,67 @@ bool SData::SaveCache()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-  std::string strCacheFile;
-  bool bFailed(false);
-  TiXmlDocument doc;
-  TiXmlElement *pRootElement = NULL;
-  TiXmlElement *pTokenElement = NULL;
+  std::string cacheFile;
+  bool ret = false;
+  xmlDocPtr doc = NULL;
+  xmlNodePtr rootNode = NULL;
+  xmlNodePtr node = NULL;
+  xmlNodePtr portalsNode = NULL;
+  xmlNodePtr portalNode = NULL;
+  std::string portalNum = Utils::ToString(g_iActivePortal);
 
-  strCacheFile = Utils::GetFilePath("cache.xml");
+  cacheFile = Utils::GetFilePath("cache.xml");
 
-  if ((bFailed = !doc.LoadFile(strCacheFile))) {
-    XBMC->Log(LOG_ERROR, "%s: failed to load \"%s\"", __FUNCTION__, strCacheFile.c_str());
-  } else {
-    pRootElement = doc.RootElement();
-    if (!pRootElement || strcmp(pRootElement->Value(), "cache") != 0) {
-      XBMC->Log(LOG_ERROR, "%s: invalid xml doc. root element 'cache' not found", __FUNCTION__);
-      bFailed = true;
+  ret = Open(cacheFile, doc, rootNode, "cache");
+  if (!ret) {
+    if (!doc) {
+      doc = xmlNewDoc((const xmlChar *) XML_DEFAULT_VERSION);
+    }
+    if (rootNode) {
+      xmlUnlinkNode(rootNode);
+      xmlFreeNode(rootNode);
+    }
+    rootNode = xmlNewDocNode(doc, NULL, (const xmlChar *) "cache", NULL);
+    xmlDocSetRootElement(doc, rootNode);
+  }
+
+  portalsNode = FindNodeByName(rootNode->children, (const xmlChar *) "portals");
+  if (!portalsNode) {
+    portalsNode = xmlNewChild(rootNode, NULL, (const xmlChar *) "portals", NULL);
+  }
+
+  xmlChar *num = NULL;
+  for (node = portalsNode->children; node; node = node->next) {
+    if (!xmlStrcmp(node->name, (const xmlChar *) "portal")) {
+      num = xmlGetProp(node, (const xmlChar *) "num");
+      if (!num || !xmlStrlen(num) || portalNode) {
+        xmlNodePtr tmp = node;
+        node = tmp->prev;
+        xmlUnlinkNode(tmp);
+        xmlFreeNode(tmp);
+      } else if (num && !xmlStrcmp(num, (const xmlChar *) portalNum.c_str())) {
+        portalNode = node;
+      }
+      xmlFree(num);
     }
   }
-
-  if (bFailed) {
-    XBMC->Log(LOG_DEBUG, "%s: creating root element 'cache'", __FUNCTION__);
-
-    pRootElement = new TiXmlElement("cache");
-    doc.LinkEndChild(pRootElement);
+  if (!portalNode) {
+    portalNode = xmlNewChild(portalsNode, NULL, (const xmlChar *) "portal", NULL);
+    xmlNewProp(portalNode, (const xmlChar *) "num", (const xmlChar *) portalNum.c_str());
   }
 
-  pTokenElement = pRootElement->FirstChildElement("token");
-  if (!pTokenElement) {
-    pTokenElement = new TiXmlElement("token");
-    pRootElement->LinkEndChild(pTokenElement);
-  }
-  pTokenElement->Clear();
-  if (m_profile.store_auth_data_on_stb)
-    pTokenElement->LinkEndChild(new TiXmlText(m_identity.token));
-
-  if (!doc.SaveFile(strCacheFile)) {
-    XBMC->Log(LOG_ERROR, "%s: failed to save \"%s\"", __FUNCTION__, strCacheFile.c_str());
-    return false;
+  if (!m_bTokenManuallySet) {
+    FindAndSetNodeValue(portalNode, (const xmlChar *) "token", (const xmlChar *) m_identity.token);
   }
 
-  return true;
+  ret = xmlSaveFormatFileEnc(cacheFile.c_str(), doc, xmlGetCharEncodingName(XML_CHAR_ENCODING_UTF8), 1) >= 0;
+  if (!ret) {
+    XBMC->Log(LOG_ERROR, "%s: failed to save cache file", __FUNCTION__);
+  }
+
+  xmlFreeDoc(doc);
+
+  return ret;
 }
 
 SError SData::InitAPI()
