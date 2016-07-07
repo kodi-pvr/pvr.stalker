@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -28,6 +28,7 @@
 
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"
+#include "base/Cache.h"
 #include "client.h"
 #include "CWatchdog.h"
 #include "XMLTV.h"
@@ -68,7 +69,7 @@ struct SChannel
   bool        bUseLoadBalancing;
 };
 
-class SData
+class SData : Base::Cache
 {
 public:
   SData(void);
