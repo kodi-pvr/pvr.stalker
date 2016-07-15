@@ -23,30 +23,62 @@
  */
 
 #include <string>
-#include <stdint.h>
+
 #include <json/json.h>
 
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/request.h"
-#include "HTTPSocket.h"
-#include "SData.h"
+#include "Error.h"
 
-#define AUTHORIZATION_FAILED "Authorization failed."
+namespace SC {
+    class SAPI {
+    public:
+        SAPI();
 
-class SAPI
-{
-public:
-  static bool Init();
-  static SError StalkerCall(sc_identity_t &identity, sc_param_request_t &params, HTTPSocket::Response &response,
-    Json::Value &parsed, bool bCache = false, std::string strCacheFile = "", uint32_t cacheExpiry = 0);
-  static bool Handshake(sc_identity_t &identity, Json::Value &parsed);
-  static bool GetProfile(sc_identity_t &identity, bool bAuthSecondStep, Json::Value &parsed);
-  static bool DoAuth(sc_identity_t &identity, Json::Value &parsed);
-  static bool GetAllChannels(sc_identity_t &identity, Json::Value &parsed);
-  static bool GetOrderedList(int iGenre, int iPage, sc_identity_t &identity, Json::Value &parsed);
-  static bool CreateLink(std::string &cmd, sc_identity_t &identity, Json::Value &parsed);
-  static bool GetGenres(sc_identity_t &identity, Json::Value &parsed);
-  static bool GetEPGInfo(int iPeriod, sc_identity_t &identity, Json::Value &parsed,
-    bool bCache, uint32_t cacheExpiry);
-  static SError GetEvents(int iCurPlayType, int iEventActiveId, sc_identity_t &identity, Json::Value &parsed);
-};
+        virtual ~SAPI();
+
+        virtual void SetIdentity(sc_identity_t *identity) {
+            m_identity = identity;
+        }
+
+        virtual void SetEndpoint(const std::string &endpoint);
+
+        virtual std::string GetBasePath() {
+            return m_basePath;
+        }
+
+        virtual void SetTimeout(unsigned int timeout) {
+            m_timeout = timeout;
+        }
+
+        virtual bool STBHandshake(Json::Value &parsed);
+
+        virtual bool STBGetProfile(bool authSecondStep, Json::Value &parsed);
+
+        virtual bool STBDoAuth(Json::Value &parsed);
+
+        virtual bool ITVGetAllChannels(Json::Value &parsed);
+
+        virtual bool ITVGetOrderedList(int genre, int page, Json::Value &parsed);
+
+        virtual bool ITVCreateLink(std::string &cmd, Json::Value &parsed);
+
+        virtual bool ITVGetGenres(Json::Value &parsed);
+
+        virtual bool ITVGetEPGInfo(int period, Json::Value &parsed, const std::string &cacheFile = "",
+                                   unsigned int cacheExpiry = 0);
+
+        virtual SError WatchdogGetEvents(int curPlayType, int eventActiveId, Json::Value &parsed);
+
+    protected:
+        virtual SError StalkerCall(sc_param_request_t &params, Json::Value &parsed, const std::string &cacheFile = "",
+                                   unsigned int cacheExpiry = 0);
+
+    private:
+        sc_identity_t *m_identity;
+        std::string m_endpoint;
+        std::string m_basePath;
+        std::string m_referer;
+        unsigned int m_timeout;
+    };
+}

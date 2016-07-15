@@ -28,8 +28,8 @@
 
 using namespace ADDON;
 
-CWatchdog::CWatchdog(uint32_t iInterval, sc_identity_t &identity)
-  : CThread(), m_iInterval(iInterval), m_identity(identity), m_data(NULL)
+CWatchdog::CWatchdog(uint32_t iInterval, SC::SAPI *api)
+  : CThread(), m_iInterval(iInterval), m_api(api), m_data(NULL)
 {
 }
 
@@ -59,11 +59,11 @@ void *CWatchdog::Process()
     iCurPlayType = 1; // tv
     iEventActiveId = 0;
     
-    ret = SAPI::GetEvents(iCurPlayType, iEventActiveId, m_identity, parsed);
+    ret = m_api->WatchdogGetEvents(iCurPlayType, iEventActiveId, parsed);
     if (ret == SERROR_OK) {
       // ignore the result. don't confirm events (yet)
     } else {
-      XBMC->Log(LOG_ERROR, "%s: GetEvents failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __FUNCTION__);
       
       if (ret == SERROR_AUTHORIZATION) {
         if (m_data) {

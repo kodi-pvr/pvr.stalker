@@ -61,9 +61,6 @@ typedef enum {
 
 extern std::string  g_strUserPath;
 extern std::string  g_strClientPath;
-extern std::string  g_strBasePath;
-extern std::string  g_strEndpoint;
-extern std::string  g_strReferer;
 
 extern int          g_iActivePortal;
 extern std::string  g_strMac;

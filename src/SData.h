@@ -31,20 +31,9 @@
 #include "base/Cache.h"
 #include "client.h"
 #include "CWatchdog.h"
+#include "Error.h"
+#include "SAPI.h"
 #include "XMLTV.h"
-
-typedef enum {
-  SERROR_AUTHORIZATION = -8,
-  SERROR_STREAM_URL,
-  SERROR_LOAD_EPG,
-  SERROR_LOAD_CHANNEL_GROUPS,
-  SERROR_LOAD_CHANNELS,
-  SERROR_AUTHENTICATION,
-  SERROR_API,
-  SERROR_INITIALIZE,
-  SERROR_UNKNOWN,
-  SERROR_OK,
-} SError;
 
 struct SChannelGroup
 {
@@ -125,4 +114,5 @@ private:
   CWatchdog                   *m_watchdog;
   XMLTV                       *m_xmltv;
   P8PLATFORM::CMutex            m_epgMutex;
+  SC::SAPI                      *m_api;
 };

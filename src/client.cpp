@@ -52,9 +52,6 @@ SData         *m_data     = NULL;
 
 std::string g_strUserPath     = "";
 std::string g_strClientPath   = "";
-std::string g_strBasePath     = "";
-std::string g_strEndpoint     = "";
-std::string g_strReferer      = "";
 
 /* User adjustable settings are saved here.
 * Default values are defined inside client.h

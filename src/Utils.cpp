@@ -131,7 +131,7 @@ bool Utils::GetBoolFromJsonValue(Json::Value &value, bool defaultValue)
   return res;
 }
 
-std::string Utils::DetermineLogoURI(std::string &logo)
+std::string Utils::DetermineLogoURI(const std::string &basePath, std::string &logo)
 {
   std::string uri;
 
@@ -140,7 +140,7 @@ std::string Utils::DetermineLogoURI(std::string &logo)
   } else if (logo.find("://") != std::string::npos) {
     uri = logo;
   } else if (logo.length() != 0) {
-    uri = g_strBasePath + SC_ITV_LOGO_PATH_320 + logo;
+    uri = basePath + SC_ITV_LOGO_PATH_320 + logo;
   }
 
   return uri;
