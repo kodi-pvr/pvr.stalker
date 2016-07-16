@@ -35,6 +35,7 @@ set(SOURCES
         src/client.cpp
         src/ChannelManager.cpp
         src/CWatchdog.cpp
+        src/GuideManager.cpp
         src/HTTPSocket.cpp
         src/SAPI.cpp
         src/SData.cpp

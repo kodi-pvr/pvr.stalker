@@ -33,6 +33,7 @@
 #include "ChannelManager.h"
 #include "CWatchdog.h"
 #include "Error.h"
+#include "GuideManager.h"
 #include "SAPI.h"
 #include "XMLTV.h"
 
@@ -63,10 +64,6 @@ protected:
   virtual SError Authenticate();
   virtual bool IsInitialized();
   virtual SError Initialize();
-  virtual int ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
-  virtual int ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual bool LoadEPGForChannel(SC::Channel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual SError LoadEPG(time_t iStart, time_t iEnd);
 
   virtual void QueueErrorNotification(SError error);
 private:
@@ -80,11 +77,10 @@ private:
   sc_identity_t               m_identity;
   P8PLATFORM::CMutex            m_authMutex;
   sc_stb_profile_t            m_profile;
-  Json::Value                 m_epgData;
   std::string                 m_PlaybackURL;
   CWatchdog                   *m_watchdog;
-  XMLTV                       *m_xmltv;
   P8PLATFORM::CMutex            m_epgMutex;
   SC::SAPI                      *m_api;
   SC::ChannelManager            *m_channelManager;
+  SC::GuideManager              *m_guideManager;
 };

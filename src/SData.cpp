@@ -53,9 +53,9 @@ SData::SData(void) : Base::Cache()
   m_iLastEpgAccessTime  = 0;
   m_iNextEpgLoadTime    = 0;
   m_watchdog            = NULL;
-  m_xmltv               = new XMLTV;
   m_api                 = new SC::SAPI;
   m_channelManager      = new SC::ChannelManager;
+  m_guideManager        = new SC::GuideManager;
 
   sc_identity_defaults(&m_identity);
   sc_stb_profile_defaults(&m_profile);
@@ -67,9 +67,9 @@ SData::~SData(void)
     XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to stop Watchdog");
 
   SAFE_DELETE(m_watchdog);
-  SAFE_DELETE(m_xmltv);
   SAFE_DELETE(m_api);
   SAFE_DELETE(m_channelManager);
+  SAFE_DELETE(m_guideManager);
 }
 
 void SData::QueueErrorNotification(SError error)
@@ -424,206 +424,11 @@ SError SData::Initialize()
 
   m_channelManager->SetAPI(m_api);
 
-  m_xmltv->SetUseCache(g_bGuideCache);
-  m_xmltv->SetCacheFile(Utils::GetFilePath("epg_xmltv.xml"));
-  m_xmltv->SetCacheExpiry((unsigned int) g_iGuideCacheHours * 3600);
+  m_guideManager->SetAPI(m_api);
+  m_guideManager->SetGuidePreference((GuidePreference) g_iGuidePreference);
+  m_guideManager->SetCacheOptions(g_bGuideCache, (unsigned int) g_iGuideCacheHours * 3600);
 
   return SERROR_OK;
-}
-
-int SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  time_t iStartTimestamp;
-  time_t iStopTimestamp;
-  int iEntriesTransfered(0);
-
-  for (Json::Value::iterator it = parsed.begin(); it != parsed.end(); ++it) {
-    iStartTimestamp = Utils::GetIntFromJsonValue((*it)["start_timestamp"]);
-    iStopTimestamp = Utils::GetIntFromJsonValue((*it)["stop_timestamp"]);
-
-    if (!(iStartTimestamp > iStart && iStopTimestamp < iEnd)) {
-      continue;
-    }
-
-    EPG_TAG tag;
-    memset(&tag, 0, sizeof(EPG_TAG));
-
-    tag.iUniqueBroadcastId = Utils::GetIntFromJsonValue((*it)["id"]);
-    tag.strTitle = (*it)["name"].asCString();
-    tag.iChannelNumber = iChannelNumber;
-    tag.startTime = iStartTimestamp;
-    tag.endTime = iStopTimestamp;
-    tag.strPlot = (*it)["descr"].asCString();
-    tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
-
-    PVR->TransferEpgEntry(handle, &tag);
-    iEntriesTransfered++;
-  }
-
-  return iEntriesTransfered;
-}
-
-int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  std::string strChanNum;
-  XMLTV::Channel *chan = NULL;
-  int iEntriesTransfered(0);
-
-  strChanNum = Utils::ToString(iChannelNumber);
-
-  chan = m_xmltv->GetChannelById(strChanNum);
-  if (!chan)
-    chan = m_xmltv->GetChannelByDisplayName(strChannelName);
-
-  if (!chan) {
-    XBMC->Log(LOG_DEBUG, "%s: channel \"%s\" not found", __FUNCTION__, strChanNum.c_str());
-    return iEntriesTransfered;
-  }
-
-  for (std::vector<XMLTV::Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
-    if (!(it->start > iStart && it->stop < iEnd))
-      continue;
-
-    EPG_TAG tag;
-    memset(&tag, 0, sizeof(EPG_TAG));
-
-    tag.iUniqueBroadcastId = it->extra.broadcastId;
-    tag.strTitle = it->title.c_str();
-    tag.iChannelNumber = iChannelNumber;
-    tag.startTime = it->start;
-    tag.endTime = it->stop;
-    tag.strPlot = it->desc.c_str();
-    tag.strCast = it->extra.cast.c_str();
-    tag.strDirector = it->extra.directors.c_str();
-    tag.strWriter = it->extra.writers.c_str();
-    tag.iYear = Utils::StringToInt(it->date.substr(0, 4)); // year only
-    tag.strIconPath = it->icon.c_str();
-    tag.iGenreType = it->extra.genreType;
-    if (tag.iGenreType == EPG_GENRE_USE_STRING)
-      tag.strGenreDescription = it->extra.genreDescription.c_str();
-    tag.firstAired = it->previouslyShown;
-    tag.iStarRating = Utils::StringToInt(it->starRating.substr(0, 1)); // numerator only
-    tag.iEpisodeNumber = it->episodeNumber;
-    tag.strEpisodeName = it->subTitle.c_str();
-    tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
-
-    PVR->TransferEpgEntry(handle, &tag);
-    iEntriesTransfered++;
-  }
-
-  return iEntriesTransfered;
-}
-
-bool SData::LoadEPGForChannel(SC::Channel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
-{
-  std::string strChannelId;
-  int iEntriesTransfered(0);
-
-  strChannelId = Utils::ToString(channel.channelId);
-
-  switch (g_iGuidePreference) {
-    case PREFER_PROVIDER:
-    case PROVIDER_ONLY:
-      if (!m_epgData.empty())
-        iEntriesTransfered = ParseEPG(m_epgData["js"]["data"][strChannelId.c_str()], iStart, iEnd, channel.number, handle);
-
-      if (g_iGuidePreference == PROVIDER_ONLY)
-        break;
-
-      if (iEntriesTransfered == 0 && m_xmltv)
-        ParseEPGXMLTV(channel.number, channel.name, iStart, iEnd, handle);
-
-      break;
-    case PREFER_XMLTV:
-    case XMLTV_ONLY:
-      if (m_xmltv)
-        iEntriesTransfered = ParseEPGXMLTV(channel.number, channel.name, iStart, iEnd, handle);
-
-      if (g_iGuidePreference == XMLTV_ONLY)
-        break;
-
-      if (!m_epgData.empty() && iEntriesTransfered == 0)
-        ParseEPG(m_epgData["js"]["data"][strChannelId.c_str()], iStart, iEnd, channel.number, handle);
-
-      break;
-  }
-
-  return true;
-}
-
-SError SData::LoadEPG(time_t iStart, time_t iEnd)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  uint32_t iPeriod;
-  HTTPSocket::Scope scope;
-  std::string strXmltvPath;
-  uint32_t iCacheExpiry;
-  int iMaxRetires(5);
-  int iNumRetries(0);
-  bool bLoadedProvider(false);
-  bool bLoadedXmltv(false);
-
-  m_epgMutex.Lock();
-
-  //TODO limit period to 24 hours for ITVGetEPGInfo. large amount of channels over too many days could exceed server max memory allowed for that request
-  iPeriod = (iEnd - iStart) / 3600;
-
-  if (g_iXmltvScope == REMOTE_URL) {
-    scope = HTTPSocket::SCOPE_REMOTE;
-    strXmltvPath = g_strXmltvUrl;
-  } else {
-    scope = HTTPSocket::SCOPE_LOCAL;
-    strXmltvPath = g_strXmltvPath;
-  }
-
-  iCacheExpiry = g_iGuideCacheHours * 3600;
-
-  //TODO merge with LoadData() when multiple PVR clients are properly supported
-  //TODO replace with auth check
-  if (g_iGuidePreference != XMLTV_ONLY && (IsInitialized() || SERROR_OK == Initialize())) {
-    while (!bLoadedProvider && ++iNumRetries <= iMaxRetires) {
-      // don't sleep on first try
-      if (iNumRetries > 1)
-        usleep(5000000);
-
-      std::string cacheFile;
-      if (g_bGuideCache)
-        cacheFile = Utils::GetFilePath("epg_provider.json");
-
-      if (!(bLoadedProvider = m_api->ITVGetEPGInfo(iPeriod, m_epgData, cacheFile, iCacheExpiry))) {
-          XBMC->Log(LOG_ERROR, "%s: ITVGetEPGInfo failed", __FUNCTION__);
-          if (g_bGuideCache && XBMC->FileExists(cacheFile.c_str(), false)) {
-#ifdef TARGET_WINDOWS
-              DeleteFile(cacheFile.c_str());
-#else
-              XBMC->DeleteFile(cacheFile.c_str());
-#endif
-          }
-      }
-    }
-  }
-
-  iNumRetries = 0;
-
-  if (g_iGuidePreference != PROVIDER_ONLY && !strXmltvPath.empty() && m_xmltv) {
-    while (!bLoadedXmltv && ++iNumRetries <= iMaxRetires) {
-      // don't sleep on first try
-      if (iNumRetries > 1)
-        usleep(5000000);
-
-      if (!(bLoadedXmltv = m_xmltv->Parse(scope, strXmltvPath)))
-        XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
-    }
-  }
-
-  m_epgMutex.Unlock();
-
-  return (bLoadedProvider || bLoadedXmltv) ? SERROR_OK : SERROR_LOAD_EPG;
 }
 
 void SData::UnloadEPG()
@@ -635,12 +440,8 @@ void SData::UnloadEPG()
   m_epgMutex.Lock();
 
   time(&now);
-  if ((m_iLastEpgAccessTime + 30 * 60) < now) {
-    m_epgData.clear();
-
-    if (m_xmltv)
-      m_xmltv->Clear();
-  }
+  if ((m_iLastEpgAccessTime + 30 * 60) < now)
+    m_guideManager->Clear();
 
   m_epgMutex.Unlock();
 }
@@ -693,13 +494,63 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
     m_iNextEpgLoadTime = now + (g_bGuideCache ? g_iGuideCacheHours : 1) * 3600;
     XBMC->Log(LOG_DEBUG, "%s: m_iNextEpgLoadTime=%d", __FUNCTION__, m_iNextEpgLoadTime);
 
-    ret = LoadEPG(iStart, iEnd);
+    m_epgMutex.Lock();
+
+    HTTPSocket::Scope scope;
+    std::string strXmltvPath;
+
+    if (g_iXmltvScope == REMOTE_URL) {
+      scope = HTTPSocket::SCOPE_REMOTE;
+      strXmltvPath = g_strXmltvUrl;
+    } else {
+      scope = HTTPSocket::SCOPE_LOCAL;
+      strXmltvPath = g_strXmltvPath;
+    }
+
+    //TODO merge with LoadData() when multiple PVR clients are properly supported
+    //TODO replace with auth check
+    if (IsInitialized() || SERROR_OK == Initialize()) {
+      ret = m_guideManager->LoadGuide(iStart, iEnd);
+      if (ret != SERROR_OK)
+        QueueErrorNotification(ret);
+    }
+
+    ret = m_guideManager->LoadXMLTV(scope, strXmltvPath);
     if (ret != SERROR_OK)
       QueueErrorNotification(ret);
+
+    m_epgMutex.Unlock();
   }
 
-  if (!LoadEPGForChannel(*thisChannel, iStart, iEnd, handle))
-    return PVR_ERROR_UNKNOWN;
+  std::vector<SC::Event> events;
+
+  events = m_guideManager->GetChannelEvents(*thisChannel, iStart, iEnd);
+  for (std::vector<SC::Event>::iterator event = events.begin(); event != events.end(); ++event) {
+    EPG_TAG tag;
+    memset(&tag, 0, sizeof(EPG_TAG));
+
+    tag.iUniqueBroadcastId = event->uniqueBroadcastId;
+    tag.strTitle = event->title.c_str();
+    tag.iChannelNumber = event->channelNumber;
+    tag.startTime = event->startTime;
+    tag.endTime = event->endTime;
+    tag.strPlot = event->plot.c_str();
+    tag.strCast = event->cast.c_str();
+    tag.strDirector = event->directors.c_str();
+    tag.strWriter = event->writers.c_str();
+    tag.iYear = event->year;
+    tag.strIconPath = event->iconPath.c_str();
+    tag.iGenreType = event->genreType;
+    if (tag.iGenreType == EPG_GENRE_USE_STRING)
+      tag.strGenreDescription = event->genreDescription.c_str();
+    tag.firstAired = event->firstAired;
+    tag.iStarRating = event->starRating;
+    tag.iEpisodeNumber = event->episodeNumber;
+    tag.strEpisodeName = event->episodeName.c_str();
+    tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
+
+    PVR->TransferEpgEntry(handle, &tag);
+  }
 
   return PVR_ERROR_NO_ERROR;
 }
