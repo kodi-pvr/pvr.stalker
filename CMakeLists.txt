@@ -33,6 +33,7 @@ set(BASE_SOURCES
 
 set(SOURCES
         src/client.cpp
+        src/ChannelManager.cpp
         src/CWatchdog.cpp
         src/HTTPSocket.cpp
         src/SAPI.cpp

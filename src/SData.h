@@ -30,33 +30,11 @@
 #include "libstalkerclient/stb.h"
 #include "base/Cache.h"
 #include "client.h"
+#include "ChannelManager.h"
 #include "CWatchdog.h"
 #include "Error.h"
 #include "SAPI.h"
 #include "XMLTV.h"
-
-struct SChannelGroup
-{
-  std::string strGroupName;
-  bool        bRadio;
-  std::string strId;
-  std::string strAlias;
-};
-
-struct SChannel
-{
-  int         iUniqueId;
-  bool        bRadio;
-  int         iChannelNumber;
-  std::string strChannelName;
-  std::string strStreamURL;
-  std::string strIconPath;
-  int         iChannelId;
-  std::string strCmd;
-  std::string strTvGenreId;
-  bool        bUseHttpTmpLink;
-  bool        bUseLoadBalancing;
-};
 
 class SData : Base::Cache
 {
@@ -87,15 +65,10 @@ protected:
   virtual SError Initialize();
   virtual int ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChannelNumber, ADDON_HANDLE handle);
   virtual int ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
-  virtual bool LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
+  virtual bool LoadEPGForChannel(SC::Channel &channel, time_t iStart, time_t iEnd, ADDON_HANDLE handle);
   virtual SError LoadEPG(time_t iStart, time_t iEnd);
-  virtual bool ParseChannelGroups(Json::Value &parsed);
-  virtual SError LoadChannelGroups();
-  virtual bool ParseChannels(Json::Value &parsed);
-  virtual SError LoadChannels();
 
   virtual void QueueErrorNotification(SError error);
-  virtual int GetChannelId(const char * strChannelName, const char * strNumber);
 private:
   std::string                 m_strLastUnknownError;
   bool                        m_bInitedApi;
@@ -108,11 +81,10 @@ private:
   P8PLATFORM::CMutex            m_authMutex;
   sc_stb_profile_t            m_profile;
   Json::Value                 m_epgData;
-  std::vector<SChannelGroup>  m_channelGroups;
-  std::vector<SChannel>       m_channels;
   std::string                 m_PlaybackURL;
   CWatchdog                   *m_watchdog;
   XMLTV                       *m_xmltv;
   P8PLATFORM::CMutex            m_epgMutex;
   SC::SAPI                      *m_api;
+  SC::ChannelManager            *m_channelManager;
 };
