@@ -29,7 +29,6 @@
 #include "p8-platform/util/util.h"
 
 #include "libstalkerclient/util.h"
-#include "SAPI.h"
 #include "Utils.h"
 
 #define SERROR_MSG_UNKNOWN              30501
@@ -55,7 +54,8 @@ SData::SData(void) : Base::Cache()
   m_iNextEpgLoadTime    = 0;
   m_watchdog            = NULL;
   m_xmltv               = new XMLTV;
-  
+  m_api                 = new SC::SAPI;
+
   sc_identity_defaults(&m_identity);
   sc_stb_profile_defaults(&m_profile);
 }
@@ -64,18 +64,19 @@ SData::~SData(void)
 {
   if (m_watchdog && !m_watchdog->StopThread())
     XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to stop Watchdog");
-  
+
   m_channelGroups.clear();
   m_channels.clear();
-  
+
   SAFE_DELETE(m_watchdog);
   SAFE_DELETE(m_xmltv);
+  SAFE_DELETE(m_api);
 }
 
 void SData::QueueErrorNotification(SError error)
 {
   int iErrorMsg = 0;
-  
+
   switch (error) {
     case SERROR_UNKNOWN:
       if (m_strLastUnknownError.empty()) {
@@ -110,7 +111,7 @@ void SData::QueueErrorNotification(SError error)
       iErrorMsg = SERROR_MSG_AUTHORIZATION;
       break;
   }
-  
+
   if (iErrorMsg > 0)
     XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(iErrorMsg));
 }
@@ -240,10 +241,9 @@ SError SData::InitAPI()
 
   m_bInitedApi = false;
 
-  if (!SAPI::Init()) {
-    XBMC->Log(LOG_ERROR, "%s: failed to init api", __FUNCTION__);
-    return SERROR_API;
-  }
+  m_api->SetIdentity(&m_identity);
+  m_api->SetEndpoint(g_strServer);
+  m_api->SetTimeout((unsigned int) g_iConnectionTimeout);
 
   m_bInitedApi = true;
 
@@ -256,16 +256,16 @@ SError SData::DoHandshake()
 
   Json::Value parsed;
 
-  if (!SAPI::Handshake(m_identity, parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: Handshake failed", __FUNCTION__);
+  if (!m_api->STBHandshake(parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: STBHandshake failed", __FUNCTION__);
     return SERROR_AUTHENTICATION;
   }
-  
+
   if (parsed["js"].isMember("token"))
     SC_STR_SET(m_identity.token, parsed["js"]["token"].asCString());
 
   XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
-  
+
   if (parsed["js"].isMember("not_valid"))
     m_identity.valid_token = !Utils::GetIntFromJsonValue(parsed["js"]["not_valid"]);
 
@@ -278,12 +278,12 @@ SError SData::DoAuth()
 
   Json::Value parsed;
   SError ret(SERROR_OK);
-  
-  if (!SAPI::DoAuth(m_identity, parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: DoAuth failed", __FUNCTION__);
+
+  if (!m_api->STBDoAuth(parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: STBDoAuth failed", __FUNCTION__);
     return SERROR_AUTHENTICATION;
   }
-  
+
   if (parsed.isMember("js") && !parsed["js"].asBool())
     ret = SERROR_AUTHENTICATION;
 
@@ -297,38 +297,38 @@ SError SData::LoadProfile(bool bAuthSecondStep)
   Json::Value parsed;
   SError ret(SERROR_OK);
 
-  if (!SAPI::GetProfile(m_identity, bAuthSecondStep, parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: GetProfile failed", __FUNCTION__);
+  if (!m_api->STBGetProfile(bAuthSecondStep, parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: STBGetProfile failed", __FUNCTION__);
     return SERROR_AUTHENTICATION;
   }
-  
+
   sc_stb_profile_defaults(&m_profile);
-  
+
   if (parsed["js"].isMember("store_auth_data_on_stb"))
     m_profile.store_auth_data_on_stb = Utils::GetBoolFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
-  
+
   if (parsed["js"].isMember("status"))
     m_profile.status = Utils::GetIntFromJsonValue(parsed["js"]["status"]);
-  
+
   SC_STR_SET(m_profile.msg, !parsed["js"].isMember("msg")
     ? ""
     : parsed["js"]["msg"].asCString());
-  
+
   SC_STR_SET(m_profile.block_msg, !parsed["js"].isMember("block_msg")
     ? ""
     : parsed["js"]["block_msg"].asCString());
-  
+
   if (parsed["js"].isMember("watchdog_timeout"))
     m_profile.watchdog_timeout = Utils::GetIntFromJsonValue(parsed["js"]["watchdog_timeout"]);
-  
+
   if (parsed["js"].isMember("timeslot"))
     m_profile.timeslot = Utils::GetDoubleFromJsonValue(parsed["js"]["timeslot"]);
 
   XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __FUNCTION__, m_profile.timeslot);
-  
+
   if (m_profile.store_auth_data_on_stb && !SaveCache())
     return SERROR_UNKNOWN;
-  
+
   switch (m_profile.status) {
     case 0:
       break;
@@ -336,7 +336,7 @@ SError SData::LoadProfile(bool bAuthSecondStep)
       ret = DoAuth();
       if (ret != SERROR_OK)
         return ret;
-      
+
       return LoadProfile(true);
     case 1:
     default:
@@ -354,9 +354,9 @@ SError SData::Authenticate()
   SError ret(SERROR_OK);
   int iMaxRetires = 5;
   int iNumRetries = 0;
-  
+
   m_bAuthenticated = false;
-  
+
   while (!m_bAuthenticated && ++iNumRetries <= iMaxRetires) {
     // notify once after the first try failed
     if (iNumRetries == 2)
@@ -381,20 +381,20 @@ SError SData::Authenticate()
 SError SData::ReAuthenticate(bool bAuthorizationLost)
 {
   SError ret(SERROR_OK);
-  
+
   m_authMutex.Lock();
-  
+
   if (bAuthorizationLost)
     QueueErrorNotification(SERROR_AUTHORIZATION);
-  
+
   ret = Authenticate();
-  
+
   if (ret == SERROR_OK)
     XBMC->QueueNotification(QUEUE_INFO,
       XBMC->GetLocalizedString(MSG_RE_AUTHENTICATED));
-  
+
   m_authMutex.Unlock();
-  
+
   return ret;
 }
 
@@ -406,20 +406,20 @@ bool SData::IsInitialized()
 SError SData::Initialize()
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   SError ret;
 
   if (!m_bInitedApi && SERROR_OK != (ret = InitAPI()))
     return ret;
-  
+
   if (!m_bAuthenticated && SERROR_OK != (ret = Authenticate()))
     return ret;
-  
+
   if (!m_watchdog) {
-    m_watchdog = new CWatchdog((int)m_profile.timeslot, m_identity);
+    m_watchdog = new CWatchdog((int)m_profile.timeslot, m_api);
     m_watchdog->SetData(this);
   }
-  
+
   if (m_watchdog && !m_watchdog->IsRunning() && !m_watchdog->CreateThread())
     XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to start Watchdog");
 
@@ -460,36 +460,36 @@ int SData::ParseEPG(Json::Value &parsed, time_t iStart, time_t iEnd, int iChanne
     PVR->TransferEpgEntry(handle, &tag);
     iEntriesTransfered++;
   }
-  
+
   return iEntriesTransfered;
 }
 
 int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t iStart, time_t iEnd, ADDON_HANDLE handle)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   std::string strChanNum;
   XMLTV::Channel *chan = NULL;
   int iEntriesTransfered(0);
-  
+
   strChanNum = Utils::ToString(iChannelNumber);
-  
+
   chan = m_xmltv->GetChannelById(strChanNum);
   if (!chan)
     chan = m_xmltv->GetChannelByDisplayName(strChannelName);
-  
+
   if (!chan) {
     XBMC->Log(LOG_DEBUG, "%s: channel \"%s\" not found", __FUNCTION__, strChanNum.c_str());
     return iEntriesTransfered;
   }
-  
+
   for (std::vector<XMLTV::Programme>::iterator it = chan->programmes.begin(); it != chan->programmes.end(); ++it) {
     if (!(it->start > iStart && it->stop < iEnd))
       continue;
 
     EPG_TAG tag;
     memset(&tag, 0, sizeof(EPG_TAG));
-    
+
     tag.iUniqueBroadcastId = it->extra.broadcastId;
     tag.strTitle = it->title.c_str();
     tag.iChannelNumber = iChannelNumber;
@@ -509,11 +509,11 @@ int SData::ParseEPGXMLTV(int iChannelNumber, std::string &strChannelName, time_t
     tag.iEpisodeNumber = it->episodeNumber;
     tag.strEpisodeName = it->subTitle.c_str();
     tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
-    
+
     PVR->TransferEpgEntry(handle, &tag);
     iEntriesTransfered++;
   }
-  
+
   return iEntriesTransfered;
 }
 
@@ -521,33 +521,33 @@ bool SData::LoadEPGForChannel(SChannel &channel, time_t iStart, time_t iEnd, ADD
 {
   std::string strChannelId;
   int iEntriesTransfered(0);
-  
+
   strChannelId = Utils::ToString(channel.iChannelId);
-  
+
   switch (g_iGuidePreference) {
     case PREFER_PROVIDER:
     case PROVIDER_ONLY:
       if (!m_epgData.empty())
         iEntriesTransfered = ParseEPG(m_epgData["js"]["data"][strChannelId.c_str()], iStart, iEnd, channel.iChannelNumber, handle);
-      
+
       if (g_iGuidePreference == PROVIDER_ONLY)
         break;
-      
+
       if (iEntriesTransfered == 0 && m_xmltv)
         ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
-      
+
       break;
     case PREFER_XMLTV:
     case XMLTV_ONLY:
       if (m_xmltv)
         iEntriesTransfered = ParseEPGXMLTV(channel.iChannelNumber, channel.strChannelName, iStart, iEnd, handle);
-      
+
       if (g_iGuidePreference == XMLTV_ONLY)
         break;
-      
+
       if (!m_epgData.empty() && iEntriesTransfered == 0)
         ParseEPG(m_epgData["js"]["data"][strChannelId.c_str()], iStart, iEnd, channel.iChannelNumber, handle);
-      
+
       break;
   }
 
@@ -569,7 +569,7 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
 
   m_epgMutex.Lock();
 
-  //TODO limit period to 24 hours for GetEPGInfo. large amount of channels over too many days could exceed server max memory allowed for that request
+  //TODO limit period to 24 hours for ITVGetEPGInfo. large amount of channels over too many days could exceed server max memory allowed for that request
   iPeriod = (iEnd - iStart) / 3600;
 
   if (g_iXmltvScope == REMOTE_URL) {
@@ -590,8 +590,20 @@ SError SData::LoadEPG(time_t iStart, time_t iEnd)
       if (iNumRetries > 1)
         usleep(5000000);
 
-      if (!(bLoadedProvider = SAPI::GetEPGInfo(iPeriod, m_identity, m_epgData, g_bGuideCache, iCacheExpiry)))
-        XBMC->Log(LOG_ERROR, "%s: GetEPGInfo failed", __FUNCTION__);
+      std::string cacheFile;
+      if (g_bGuideCache)
+        cacheFile = Utils::GetFilePath("epg_provider.json");
+
+      if (!(bLoadedProvider = m_api->ITVGetEPGInfo(iPeriod, m_epgData, cacheFile, iCacheExpiry))) {
+          XBMC->Log(LOG_ERROR, "%s: ITVGetEPGInfo failed", __FUNCTION__);
+          if (g_bGuideCache && XBMC->FileExists(cacheFile.c_str(), false)) {
+#ifdef TARGET_WINDOWS
+              DeleteFile(cacheFile.c_str());
+#else
+              XBMC->DeleteFile(cacheFile.c_str());
+#endif
+          }
+      }
     }
   }
 
@@ -671,8 +683,8 @@ SError SData::LoadChannelGroups()
     return ret;
 
   // genres are channel groups
-  if (!SAPI::GetGenres(m_identity, parsed) || !ParseChannelGroups(parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: GetGenres|ParseChannelGroups failed", __FUNCTION__);
+  if (!m_api->ITVGetGenres(parsed) || !ParseChannelGroups(parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: ITVGetGenres|ParseChannelGroups failed", __FUNCTION__);
     return SERROR_LOAD_CHANNEL_GROUPS;
   }
 
@@ -709,7 +721,7 @@ bool SData::ParseChannels(Json::Value &parsed)
       channel.strStreamURL = "pvr://stream/" + Utils::ToString(channel.iUniqueId);
 
       std::string strLogo = (*it)["logo"].asString();
-      channel.strIconPath = Utils::DetermineLogoURI(strLogo);
+      channel.strIconPath = Utils::DetermineLogoURI(m_api->GetBasePath(), strLogo);
 
       channel.iChannelId = Utils::GetIntFromJsonValue((*it)["id"]);
       channel.strCmd = (*it)["cmd"].asString();
@@ -725,7 +737,7 @@ bool SData::ParseChannels(Json::Value &parsed)
   catch (...) {
     return false;
   }
-  
+
   return true;
 }
 
@@ -744,8 +756,8 @@ SError SData::LoadChannels()
   if (!IsInitialized() && SERROR_OK != (ret = Initialize()))
     return ret;
 
-  if (!SAPI::GetAllChannels(m_identity, parsed) || !ParseChannels(parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: GetAllChannels failed", __FUNCTION__);
+  if (!m_api->ITVGetAllChannels(parsed) || !ParseChannels(parsed)) {
+    XBMC->Log(LOG_ERROR, "%s: ITVGetAllChannels failed", __FUNCTION__);
     return SERROR_LOAD_CHANNELS;
   }
 
@@ -754,8 +766,8 @@ SError SData::LoadChannels()
   while (iCurrentPage <= iMaxPages) {
     XBMC->Log(LOG_DEBUG, "%s: iCurrentPage: %d", __FUNCTION__, iCurrentPage);
 
-    if (!SAPI::GetOrderedList(iGenre, iCurrentPage, m_identity, parsed) || !ParseChannels(parsed)) {
-      XBMC->Log(LOG_ERROR, "%s: GetOrderedList failed", __FUNCTION__);
+    if (!m_api->ITVGetOrderedList(iGenre, iCurrentPage, parsed) || !ParseChannels(parsed)) {
+      XBMC->Log(LOG_ERROR, "%s: ITVGetOrderedList failed", __FUNCTION__);
       return SERROR_LOAD_CHANNELS;
     }
 
@@ -765,7 +777,7 @@ SError SData::LoadChannels()
 
       if (iTotalItems > 0 && iMaxPageItems > 0)
         iMaxPages = static_cast<uint32_t>(ceil((double)iTotalItems / iMaxPageItems));
-      
+
       XBMC->Log(LOG_DEBUG, "%s: iTotalItems: %d | iMaxPageItems: %d | iMaxPages: %d",
         __FUNCTION__, iTotalItems, iMaxPageItems, iMaxPages);
     }
@@ -803,7 +815,7 @@ bool SData::LoadData(void)
 PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   SChannel *thisChannel = NULL;
   time_t now;
   SError ret;
@@ -850,7 +862,7 @@ int SData::GetChannelGroupsAmount(void)
 PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   SError ret;
 
   if (bRadio)
@@ -900,7 +912,7 @@ PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_G
   for (std::vector<SChannel>::iterator channel = m_channels.begin(); channel != m_channels.end(); ++channel) {
     if (channel->strTvGenreId.compare(channelGroup->strId) != 0)
       continue;
-    
+
     PVR_CHANNEL_GROUP_MEMBER tag;
     memset(&tag, 0, sizeof(tag));
 
@@ -922,7 +934,7 @@ int SData::GetChannelsAmount(void)
 PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool bRadio)
 {
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-  
+
   SError ret;
 
   if (bRadio)
@@ -985,11 +997,11 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     if (!IsInitialized())
       ret = Initialize();
 
-    if (ret == SERROR_OK && SAPI::CreateLink(thisChannel->strCmd, m_identity, parsed)) {
+    if (ret == SERROR_OK && m_api->ITVCreateLink(thisChannel->strCmd, parsed)) {
       if (parsed["js"].isMember("cmd"))
         strCmd = parsed["js"]["cmd"].asString();
     } else {
-      XBMC->Log(LOG_ERROR, "%s: CreateLink failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: ITVCreateLink failed", __FUNCTION__);
     }
   } else if (thisChannel->strCmd.find("matrix") != std::string::npos) {
     // non-standard call to server
@@ -1004,7 +1016,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
 
     strSplit = StringUtils::Split(thisChannel->strCmd, "/");
     if (!strSplit.empty()) {
-      oss << g_strBasePath;
+      oss << m_api->GetBasePath();
       oss << "server/api/matrix.php";
       oss << "?channel=" << Utils::UrlEncode(strSplit.back());
       oss << "&mac=" << Utils::UrlEncode(m_identity.mac);

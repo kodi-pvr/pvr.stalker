@@ -1,3 +1,6 @@
+2.6.1 (16-07-2016)
+- revision
+
 2.6.0 (04-07-2016)
 - added per portal token caching
 

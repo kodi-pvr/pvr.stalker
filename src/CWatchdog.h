@@ -25,11 +25,12 @@
 #include "p8-platform/threads/threads.h"
 
 #include "libstalkerclient/identity.h"
+#include "SAPI.h"
 
 class CWatchdog : public P8PLATFORM::CThread
 {
 public:
-  CWatchdog(uint32_t iInterval, sc_identity_t &m_identity);
+  CWatchdog(uint32_t iInterval, SC::SAPI *api);
   ~CWatchdog(void);
   
   virtual void SetData(void *data);
@@ -37,6 +38,6 @@ private:
   virtual void *Process(void);
   
   uint32_t      m_iInterval;
-  sc_identity_t &m_identity;
+  SC::SAPI      *m_api;
   void          *m_data;
 };
