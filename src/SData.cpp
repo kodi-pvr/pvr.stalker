@@ -125,7 +125,7 @@ bool SData::LoadCache()
   xmlNodePtr node = NULL;
   xmlNodePtr portalsNode = NULL;
   xmlNodePtr portalNode = NULL;
-  std::string portalNum = Utils::ToString(g_iActivePortal);
+  std::string portalNum = Utils::ToString(settings.activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -178,7 +178,7 @@ bool SData::SaveCache()
   xmlNodePtr node = NULL;
   xmlNodePtr portalsNode = NULL;
   xmlNodePtr portalNode = NULL;
-  std::string portalNum = Utils::ToString(g_iActivePortal);
+  std::string portalNum = Utils::ToString(settings.activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -241,8 +241,8 @@ SError SData::InitAPI()
   m_bInitedApi = false;
 
   m_api->SetIdentity(&m_identity);
-  m_api->SetEndpoint(g_strServer);
-  m_api->SetTimeout((unsigned int) g_iConnectionTimeout);
+  m_api->SetEndpoint(settings.server);
+  m_api->SetTimeout(settings.connectionTimeout);
 
   m_bInitedApi = true;
 
@@ -425,8 +425,8 @@ SError SData::Initialize()
   m_channelManager->SetAPI(m_api);
 
   m_guideManager->SetAPI(m_api);
-  m_guideManager->SetGuidePreference((GuidePreference) g_iGuidePreference);
-  m_guideManager->SetCacheOptions(g_bGuideCache, (unsigned int) g_iGuideCacheHours * 3600);
+  m_guideManager->SetGuidePreference(settings.guidePreference);
+  m_guideManager->SetCacheOptions(settings.guideCache, settings.guideCacheHours * 3600);
 
   return SERROR_OK;
 }
@@ -451,15 +451,15 @@ bool SData::LoadData(void)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_identity_defaults(&m_identity);
-  SC_STR_SET(m_identity.mac, g_strMac.c_str());
-  SC_STR_SET(m_identity.time_zone, g_strTimeZone.c_str());
-  SC_STR_SET(m_identity.token, g_strToken.c_str());
-  SC_STR_SET(m_identity.login, g_strLogin.c_str());
-  SC_STR_SET(m_identity.password, g_strPassword.c_str());
-  SC_STR_SET(m_identity.serial_number, g_strSerialNumber.c_str());
-  SC_STR_SET(m_identity.device_id, g_strDeviceId.c_str());
-  SC_STR_SET(m_identity.device_id2, g_strDeviceId2.c_str());
-  SC_STR_SET(m_identity.signature, g_strSignature.c_str());
+  SC_STR_SET(m_identity.mac, settings.mac.c_str());
+  SC_STR_SET(m_identity.time_zone, settings.timeZone.c_str());
+  SC_STR_SET(m_identity.token, settings.token.c_str());
+  SC_STR_SET(m_identity.login, settings.login.c_str());
+  SC_STR_SET(m_identity.password, settings.password.c_str());
+  SC_STR_SET(m_identity.serial_number, settings.serialNumber.c_str());
+  SC_STR_SET(m_identity.device_id, settings.deviceId.c_str());
+  SC_STR_SET(m_identity.device_id2, settings.deviceId2.c_str());
+  SC_STR_SET(m_identity.signature, settings.signature.c_str());
 
   // skip handshake if token setting was set
   if (strlen(m_identity.token) > 0)
@@ -491,21 +491,10 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
   m_iLastEpgAccessTime = now;
   if (m_iNextEpgLoadTime < now) {
     // limit to 1 hour if caching is disabled
-    m_iNextEpgLoadTime = now + (g_bGuideCache ? g_iGuideCacheHours : 1) * 3600;
+    m_iNextEpgLoadTime = now + (settings.guideCache ? settings.guideCacheHours : 1) * 3600;
     XBMC->Log(LOG_DEBUG, "%s: m_iNextEpgLoadTime=%d", __FUNCTION__, m_iNextEpgLoadTime);
 
     m_epgMutex.Lock();
-
-    HTTPSocket::Scope scope;
-    std::string strXmltvPath;
-
-    if (g_iXmltvScope == REMOTE_URL) {
-      scope = HTTPSocket::SCOPE_REMOTE;
-      strXmltvPath = g_strXmltvUrl;
-    } else {
-      scope = HTTPSocket::SCOPE_LOCAL;
-      strXmltvPath = g_strXmltvPath;
-    }
 
     //TODO merge with LoadData() when multiple PVR clients are properly supported
     //TODO replace with auth check
@@ -515,7 +504,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
         QueueErrorNotification(ret);
     }
 
-    ret = m_guideManager->LoadXMLTV(scope, strXmltvPath);
+    ret = m_guideManager->LoadXMLTV(settings.xmltvScope, settings.xmltvPath);
     if (ret != SERROR_OK)
       QueueErrorNotification(ret);
 
@@ -709,7 +698,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     std::ostringstream oss;
     HTTPSocket::Request request;
     HTTPSocket::Response response;
-    HTTPSocket sock(g_iConnectionTimeout);
+    HTTPSocket sock(settings.connectionTimeout);
     bool bFailed(false);
 
     strSplit = StringUtils::Split(thisChannel->cmd, "/");
@@ -759,8 +748,8 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
   } else {
     // protocol options for http(s) urls only
     // <= zero disables timeout
-    if (m_PlaybackURL.find("http") == 0 && g_iConnectionTimeout > 0)
-      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
+    if (m_PlaybackURL.find("http") == 0 && settings.connectionTimeout > 0)
+      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
 
     XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
   }

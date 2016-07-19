@@ -35,6 +35,7 @@
 #include "Error.h"
 #include "GuideManager.h"
 #include "SAPI.h"
+#include "Settings.h"
 #include "XMLTV.h"
 
 class SData : Base::Cache
@@ -51,9 +52,11 @@ public:
   virtual int GetChannelsAmount(void);
   virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
-  
+
   virtual SError ReAuthenticate(bool bAuthorizationLost = false);
   virtual void UnloadEPG();
+
+  SC::Settings settings;
 protected:
   virtual bool LoadCache();
   virtual bool SaveCache();

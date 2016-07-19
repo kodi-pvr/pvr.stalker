@@ -35,9 +35,9 @@ using namespace SC;
 
 GuideManager::GuideManager() : Base::GuideManager<Event>() {
     m_api = nullptr;
-    m_guidePreference = (GuidePreference) DEFAULT_GUIDE_PREFERENCE;
-    m_useCache = DEFAULT_GUIDE_CACHE;
-    m_expiry = DEFAULT_GUIDE_CACHE_HOURS * 3600;
+    m_guidePreference = (SC::Settings::GuidePreference) SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
+    m_useCache = SC_SETTINGS_DEFAULT_GUIDE_CACHE;
+    m_expiry = SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS * 3600;
     m_xmltv = std::make_shared<XMLTV>();
 }
 
@@ -49,7 +49,7 @@ GuideManager::~GuideManager() {
 SError GuideManager::LoadGuide(time_t start, time_t end) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    if (m_guidePreference == XMLTV_ONLY)
+    if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_XMLTV_ONLY)
         return SERROR_OK;
 
     bool ret(false);
@@ -90,7 +90,7 @@ SError GuideManager::LoadGuide(time_t start, time_t end) {
 SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string &path) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    if (m_guidePreference == PROVIDER_ONLY || path.empty())
+    if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
         return SERROR_OK;
 
     bool ret(false);
@@ -203,15 +203,17 @@ std::vector<Event> GuideManager::GetChannelEvents(Channel &channel, time_t start
     std::vector<Event> events;
     int addedEvents;
 
-    if (m_guidePreference == PREFER_PROVIDER || m_guidePreference == PROVIDER_ONLY) {
+    if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_PROVIDER ||
+        m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PROVIDER_ONLY) {
         addedEvents = AddEvents(0, events, channel, start, end);
-        if (m_guidePreference == PREFER_PROVIDER && !addedEvents)
+        if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_PROVIDER && !addedEvents)
             AddEvents(1, events, channel, start, end);
     }
 
-    if (m_guidePreference == PREFER_XMLTV || m_guidePreference == XMLTV_ONLY) {
+    if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_XMLTV ||
+        m_guidePreference == SC::Settings::GUIDE_PREFERENCE_XMLTV_ONLY) {
         addedEvents = AddEvents(1, events, channel, start, end);
-        if (m_guidePreference == PREFER_XMLTV && !addedEvents)
+        if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_XMLTV && !addedEvents)
             AddEvents(0, events, channel, start, end);
     }
 
