@@ -23,8 +23,7 @@
 #include "CWatchdog.h"
 
 #include "client.h"
-#include "SAPI.h"
-#include "SData.h"
+#include "SessionManager.h"
 
 using namespace ADDON;
 
@@ -67,16 +66,12 @@ void *CWatchdog::Process()
       
       if (ret == SERROR_AUTHORIZATION) {
         if (m_data) {
-          ret = ((SData *)m_data)->ReAuthenticate(true);
+          ret = ((SC::SessionManager *)m_data)->Authenticate(true);
         } else {
           XBMC->Log(LOG_NOTICE, "%s: data not set. unable to request re-authentication", __FUNCTION__);
         }
       }
     }
-    
-    // leverage watchdog to periodically unload epg data from memory
-    if (m_data)
-      ((SData *)m_data)->UnloadEPG();
     
     iNow = 0;
     iTarget = m_iInterval * 1000;

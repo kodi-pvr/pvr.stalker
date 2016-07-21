@@ -39,6 +39,7 @@ set(SOURCES
         src/HTTPSocket.cpp
         src/SAPI.cpp
         src/SData.cpp
+        src/SessionManager.cpp
         src/Utils.cpp
         src/XMLTV.cpp)
 
