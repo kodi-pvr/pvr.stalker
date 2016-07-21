@@ -1,3 +1,5 @@
+2.6.3 (21-07-2016)
+- updated language files from Transifex
 2.6.2 (17-07-2016)
 - revision
 

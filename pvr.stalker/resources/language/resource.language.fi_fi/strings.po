@@ -80,6 +80,10 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Vain XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Tallenna ohjelmatiedot tietokantaan"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -135,6 +139,10 @@ msgstr "Todennus epäonnistui. Yritetään uudelleen."
 msgctxt "#30505"
 msgid "Unable to load channels."
 msgstr "Kanavien lataaminen ei onnistu."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Kanavaryhmien lataaminen epäonnistui"
 
 msgctxt "#30507"
 msgid "Unable to load guide."
