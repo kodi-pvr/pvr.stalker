@@ -25,6 +25,12 @@
 #include "client.h"
 #include "Utils.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#define usleep(usec) Sleep((DWORD)(usec)/1000)
+#else
+#include <unistd.h>
+#endif
+
 using namespace ADDON;
 using namespace SC;
 
@@ -144,8 +150,9 @@ SError SessionManager::GetProfile(bool authSecondStep) {
     return ret;
 }
 
-SError SessionManager::Authenticate(bool reAuthenticate) {
+SError SessionManager::Authenticate() {
     SError ret(SERROR_OK);
+    bool wasAuthenticated(m_authenticated);
     int maxRetires(5);
     int numRetries(0);
 
@@ -155,7 +162,7 @@ SError SessionManager::Authenticate(bool reAuthenticate) {
     StopWatchdog();
     m_lastUnknownError.clear();
 
-    if (reAuthenticate && m_statusCallback != nullptr)
+    if (wasAuthenticated && m_statusCallback != nullptr)
         m_statusCallback(SERROR_AUTHORIZATION);
 
     while (!m_authenticated && ++numRetries <= maxRetires) {
@@ -178,7 +185,7 @@ SError SessionManager::Authenticate(bool reAuthenticate) {
         StartWatchdog();
         m_authenticated = true;
 
-        if (reAuthenticate && m_statusCallback != nullptr)
+        if (wasAuthenticated && m_statusCallback != nullptr)
             m_statusCallback(SERROR_OK);
     }
 
@@ -189,15 +196,17 @@ SError SessionManager::Authenticate(bool reAuthenticate) {
 
 void SessionManager::StartWatchdog() {
     if (!m_watchdog) {
-        m_watchdog = new CWatchdog((unsigned int) m_profile->timeslot, m_api);
-        m_watchdog->SetData(this);
+        m_watchdog = new CWatchdog((unsigned int) m_profile->timeslot, m_api, [this](SError err) {
+            if (err == SERROR_AUTHORIZATION)
+                Authenticate();
+        });
     }
 
-    if (m_watchdog && !m_watchdog->IsRunning() && !m_watchdog->CreateThread())
-        XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to start Watchdog");
+    if (m_watchdog)
+        m_watchdog->Start();
 }
 
 void SessionManager::StopWatchdog() {
-    if (m_watchdog && !m_watchdog->StopThread())
-        XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to stop Watchdog");
+    if (m_watchdog)
+        m_watchdog->Stop();
 }

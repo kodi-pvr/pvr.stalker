@@ -26,6 +26,7 @@
 #include <vector>
 
 #include <json/json.h>
+#include <p8-platform/threads/mutex.h>
 
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"

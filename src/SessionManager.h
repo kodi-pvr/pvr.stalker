@@ -63,7 +63,7 @@ namespace SC {
             return m_authenticated;
         }
 
-        virtual SError Authenticate(bool reAuthenticate = false);
+        virtual SError Authenticate();
 
     private:
         SError DoHandshake();
