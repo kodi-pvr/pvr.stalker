@@ -49,11 +49,10 @@ SData::SData(void) : Base::Cache()
 {
   m_bInitedApi          = false;
   m_bTokenManuallySet   = false;
-  m_bAuthenticated      = false;
   m_iLastEpgAccessTime  = 0;
   m_iNextEpgLoadTime    = 0;
-  m_watchdog            = NULL;
   m_api                 = new SC::SAPI;
+  m_sessionManager      = new SC::SessionManager;
   m_channelManager      = new SC::ChannelManager;
   m_guideManager        = new SC::GuideManager;
 
@@ -63,11 +62,12 @@ SData::SData(void) : Base::Cache()
 
 SData::~SData(void)
 {
-  if (m_watchdog && !m_watchdog->StopThread())
-    XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to stop Watchdog");
+  m_epgThreadActive = false;
+  if (m_epgThread.joinable())
+    m_epgThread.join();
 
-  SAFE_DELETE(m_watchdog);
   SAFE_DELETE(m_api);
+  SAFE_DELETE(m_sessionManager);
   SAFE_DELETE(m_channelManager);
   SAFE_DELETE(m_guideManager);
 }
@@ -78,12 +78,11 @@ void SData::QueueErrorNotification(SError error)
 
   switch (error) {
     case SERROR_UNKNOWN:
-      if (m_strLastUnknownError.empty()) {
+      if (m_sessionManager->GetLastUnknownError().empty()) {
         iErrorMsg = SERROR_MSG_UNKNOWN;
         break;
       }
-      XBMC->QueueNotification(QUEUE_ERROR, m_strLastUnknownError.c_str());
-      m_strLastUnknownError.clear();
+      XBMC->QueueNotification(QUEUE_ERROR, m_sessionManager->GetLastUnknownError().c_str());
       break;
     case SERROR_INITIALIZE:
       iErrorMsg = SERROR_MSG_INITIALIZE;
@@ -125,7 +124,7 @@ bool SData::LoadCache()
   xmlNodePtr node = NULL;
   xmlNodePtr portalsNode = NULL;
   xmlNodePtr portalNode = NULL;
-  std::string portalNum = Utils::ToString(g_iActivePortal);
+  std::string portalNum = Utils::ToString(settings.activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -178,7 +177,7 @@ bool SData::SaveCache()
   xmlNodePtr node = NULL;
   xmlNodePtr portalsNode = NULL;
   xmlNodePtr portalNode = NULL;
-  std::string portalNum = Utils::ToString(g_iActivePortal);
+  std::string portalNum = Utils::ToString(settings.activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -241,165 +240,17 @@ SError SData::InitAPI()
   m_bInitedApi = false;
 
   m_api->SetIdentity(&m_identity);
-  m_api->SetEndpoint(g_strServer);
-  m_api->SetTimeout((unsigned int) g_iConnectionTimeout);
+  m_api->SetEndpoint(settings.server);
+  m_api->SetTimeout(settings.connectionTimeout);
 
   m_bInitedApi = true;
 
   return SERROR_OK;
 }
 
-SError SData::DoHandshake()
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  Json::Value parsed;
-
-  if (!m_api->STBHandshake(parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: STBHandshake failed", __FUNCTION__);
-    return SERROR_AUTHENTICATION;
-  }
-
-  if (parsed["js"].isMember("token"))
-    SC_STR_SET(m_identity.token, parsed["js"]["token"].asCString());
-
-  XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
-
-  if (parsed["js"].isMember("not_valid"))
-    m_identity.valid_token = !Utils::GetIntFromJsonValue(parsed["js"]["not_valid"]);
-
-  return SERROR_OK;
-}
-
-SError SData::DoAuth()
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  Json::Value parsed;
-  SError ret(SERROR_OK);
-
-  if (!m_api->STBDoAuth(parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: STBDoAuth failed", __FUNCTION__);
-    return SERROR_AUTHENTICATION;
-  }
-
-  if (parsed.isMember("js") && !parsed["js"].asBool())
-    ret = SERROR_AUTHENTICATION;
-
-  return ret;
-}
-
-SError SData::LoadProfile(bool bAuthSecondStep)
-{
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
-
-  Json::Value parsed;
-  SError ret(SERROR_OK);
-
-  if (!m_api->STBGetProfile(bAuthSecondStep, parsed)) {
-    XBMC->Log(LOG_ERROR, "%s: STBGetProfile failed", __FUNCTION__);
-    return SERROR_AUTHENTICATION;
-  }
-
-  sc_stb_profile_defaults(&m_profile);
-
-  if (parsed["js"].isMember("store_auth_data_on_stb"))
-    m_profile.store_auth_data_on_stb = Utils::GetBoolFromJsonValue(parsed["js"]["store_auth_data_on_stb"]);
-
-  if (parsed["js"].isMember("status"))
-    m_profile.status = Utils::GetIntFromJsonValue(parsed["js"]["status"]);
-
-  SC_STR_SET(m_profile.msg, !parsed["js"].isMember("msg")
-    ? ""
-    : parsed["js"]["msg"].asCString());
-
-  SC_STR_SET(m_profile.block_msg, !parsed["js"].isMember("block_msg")
-    ? ""
-    : parsed["js"]["block_msg"].asCString());
-
-  if (parsed["js"].isMember("watchdog_timeout"))
-    m_profile.watchdog_timeout = Utils::GetIntFromJsonValue(parsed["js"]["watchdog_timeout"]);
-
-  if (parsed["js"].isMember("timeslot"))
-    m_profile.timeslot = Utils::GetDoubleFromJsonValue(parsed["js"]["timeslot"]);
-
-  XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __FUNCTION__, m_profile.timeslot);
-
-  if (m_profile.store_auth_data_on_stb && !SaveCache())
-    return SERROR_UNKNOWN;
-
-  switch (m_profile.status) {
-    case 0:
-      break;
-    case 2:
-      ret = DoAuth();
-      if (ret != SERROR_OK)
-        return ret;
-
-      return LoadProfile(true);
-    case 1:
-    default:
-      m_strLastUnknownError = m_profile.msg;
-      XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s",
-        __FUNCTION__, m_profile.status, m_profile.msg, m_profile.block_msg);
-      return SERROR_UNKNOWN;
-  }
-
-  return ret;
-}
-
-SError SData::Authenticate()
-{
-  SError ret(SERROR_OK);
-  int iMaxRetires = 5;
-  int iNumRetries = 0;
-
-  m_bAuthenticated = false;
-
-  while (!m_bAuthenticated && ++iNumRetries <= iMaxRetires) {
-    // notify once after the first try failed
-    if (iNumRetries == 2)
-      QueueErrorNotification(SERROR_AUTHENTICATION);
-
-    // don't sleep on first try
-    if (iNumRetries > 1)
-      usleep(5000000);
-
-    if (!m_bTokenManuallySet && SERROR_OK != (ret = DoHandshake()))
-      continue;
-
-    if (SERROR_OK != (ret = LoadProfile()))
-      continue;
-
-    m_bAuthenticated = true;
-  }
-
-  return ret;
-}
-
-SError SData::ReAuthenticate(bool bAuthorizationLost)
-{
-  SError ret(SERROR_OK);
-
-  m_authMutex.Lock();
-
-  if (bAuthorizationLost)
-    QueueErrorNotification(SERROR_AUTHORIZATION);
-
-  ret = Authenticate();
-
-  if (ret == SERROR_OK)
-    XBMC->QueueNotification(QUEUE_INFO,
-      XBMC->GetLocalizedString(MSG_RE_AUTHENTICATED));
-
-  m_authMutex.Unlock();
-
-  return ret;
-}
-
 bool SData::IsInitialized()
 {
-  return (m_bInitedApi && m_bAuthenticated);
+  return (m_bInitedApi && m_sessionManager->IsAuthenticated());
 }
 
 SError SData::Initialize()
@@ -411,22 +262,18 @@ SError SData::Initialize()
   if (!m_bInitedApi && SERROR_OK != (ret = InitAPI()))
     return ret;
 
-  if (!m_bAuthenticated && SERROR_OK != (ret = Authenticate()))
+  m_sessionManager->SetAPI(m_api);
+  if (!m_sessionManager->IsAuthenticated() && SERROR_OK != (ret = m_sessionManager->Authenticate()))
     return ret;
 
-  if (!m_watchdog) {
-    m_watchdog = new CWatchdog((int)m_profile.timeslot, m_api);
-    m_watchdog->SetData(this);
-  }
-
-  if (m_watchdog && !m_watchdog->IsRunning() && !m_watchdog->CreateThread())
-    XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__, "failed to start Watchdog");
+  if (m_profile.store_auth_data_on_stb && !SaveCache())
+    return SERROR_UNKNOWN;
 
   m_channelManager->SetAPI(m_api);
 
   m_guideManager->SetAPI(m_api);
-  m_guideManager->SetGuidePreference((GuidePreference) g_iGuidePreference);
-  m_guideManager->SetCacheOptions(g_bGuideCache, (unsigned int) g_iGuideCacheHours * 3600);
+  m_guideManager->SetGuidePreference(settings.guidePreference);
+  m_guideManager->SetCacheOptions(settings.guideCache, settings.guideCacheHours * 3600);
 
   return SERROR_OK;
 }
@@ -451,21 +298,31 @@ bool SData::LoadData(void)
   XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
   sc_identity_defaults(&m_identity);
-  SC_STR_SET(m_identity.mac, g_strMac.c_str());
-  SC_STR_SET(m_identity.time_zone, g_strTimeZone.c_str());
-  SC_STR_SET(m_identity.token, g_strToken.c_str());
-  SC_STR_SET(m_identity.login, g_strLogin.c_str());
-  SC_STR_SET(m_identity.password, g_strPassword.c_str());
-  SC_STR_SET(m_identity.serial_number, g_strSerialNumber.c_str());
-  SC_STR_SET(m_identity.device_id, g_strDeviceId.c_str());
-  SC_STR_SET(m_identity.device_id2, g_strDeviceId2.c_str());
-  SC_STR_SET(m_identity.signature, g_strSignature.c_str());
+  SC_STR_SET(m_identity.mac, settings.mac.c_str());
+  SC_STR_SET(m_identity.time_zone, settings.timeZone.c_str());
+  SC_STR_SET(m_identity.token, settings.token.c_str());
+  SC_STR_SET(m_identity.login, settings.login.c_str());
+  SC_STR_SET(m_identity.password, settings.password.c_str());
+  SC_STR_SET(m_identity.serial_number, settings.serialNumber.c_str());
+  SC_STR_SET(m_identity.device_id, settings.deviceId.c_str());
+  SC_STR_SET(m_identity.device_id2, settings.deviceId2.c_str());
+  SC_STR_SET(m_identity.signature, settings.signature.c_str());
 
   // skip handshake if token setting was set
   if (strlen(m_identity.token) > 0)
     m_bTokenManuallySet = true;
 
   LoadCache();
+
+  m_sessionManager->SetIdentity(&m_identity, m_bTokenManuallySet);
+  m_sessionManager->SetProfile(&m_profile);
+  m_sessionManager->SetStatusCallback([this](SError err) {
+    if (err == SERROR_OK) {
+      XBMC->QueueNotification(QUEUE_INFO, XBMC->GetLocalizedString(MSG_RE_AUTHENTICATED));
+    } else {
+      QueueErrorNotification(err);
+    }
+  });
 
   return true;
 }
@@ -487,25 +344,14 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
   XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s",
     __FUNCTION__, iStart, iEnd, thisChannel->number, thisChannel->name.c_str());
 
+  m_epgMutex.Lock();
+
   time(&now);
   m_iLastEpgAccessTime = now;
   if (m_iNextEpgLoadTime < now) {
     // limit to 1 hour if caching is disabled
-    m_iNextEpgLoadTime = now + (g_bGuideCache ? g_iGuideCacheHours : 1) * 3600;
+    m_iNextEpgLoadTime = now + (settings.guideCache ? settings.guideCacheHours : 1) * 3600;
     XBMC->Log(LOG_DEBUG, "%s: m_iNextEpgLoadTime=%d", __FUNCTION__, m_iNextEpgLoadTime);
-
-    m_epgMutex.Lock();
-
-    HTTPSocket::Scope scope;
-    std::string strXmltvPath;
-
-    if (g_iXmltvScope == REMOTE_URL) {
-      scope = HTTPSocket::SCOPE_REMOTE;
-      strXmltvPath = g_strXmltvUrl;
-    } else {
-      scope = HTTPSocket::SCOPE_LOCAL;
-      strXmltvPath = g_strXmltvPath;
-    }
 
     //TODO merge with LoadData() when multiple PVR clients are properly supported
     //TODO replace with auth check
@@ -515,11 +361,9 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
         QueueErrorNotification(ret);
     }
 
-    ret = m_guideManager->LoadXMLTV(scope, strXmltvPath);
+    ret = m_guideManager->LoadXMLTV(settings.xmltvScope, settings.xmltvPath);
     if (ret != SERROR_OK)
       QueueErrorNotification(ret);
-
-    m_epgMutex.Unlock();
   }
 
   std::vector<SC::Event> events;
@@ -550,6 +394,28 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
     tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
 
     PVR->TransferEpgEntry(handle, &tag);
+  }
+
+  m_epgMutex.Unlock();
+
+  if (!m_epgThread.joinable()) {
+    m_epgThreadActive = true;
+    m_epgThread = std::thread([this] {
+      unsigned int target(30000);
+      unsigned int count;
+
+      while (m_epgThreadActive) {
+        UnloadEPG();
+
+        count = 0;
+        while (count < target) {
+          usleep(100000);
+          if (!m_epgThreadActive)
+            break;
+          count += 100;
+        }
+      }
+    });
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -709,7 +575,7 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
     std::ostringstream oss;
     HTTPSocket::Request request;
     HTTPSocket::Response response;
-    HTTPSocket sock(g_iConnectionTimeout);
+    HTTPSocket sock(settings.connectionTimeout);
     bool bFailed(false);
 
     strSplit = StringUtils::Split(thisChannel->cmd, "/");
@@ -759,8 +625,8 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
   } else {
     // protocol options for http(s) urls only
     // <= zero disables timeout
-    if (m_PlaybackURL.find("http") == 0 && g_iConnectionTimeout > 0)
-      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(g_iConnectionTimeout);
+    if (m_PlaybackURL.find("http") == 0 && settings.connectionTimeout > 0)
+      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
 
     XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
   }

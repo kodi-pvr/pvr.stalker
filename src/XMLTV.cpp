@@ -45,7 +45,7 @@ XMLTV::~XMLTV() {
 bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string &path) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    HTTPSocket sock((unsigned int) g_iConnectionTimeout);
+    HTTPSocket sock(15);
     HTTPSocket::Request request;
     HTTPSocket::Response response;
     sc_list_t *xmltv_channels = NULL;

@@ -22,9 +22,11 @@
  *
  */
 
+#include <thread>
 #include <vector>
 
 #include <json/json.h>
+#include <p8-platform/threads/mutex.h>
 
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"
@@ -35,6 +37,8 @@
 #include "Error.h"
 #include "GuideManager.h"
 #include "SAPI.h"
+#include "SessionManager.h"
+#include "Settings.h"
 #include "XMLTV.h"
 
 class SData : Base::Cache
@@ -51,36 +55,32 @@ public:
   virtual int GetChannelsAmount(void);
   virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
   virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
-  
-  virtual SError ReAuthenticate(bool bAuthorizationLost = false);
+
   virtual void UnloadEPG();
+
+  SC::Settings settings;
 protected:
   virtual bool LoadCache();
   virtual bool SaveCache();
   virtual SError InitAPI();
-  virtual SError DoHandshake();
-  virtual SError DoAuth();
-  virtual SError LoadProfile(bool bAuthSecondStep = false);
-  virtual SError Authenticate();
   virtual bool IsInitialized();
   virtual SError Initialize();
 
   virtual void QueueErrorNotification(SError error);
 private:
-  std::string                 m_strLastUnknownError;
   bool                        m_bInitedApi;
   bool                        m_bTokenManuallySet;
-  bool                        m_bAuthenticated;
   time_t                      m_iLastEpgAccessTime;
   time_t                      m_iNextEpgLoadTime;
   
   sc_identity_t               m_identity;
-  P8PLATFORM::CMutex            m_authMutex;
   sc_stb_profile_t            m_profile;
   std::string                 m_PlaybackURL;
-  CWatchdog                   *m_watchdog;
   P8PLATFORM::CMutex            m_epgMutex;
+  bool                          m_epgThreadActive;
+  std::thread                   m_epgThread;
   SC::SAPI                      *m_api;
+  SC::SessionManager            *m_sessionManager;
   SC::ChannelManager            *m_channelManager;
   SC::GuideManager              *m_guideManager;
 };

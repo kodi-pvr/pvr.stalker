@@ -29,6 +29,7 @@
 #include "ChannelManager.h"
 #include "HTTPSocket.h"
 #include "SAPI.h"
+#include "Settings.h"
 #include "XMLTV.h"
 
 namespace SC {
@@ -57,7 +58,7 @@ namespace SC {
             m_api = api;
         }
 
-        virtual void SetGuidePreference(GuidePreference guidePreference) {
+        virtual void SetGuidePreference(Settings::GuidePreference guidePreference) {
             m_guidePreference = guidePreference;
         }
 
@@ -78,7 +79,7 @@ namespace SC {
         int AddEvents(int type, std::vector<Event> &events, Channel &channel, time_t start, time_t end);
 
         SAPI *m_api;
-        GuidePreference m_guidePreference;
+        Settings::GuidePreference m_guidePreference;
         bool m_useCache;
         unsigned int m_expiry;
         std::shared_ptr<XMLTV> m_xmltv;

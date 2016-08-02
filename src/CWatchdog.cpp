@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -23,72 +23,72 @@
 #include "CWatchdog.h"
 
 #include "client.h"
-#include "SAPI.h"
-#include "SData.h"
+
+#if defined(_WIN32) || defined(_WIN64)
+#define usleep(usec) Sleep((DWORD)(usec)/1000)
+#else
+#include <unistd.h>
+#endif
 
 using namespace ADDON;
+using namespace SC;
 
-CWatchdog::CWatchdog(uint32_t iInterval, SC::SAPI *api)
-  : CThread(), m_iInterval(iInterval), m_api(api), m_data(NULL)
-{
+CWatchdog::CWatchdog(uint32_t interval, SAPI *api, std::function<void(SError)> errorCallback)
+        : m_interval(interval), m_api(api), m_errorCallback(errorCallback) {
 }
 
-CWatchdog::~CWatchdog()
-{
-  StopThread();
+CWatchdog::~CWatchdog() {
+    Stop();
 }
 
-void CWatchdog::SetData(void *data)
-{
-  m_data = data;
+void CWatchdog::Start() {
+    m_threadActive = true;
+    m_thread = std::thread([this] {
+        Process();
+    });
 }
 
-void *CWatchdog::Process()
-{
-  XBMC->Log(LOG_DEBUG, "%s: start", __FUNCTION__);
-  
-  while (!IsStopped()) {
-    int iCurPlayType;
-    int iEventActiveId;
+void CWatchdog::Stop() {
+    m_threadActive = false;
+    if (m_thread.joinable())
+        m_thread.join();
+}
+
+void CWatchdog::Process() {
+    XBMC->Log(LOG_DEBUG, "%s: start", __FUNCTION__);
+
+    int curPlayType;
+    int eventActiveId;
     Json::Value parsed;
     SError ret;
-    uint32_t iNow;
-    uint32_t iTarget;
-    
-    // hardcode values for now
-    iCurPlayType = 1; // tv
-    iEventActiveId = 0;
-    
-    ret = m_api->WatchdogGetEvents(iCurPlayType, iEventActiveId, parsed);
-    if (ret == SERROR_OK) {
-      // ignore the result. don't confirm events (yet)
-    } else {
-      XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __FUNCTION__);
-      
-      if (ret == SERROR_AUTHORIZATION) {
-        if (m_data) {
-          ret = ((SData *)m_data)->ReAuthenticate(true);
-        } else {
-          XBMC->Log(LOG_NOTICE, "%s: data not set. unable to request re-authentication", __FUNCTION__);
-        }
-      }
-    }
-    
-    // leverage watchdog to periodically unload epg data from memory
-    if (m_data)
-      ((SData *)m_data)->UnloadEPG();
-    
-    iNow = 0;
-    iTarget = m_iInterval * 1000;
+    unsigned int target(m_interval * 1000);
+    unsigned int count;
 
-    while (iNow < iTarget) {
-      if (Sleep(100))
-        break;
-      iNow += 100;
+    while (m_threadActive) {
+        // hardcode values for now
+        curPlayType = 1; // tv
+        eventActiveId = 0;
+
+        ret = m_api->WatchdogGetEvents(curPlayType, eventActiveId, parsed);
+        if (ret != SERROR_OK) {
+            XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __FUNCTION__);
+
+            if (m_errorCallback != nullptr)
+                m_errorCallback(ret);
+        }
+
+        // ignore the result. don't confirm events (yet)
+
+        parsed.clear();
+
+        count = 0;
+        while (count < target) {
+            usleep(100000);
+            if (!m_threadActive)
+                break;
+            count += 100;
+        }
     }
-  }
-  
-  XBMC->Log(LOG_DEBUG, "%s: stop", __FUNCTION__);
-  
-  return NULL;
+
+    XBMC->Log(LOG_DEBUG, "%s: stop", __FUNCTION__);
 }

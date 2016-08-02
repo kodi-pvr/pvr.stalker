@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -22,22 +22,28 @@
  *
  */
 
-#include "p8-platform/threads/threads.h"
+#include <thread>
 
-#include "libstalkerclient/identity.h"
 #include "SAPI.h"
 
-class CWatchdog : public P8PLATFORM::CThread
-{
-public:
-  CWatchdog(uint32_t iInterval, SC::SAPI *api);
-  ~CWatchdog(void);
-  
-  virtual void SetData(void *data);
-private:
-  virtual void *Process(void);
-  
-  uint32_t      m_iInterval;
-  SC::SAPI      *m_api;
-  void          *m_data;
-};
+namespace SC {
+    class CWatchdog {
+    public:
+        CWatchdog(unsigned int interval, SAPI *api, std::function<void(SError)> errorCallback);
+
+        virtual ~CWatchdog();
+
+        virtual void Start();
+
+        virtual void Stop();
+
+    private:
+        void Process();
+
+        unsigned int m_interval;
+        SAPI *m_api;
+        std::function<void(SError)> m_errorCallback;
+        bool m_threadActive;
+        std::thread m_thread;
+    };
+}

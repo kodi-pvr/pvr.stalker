@@ -27,6 +27,8 @@
 
 #include "SData.h"
 
+#define PORTAL_SUFFIX_FORMAT "%s_%d"
+
 #define GET_SETTING_STR(name, tmp, store, def) \
   if (!XBMC->GetSetting(name, tmp)) \
     store = def; \
@@ -37,12 +39,12 @@
   if (!XBMC->GetSetting(name, &store)) \
     store = def;
 
-#define GET_SETTING_STR2(setting, name, tmp, store, def) \
-  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, g_iActivePortal); \
+#define GET_SETTING_STR2(setting, name, portal, tmp, store, def) \
+  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
   GET_SETTING_STR(setting, tmp, store, def);
 
-#define GET_SETTING_INT2(setting, name, store, def) \
-  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, g_iActivePortal); \
+#define GET_SETTING_INT2(setting, name, portal, store, def) \
+  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
   GET_SETTING_INT(setting, store, def);
 
 using namespace ADDON;
@@ -52,29 +54,6 @@ SData         *m_data     = NULL;
 
 std::string g_strUserPath     = "";
 std::string g_strClientPath   = "";
-
-/* User adjustable settings are saved here.
-* Default values are defined inside client.h
-* and exported to the other source files.
-*/
-int         g_iActivePortal;
-std::string g_strMac;
-std::string g_strServer;
-std::string g_strTimeZone;
-std::string g_strLogin;
-std::string g_strPassword;
-int         g_iConnectionTimeout;
-int         g_iGuidePreference;
-bool        g_bGuideCache;
-int         g_iGuideCacheHours;
-int         g_iXmltvScope;
-std::string g_strXmltvUrl;
-std::string g_strXmltvPath;
-std::string g_strToken;
-std::string g_strSerialNumber;
-std::string g_strDeviceId;
-std::string g_strDeviceId2;
-std::string g_strSignature;
 
 CHelper_libXBMC_addon *XBMC = NULL;
 CHelper_libXBMC_pvr   *PVR  = NULL;
@@ -116,50 +95,57 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
 #endif
   }
 
+  int portal;
   char buffer[1024];
   char setting[256];
-  
-  GET_SETTING_INT("active_portal", g_iActivePortal, DEFAULT_ACTIVE_PORTAL);
-  GET_SETTING_INT("connection_timeout", g_iConnectionTimeout, DEFAULT_CONNECTION_TIMEOUT);
+  int enumTemp;
+
+  GET_SETTING_INT("active_portal", m_data->settings.activePortal, SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
+  GET_SETTING_INT("connection_timeout", m_data->settings.connectionTimeout, SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
   // calc based on index (5 second steps)
-  g_iConnectionTimeout *= 5;
-  
-  GET_SETTING_STR2(setting, "mac", buffer, g_strMac, DEFAULT_MAC);
-  GET_SETTING_STR2(setting, "server", buffer, g_strServer, DEFAULT_SERVER);
-  GET_SETTING_STR2(setting, "time_zone", buffer, g_strTimeZone, DEFAULT_TIME_ZONE);
-  GET_SETTING_STR2(setting, "login", buffer, g_strLogin, DEFAULT_LOGIN);
-  GET_SETTING_STR2(setting, "password", buffer, g_strPassword, DEFAULT_PASSWORD);
-  GET_SETTING_INT2(setting, "guide_preference", g_iGuidePreference, DEFAULT_GUIDE_PREFERENCE);
-  GET_SETTING_INT2(setting, "guide_cache", g_bGuideCache, DEFAULT_GUIDE_CACHE);
-  GET_SETTING_INT2(setting, "guide_cache_hours", g_iGuideCacheHours, DEFAULT_GUIDE_CACHE_HOURS);
-  GET_SETTING_INT2(setting, "xmltv_scope", g_iXmltvScope, DEFAULT_XMLTV_SCOPE);
-  GET_SETTING_STR2(setting, "xmltv_url", buffer, g_strXmltvUrl, DEFAULT_XMLTV_URL);
-  GET_SETTING_STR2(setting, "xmltv_path", buffer, g_strXmltvPath, DEFAULT_XMLTV_PATH);
-  GET_SETTING_STR2(setting, "token", buffer, g_strToken, DEFAULT_TOKEN);
-  GET_SETTING_STR2(setting, "serial_number", buffer, g_strSerialNumber, DEFAULT_SERIAL_NUMBER);
-  GET_SETTING_STR2(setting, "device_id", buffer, g_strDeviceId, DEFAULT_DEVICE_ID);
-  GET_SETTING_STR2(setting, "device_id2", buffer, g_strDeviceId2, DEFAULT_DEVICE_ID2);
-  GET_SETTING_STR2(setting, "signature", buffer, g_strSignature, DEFAULT_SIGNATURE);
-  
-  XBMC->Log(LOG_DEBUG, "active_portal=%d", g_iActivePortal);
-  XBMC->Log(LOG_DEBUG, "connection_timeout=%d", g_iConnectionTimeout);
-  
-  XBMC->Log(LOG_DEBUG, "mac=%s", g_strMac.c_str());
-  XBMC->Log(LOG_DEBUG, "server=%s", g_strServer.c_str());
-  XBMC->Log(LOG_DEBUG, "time_zone=%s", g_strTimeZone.c_str());
-  XBMC->Log(LOG_DEBUG, "login=%s", g_strLogin.c_str());
-  XBMC->Log(LOG_DEBUG, "password=%s", g_strPassword.c_str());
-  XBMC->Log(LOG_DEBUG, "guide_preference=%d", g_iGuidePreference);
-  XBMC->Log(LOG_DEBUG, "guide_cache=%d", g_bGuideCache);
-  XBMC->Log(LOG_DEBUG, "guide_cache_hours=%d", g_iGuideCacheHours);
-  XBMC->Log(LOG_DEBUG, "xmltv_scope=%d", g_iXmltvScope);
-  XBMC->Log(LOG_DEBUG, "xmltv_url=%s", g_strXmltvUrl.c_str());
-  XBMC->Log(LOG_DEBUG, "xmltv_path=%s", g_strXmltvPath.c_str());
-  XBMC->Log(LOG_DEBUG, "token=%s", g_strToken.c_str());
-  XBMC->Log(LOG_DEBUG, "serial_number=%s", g_strSerialNumber.c_str());
-  XBMC->Log(LOG_DEBUG, "device_id=%s", g_strDeviceId.c_str());
-  XBMC->Log(LOG_DEBUG, "device_id2=%s", g_strDeviceId2.c_str());
-  XBMC->Log(LOG_DEBUG, "signature=%s", g_strSignature.c_str());
+  m_data->settings.connectionTimeout *= 5;
+
+  portal = m_data->settings.activePortal;
+  GET_SETTING_STR2(setting, "mac", portal, buffer, m_data->settings.mac, SC_SETTINGS_DEFAULT_MAC);
+  GET_SETTING_STR2(setting, "server", portal, buffer, m_data->settings.server, SC_SETTINGS_DEFAULT_SERVER);
+  GET_SETTING_STR2(setting, "time_zone", portal, buffer, m_data->settings.timeZone, SC_SETTINGS_DEFAULT_TIME_ZONE);
+  GET_SETTING_STR2(setting, "login", portal, buffer, m_data->settings.login, SC_SETTINGS_DEFAULT_LOGIN);
+  GET_SETTING_STR2(setting, "password", portal, buffer, m_data->settings.password, SC_SETTINGS_DEFAULT_PASSWORD);
+  GET_SETTING_INT2(setting, "guide_preference", portal, enumTemp, SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE);
+  m_data->settings.guidePreference = (SC::Settings::GuidePreference) enumTemp;
+  GET_SETTING_INT2(setting, "guide_cache", portal, m_data->settings.guideCache, SC_SETTINGS_DEFAULT_GUIDE_CACHE);
+  GET_SETTING_INT2(setting, "guide_cache_hours", portal, m_data->settings.guideCacheHours, SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS);
+  GET_SETTING_INT2(setting, "xmltv_scope", portal, enumTemp, SC_SETTINGS_DEFAULT_XMLTV_SCOPE);
+  m_data->settings.xmltvScope = (HTTPSocket::Scope) enumTemp;
+  if (m_data->settings.xmltvScope == HTTPSocket::Scope::SCOPE_REMOTE) {
+    GET_SETTING_STR2(setting, "xmltv_url", portal, buffer, m_data->settings.xmltvPath, SC_SETTINGS_DEFAULT_XMLTV_URL);
+  } else {
+    GET_SETTING_STR2(setting, "xmltv_path", portal, buffer, m_data->settings.xmltvPath, SC_SETTINGS_DEFAULT_XMLTV_PATH);
+  }
+  GET_SETTING_STR2(setting, "token", portal, buffer, m_data->settings.token, SC_SETTINGS_DEFAULT_TOKEN);
+  GET_SETTING_STR2(setting, "serial_number", portal, buffer, m_data->settings.serialNumber, SC_SETTINGS_DEFAULT_SERIAL_NUMBER);
+  GET_SETTING_STR2(setting, "device_id", portal, buffer, m_data->settings.deviceId, SC_SETTINGS_DEFAULT_DEVICE_ID);
+  GET_SETTING_STR2(setting, "device_id2", portal, buffer, m_data->settings.deviceId2, SC_SETTINGS_DEFAULT_DEVICE_ID2);
+  GET_SETTING_STR2(setting, "signature", portal, buffer, m_data->settings.signature, SC_SETTINGS_DEFAULT_SIGNATURE);
+
+  XBMC->Log(LOG_DEBUG, "active_portal=%d", m_data->settings.activePortal);
+  XBMC->Log(LOG_DEBUG, "connection_timeout=%d", m_data->settings.connectionTimeout);
+
+  XBMC->Log(LOG_DEBUG, "mac=%s", m_data->settings.mac.c_str());
+  XBMC->Log(LOG_DEBUG, "server=%s", m_data->settings.server.c_str());
+  XBMC->Log(LOG_DEBUG, "timeZone=%s", m_data->settings.timeZone.c_str());
+  XBMC->Log(LOG_DEBUG, "login=%s", m_data->settings.login.c_str());
+  XBMC->Log(LOG_DEBUG, "password=%s", m_data->settings.password.c_str());
+  XBMC->Log(LOG_DEBUG, "guidePreference=%d", m_data->settings.guidePreference);
+  XBMC->Log(LOG_DEBUG, "guideCache=%d", m_data->settings.guideCache);
+  XBMC->Log(LOG_DEBUG, "guideCacheHours=%d", m_data->settings.guideCacheHours);
+  XBMC->Log(LOG_DEBUG, "xmltvScope=%d", m_data->settings.xmltvScope);
+  XBMC->Log(LOG_DEBUG, "xmltvPath=%s", m_data->settings.xmltvPath.c_str());
+  XBMC->Log(LOG_DEBUG, "token=%s", m_data->settings.token.c_str());
+  XBMC->Log(LOG_DEBUG, "serialNumber=%s", m_data->settings.serialNumber.c_str());
+  XBMC->Log(LOG_DEBUG, "deviceId=%s", m_data->settings.deviceId.c_str());
+  XBMC->Log(LOG_DEBUG, "deviceId2=%s", m_data->settings.deviceId2.c_str());
+  XBMC->Log(LOG_DEBUG, "signature=%s", m_data->settings.signature.c_str());
 
   if (!m_data->LoadData()) {
     ADDON_Destroy();
@@ -263,7 +249,7 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
   pCapabilities->bSupportsEPG           = true;
   pCapabilities->bSupportsTV            = true;
   pCapabilities->bSupportsChannelGroups = true;
-  
+
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -281,7 +267,7 @@ const char* GetBackendVersion(void)
 
 const char* GetConnectionString(void)
 {
-  static const char *strConnectionString = g_strServer.c_str();
+  static const char *strConnectionString = m_data->settings.server.c_str();
   return strConnectionString;
 }
 
