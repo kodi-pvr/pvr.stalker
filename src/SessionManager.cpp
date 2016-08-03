@@ -40,7 +40,9 @@ SessionManager::SessionManager() {
     m_api = nullptr;
     m_statusCallback = nullptr;
     m_authenticated = false;
+    m_isAuthenticating = false;
     m_watchdog = nullptr;
+    m_threadActive = false;
 }
 
 SessionManager::~SessionManager() {
@@ -55,6 +57,8 @@ SessionManager::~SessionManager() {
         m_watchdog = nullptr;
     }
     m_watchdog = nullptr;
+
+    StopAuthInvoker();
 }
 
 SError SessionManager::DoHandshake() {
@@ -157,10 +161,17 @@ SError SessionManager::Authenticate() {
     int numRetries(0);
 
     m_authMutex.lock();
+    if (m_isAuthenticating) {
+        m_authMutex.unlock();
+        return ret;
+    }
 
+    m_isAuthenticating = true;
     m_authenticated = false;
-    StopWatchdog();
     m_lastUnknownError.clear();
+    m_authMutex.unlock();
+
+    StopWatchdog();
 
     if (wasAuthenticated && m_statusCallback != nullptr)
         m_statusCallback(SERROR_AUTHORIZATION);
@@ -182,23 +193,59 @@ SError SessionManager::Authenticate() {
         if (SERROR_OK != (ret = GetProfile()))
             continue;
 
+        StartAuthInvoker();
         StartWatchdog();
+
+        m_authMutex.lock();
         m_authenticated = true;
+        m_isAuthenticating = false;
+        m_authMutex.unlock();
 
         if (wasAuthenticated && m_statusCallback != nullptr)
             m_statusCallback(SERROR_OK);
     }
 
-    m_authMutex.unlock();
-
     return ret;
+}
+
+void SessionManager::StartAuthInvoker() {
+    m_threadActive = true;
+    if (m_thread.joinable())
+        return;
+
+    m_thread = std::thread([this] {
+        unsigned int target(30000);
+        unsigned int count;
+
+        while (m_threadActive) {
+            if (!m_authenticated)
+                Authenticate();
+
+            count = 0;
+            while (count < target) {
+                usleep(100000);
+                if (!m_threadActive)
+                    break;
+                count += 100;
+            }
+        }
+    });
+}
+
+void SessionManager::StopAuthInvoker() {
+    m_threadActive = false;
+    if (m_thread.joinable())
+        m_thread.join();
 }
 
 void SessionManager::StartWatchdog() {
     if (!m_watchdog) {
         m_watchdog = new CWatchdog((unsigned int) m_profile->timeslot, m_api, [this](SError err) {
-            if (err == SERROR_AUTHORIZATION)
-                Authenticate();
+            if (err == SERROR_AUTHORIZATION) {
+                m_authMutex.lock();
+                m_authenticated = false;
+                m_authMutex.unlock();
+            }
         });
     }
 

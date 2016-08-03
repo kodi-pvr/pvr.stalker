@@ -60,7 +60,7 @@ namespace SC {
         }
 
         virtual bool IsAuthenticated() {
-            return m_authenticated;
+            return m_authenticated && !m_isAuthenticating;
         }
 
         virtual SError Authenticate();
@@ -71,6 +71,10 @@ namespace SC {
         SError DoAuth();
 
         SError GetProfile(bool authSecondStep = false);
+
+        void StartAuthInvoker();
+
+        void StopAuthInvoker();
 
         void StartWatchdog();
 
@@ -83,7 +87,10 @@ namespace SC {
         std::function<void(SError)> m_statusCallback;
         std::string m_lastUnknownError;
         bool m_authenticated;
+        bool m_isAuthenticating;
         std::mutex m_authMutex;
         CWatchdog *m_watchdog;
+        bool m_threadActive;
+        std::thread m_thread;
     };
 }
