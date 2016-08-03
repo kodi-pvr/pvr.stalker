@@ -339,16 +339,6 @@ unsigned int GetChannelSwitchDelay(void)
   return 0;
 }
 
-bool CanPauseStream(void)
-{
-  return true;
-}
-
-bool CanSeekStream(void)
-{
-  return true;
-}
-
 /** UNUSED API FUNCTIONS */
 PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook, const PVR_MENUHOOK_DATA &item) { return PVR_ERROR_NOT_IMPLEMENTED; }
@@ -393,6 +383,8 @@ void DemuxReset(void) {}
 void DemuxAbort(void) {}
 void DemuxFlush(void) {}
 DemuxPacket* DemuxRead(void) { return NULL; }
+bool CanPauseStream(void) { return false; }
+bool CanSeekStream(void) { return false; }
 void PauseStream(bool bPaused) {}
 bool SeekTime(int time, bool backwards, double *startpts) { return false; }
 void SetSpeed(int speed) {}
