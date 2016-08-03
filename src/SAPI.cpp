@@ -38,6 +38,7 @@ using namespace SC;
 
 SAPI::SAPI() {
     m_identity = nullptr;
+    m_timeout = 0;
 }
 
 SAPI::~SAPI() {

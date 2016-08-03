@@ -34,7 +34,7 @@ using namespace ADDON;
 using namespace SC;
 
 CWatchdog::CWatchdog(uint32_t interval, SAPI *api, std::function<void(SError)> errorCallback)
-        : m_interval(interval), m_api(api), m_errorCallback(errorCallback) {
+        : m_interval(interval), m_api(api), m_errorCallback(errorCallback), m_threadActive(false) {
 }
 
 CWatchdog::~CWatchdog() {

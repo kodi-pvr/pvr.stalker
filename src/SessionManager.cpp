@@ -36,6 +36,7 @@ using namespace SC;
 
 SessionManager::SessionManager() {
     m_identity = nullptr;
+    m_hasUserDefinedToken = false;
     m_profile = nullptr;
     m_api = nullptr;
     m_statusCallback = nullptr;

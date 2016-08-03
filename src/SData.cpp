@@ -51,6 +51,7 @@ SData::SData(void) : Base::Cache()
   m_bTokenManuallySet   = false;
   m_iLastEpgAccessTime  = 0;
   m_iNextEpgLoadTime    = 0;
+  m_epgThreadActive     = false;
   m_api                 = new SC::SAPI;
   m_sessionManager      = new SC::SessionManager;
   m_channelManager      = new SC::ChannelManager;
