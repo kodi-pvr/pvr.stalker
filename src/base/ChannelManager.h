@@ -38,11 +38,11 @@ namespace Base {
     public:
         typedef typename std::vector<ChannelType>::iterator ChannelIterator;
 
-        ChannelManager() { };
+        ChannelManager() { }
 
         virtual ~ChannelManager() {
             m_channels.clear();
-        };
+        }
 
         virtual ChannelIterator GetChannelIterator(unsigned int uniqueId) {
             ChannelIterator it;

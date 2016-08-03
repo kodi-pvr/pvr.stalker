@@ -182,9 +182,8 @@ bool ChannelManager::ParseChannelGroups(Json::Value &parsed) {
 std::string ChannelManager::GetStreamURL(Channel &channel) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    std::string url;
-    Json::Value parsed;
     std::string cmd;
+    Json::Value parsed;
     size_t pos;
 
     // /c/player.js#L2198
@@ -193,7 +192,7 @@ std::string ChannelManager::GetStreamURL(Channel &channel) {
 
         if (!m_api->ITVCreateLink(channel.cmd, parsed)) {
             XBMC->Log(LOG_ERROR, "%s: ITVCreateLink failed", __FUNCTION__);
-            return url;
+            return cmd;
         }
 
         cmd = ParseStreamCmd(parsed);
@@ -204,9 +203,9 @@ std::string ChannelManager::GetStreamURL(Channel &channel) {
     // cmd format
     // (?:ffrt\d*\s|)(.*)
     if ((pos = cmd.find(" ")) != std::string::npos)
-        url = cmd.substr(pos + 1);
+        cmd = cmd.substr(pos + 1);
 
-    return url;
+    return cmd;
 }
 
 std::string ChannelManager::ParseStreamCmd(Json::Value &parsed) {
