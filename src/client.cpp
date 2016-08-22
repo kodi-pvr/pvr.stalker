@@ -147,7 +147,7 @@ ADDON_STATUS ADDON_Create(void* callbacks, void* props)
   XBMC->Log(LOG_DEBUG, "deviceId2=%s", m_data->settings.deviceId2.c_str());
   XBMC->Log(LOG_DEBUG, "signature=%s", m_data->settings.signature.c_str());
 
-  if (!m_data->LoadData()) {
+  if (!m_data->ReloadSettings()) {
     ADDON_Destroy();
     m_CurStatus = ADDON_STATUS_LOST_CONNECTION;
   }
