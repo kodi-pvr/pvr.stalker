@@ -626,8 +626,8 @@ const char* SData::GetChannelStreamURL(const PVR_CHANNEL &channel)
   } else {
     // protocol options for http(s) urls only
     // <= zero disables timeout
-    if (m_PlaybackURL.find("http") == 0 && settings.connectionTimeout > 0)
-      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
+//    if (m_PlaybackURL.find("http") == 0 && settings.connectionTimeout > 0)
+//      m_PlaybackURL += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
 
     XBMC->Log(LOG_DEBUG, "%s: stream url: %s", __FUNCTION__, m_PlaybackURL.c_str());
   }
