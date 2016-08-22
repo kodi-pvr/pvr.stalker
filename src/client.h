@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -22,11 +22,11 @@
  *
  */
 
-#include "libXBMC_addon.h"
-#include "libXBMC_pvr.h"
-
-extern std::string  g_strUserPath;
-extern std::string  g_strClientPath;
+#include <libXBMC_addon.h>
+#include <libXBMC_pvr.h>
 
 extern ADDON::CHelper_libXBMC_addon *XBMC;
-extern CHelper_libXBMC_pvr          *PVR;
+extern CHelper_libXBMC_pvr *PVR;
+
+extern std::string g_strUserPath;
+extern std::string g_strClientPath;
