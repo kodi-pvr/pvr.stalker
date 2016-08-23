@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -21,26 +21,25 @@
  */
 
 #ifndef WATCHDOG_H
-#define	WATCHDOG_H
+#define WATCHDOG_H
 
 #include <stdbool.h>
 
 #include "param.h"
 #include "request.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
+bool sc_watchdog_get_events_defaults(sc_list_t *list);
 
-  bool sc_watchdog_get_events_defaults(sc_param_request_t *params);
-  bool sc_watchdog_defaults(sc_param_request_t *params);
-  bool sc_watchdog_prep_request(sc_param_request_t *params, sc_request_t *request);
+bool sc_watchdog_defaults(sc_param_params_t *params);
 
+bool sc_watchdog_prep_request(sc_param_params_t *params, sc_request_t *request);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* WATCHDOG_H */
-
+#endif /* WATCHDOG_H */

@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -22,124 +22,104 @@
 
 #include "stb.h"
 
-#include <string.h>
+bool sc_stb_handshake_defaults(sc_list_t *list) {
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("token", "", false)));
 
-bool sc_stb_handshake_defaults(sc_param_request_t *params) {
-  params->param = sc_param_create_string("token", "", false);
-  params->param->first = params->param;
-
-  return true;
+    return true;
 }
 
-bool sc_stb_get_profile_defaults(sc_param_request_t *params) {
-  sc_param_t *param;
+bool sc_stb_get_profile_defaults(sc_list_t *list) {
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("stb_type", "MAG250", true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("sn", "0000000000000", true)));
+    sc_list_node_append(list, sc_list_node_create(
+            sc_param_create_string("ver",
+                                   "ImageDescription: 0.2.16-250; "
+                                           "ImageDate: 18 Mar 2013 19:56:53 GMT+0200; "
+                                           "PORTAL version: 4.9.9; "
+                                           "API Version: JS API version: 328; "
+                                           "STB API version: 134; "
+                                           "Player Engine version: 0x566",
+                                   true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("device_id", "", false)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("device_id2", "", false)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("signature", "", false)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_boolean("not_valid_token", false, true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_boolean("auth_second_step", false, true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_boolean("hd", true, true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_integer("num_banks", 1, true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_integer("image_version", 216, true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("hw_version", "1.7-BD-00", true)));
 
-  param = sc_param_create_string("stb_type", "MAG250", true);
-
-  if (!params->param)
-    param->first = param;
-  sc_param_append(params, param);
-
-  param = sc_param_link(param, sc_param_create_string("sn", "0000000000000", true));
-  param = sc_param_link(param,
-    sc_param_create_string("ver",
-    "ImageDescription: 0.2.16-250; "
-    "ImageDate: 18 Mar 2013 19:56:53 GMT+0200; "
-    "PORTAL version: 4.9.9; "
-    "API Version: JS API version: 328; "
-    "STB API version: 134; "
-    "Player Engine version: 0x566",
-    true));
-  param = sc_param_link(param, sc_param_create_string("device_id", "", false));
-  param = sc_param_link(param, sc_param_create_string("device_id2", "", false));
-  param = sc_param_link(param, sc_param_create_string("signature", "", false));
-  param = sc_param_link(param, sc_param_create_boolean("not_valid_token", false, true));
-  param = sc_param_link(param, sc_param_create_boolean("auth_second_step", false, true));
-  param = sc_param_link(param, sc_param_create_boolean("hd", true, true));
-  param = sc_param_link(param, sc_param_create_integer("num_banks", 1, true));
-  param = sc_param_link(param, sc_param_create_integer("image_version", 216, true));
-  sc_param_link(param, sc_param_create_string("hw_version", "1.7-BD-00", true));
-
-  param = NULL;
-
-  return true;
+    return true;
 }
 
-bool sc_stb_do_auth_defaults(sc_param_request_t *params) {
-  sc_param_t *param;
+bool sc_stb_do_auth_defaults(sc_list_t *list) {
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("login", "", true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("password", "", true)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("device_id", "", false)));
+    sc_list_node_append(list, sc_list_node_create(sc_param_create_string("device_id2", "", false)));
 
-  param = sc_param_create_string("login", "", true);
-
-  if (!params->param)
-    param->first = param;
-  sc_param_append(params, param);
-
-  param = sc_param_link(param, sc_param_create_string("password", "", true));
-  param = sc_param_link(param, sc_param_create_string("device_id", "", false));
-  sc_param_link(param, sc_param_create_string("device_id2", "", false));
-
-  param = NULL;
-
-  return true;
+    return true;
 }
 
-bool sc_stb_defaults(sc_param_request_t *params) {
-  switch (params->action) {
-    case STB_HANDSHAKE:
-      return sc_stb_handshake_defaults(params);
-    case STB_GET_PROFILE:
-      return sc_stb_get_profile_defaults(params);
-    case STB_DO_AUTH:
-      return sc_stb_do_auth_defaults(params);
-  }
+bool sc_stb_defaults(sc_param_params_t *params) {
+    switch (params->action) {
+        case STB_HANDSHAKE:
+            return sc_stb_handshake_defaults(params->list);
+        case STB_GET_PROFILE:
+            return sc_stb_get_profile_defaults(params->list);
+        case STB_DO_AUTH:
+            return sc_stb_do_auth_defaults(params->list);
+        default:
+            break;
+    }
 
-  return false;
+    return false;
 }
 
-bool sc_stb_prep_request(sc_param_request_t *params, sc_request_t *request) {
-  sc_request_nameVal_t *paramPrev;
-  sc_request_nameVal_t *param;
+bool sc_stb_prep_request(sc_param_params_t *params, sc_request_t *request) {
+    sc_request_nameVal_t *paramPrev;
+    sc_request_nameVal_t *param;
 
-  paramPrev = request->params;
-  while (paramPrev && paramPrev->next)
-    paramPrev = paramPrev->next;
+    paramPrev = request->params;
+    while (paramPrev && paramPrev->next)
+        paramPrev = paramPrev->next;
 
-  param = sc_request_create_nameVal("type", "stb");
+    param = sc_request_create_nameVal("type", "stb");
 
-  if (!paramPrev) {
-    param->first = param;
-    request->params = paramPrev = param;
-  } else {
-    paramPrev = sc_request_link_nameVal(paramPrev, param);
-  }
+    if (!paramPrev) {
+        param->first = param;
+        request->params = paramPrev = param;
+    } else {
+        paramPrev = sc_request_link_nameVal(paramPrev, param);
+    }
 
-  switch (params->action) {
-    case STB_HANDSHAKE:
-      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "handshake"));
-      break;
-    case STB_GET_PROFILE:
-      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_profile"));
-      break;
-    case STB_DO_AUTH:
-      sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "do_auth"));
-      break;
-  }
+    switch (params->action) {
+        case STB_HANDSHAKE:
+            sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "handshake"));
+            break;
+        case STB_GET_PROFILE:
+            sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "get_profile"));
+            break;
+        case STB_DO_AUTH:
+            sc_request_link_nameVal(paramPrev, sc_request_create_nameVal("action", "do_auth"));
+            break;
+        default:
+            break;
+    }
 
-  request->method = "GET";
-  
-  paramPrev = NULL;
-  param = NULL;
+    request->method = "GET";
 
-  return true;
+    return true;
 }
 
 void sc_stb_profile_defaults(sc_stb_profile_t *profile) {
-  memset(profile, 0, sizeof (*profile));
+    memset(profile, 0, sizeof(*profile));
 
-  profile->store_auth_data_on_stb = false;
-  profile->status = -1;
-  SC_STR_SET(profile->msg, "");
-  SC_STR_SET(profile->block_msg, "");
-  profile->watchdog_timeout = 120;
-  profile->timeslot = 90;
+    profile->store_auth_data_on_stb = false;
+    profile->status = -1;
+    SC_STR_SET(profile->msg, "");
+    SC_STR_SET(profile->block_msg, "");
+    profile->watchdog_timeout = 120;
+    profile->timeslot = 90;
 }

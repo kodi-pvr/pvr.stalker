@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -21,17 +21,17 @@
  */
 
 #ifndef IDENTITY_H
-#define	IDENTITY_H
+#define IDENTITY_H
 
 #include <stdbool.h>
 
 #include "util.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-  typedef struct {
+typedef struct {
     char mac[SC_STR_LENGTH];
     char lang[SC_STR_LENGTH];
     char time_zone[SC_STR_LENGTH];
@@ -43,14 +43,12 @@ extern "C" {
     char device_id[SC_STR_LENGTH];
     char device_id2[SC_STR_LENGTH];
     char signature[SC_STR_LENGTH];
-  } sc_identity_t;
+} sc_identity_t;
 
-  void sc_identity_defaults(sc_identity_t *identity);
+void sc_identity_defaults(sc_identity_t *identity);
 
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* IDENTITY_H */
-
+#endif /* IDENTITY_H */

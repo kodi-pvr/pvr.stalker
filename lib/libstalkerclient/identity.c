@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -23,10 +23,10 @@
 #include "identity.h"
 
 void sc_identity_defaults(sc_identity_t *identity) {
-  memset(identity, 0, sizeof (*identity));
+    memset(identity, 0, sizeof(*identity));
 
-  SC_STR_SET(identity->mac, "00:1A:79:00:00:00");
-  SC_STR_SET(identity->lang, "en");
-  SC_STR_SET(identity->time_zone, "Europe/Kiev");
-  identity->valid_token = true;
+    SC_STR_SET(identity->mac, "00:1A:79:00:00:00");
+    SC_STR_SET(identity->lang, "en");
+    SC_STR_SET(identity->time_zone, "Europe/Kiev");
+    identity->valid_token = true;
 }

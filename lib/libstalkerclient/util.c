@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,12 +24,12 @@
 
 #include <stdlib.h>
 
-char* sc_util_strcpy(char *str) {
-  size_t len;
+char *sc_util_strcpy(char *str) {
+    size_t len;
 
-  len = strlen(str) + 1;
-  char *buffer = (char *) malloc(len * sizeof (char));
-  strcpy(buffer, str);
+    len = strlen(str) + 1;
+    char *buffer = (char *) malloc(len * sizeof(char));
+    strcpy(buffer, str);
 
-  return buffer;
+    return buffer;
 }

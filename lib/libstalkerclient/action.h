@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -21,13 +21,13 @@
  */
 
 #ifndef ACTION_H
-#define	ACTION_H
+#define ACTION_H
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-  typedef enum {
+typedef enum {
     // STB
     STB_HANDSHAKE,
     STB_GET_PROFILE,
@@ -42,12 +42,10 @@ extern "C" {
 
     // WATCHDOG
     WATCHDOG_GET_EVENTS
-  } sc_action_t;
+} sc_action_t;
 
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* ACTION_H */
-
+#endif /* ACTION_H */
