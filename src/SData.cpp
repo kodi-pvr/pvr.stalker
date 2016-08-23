@@ -232,6 +232,8 @@ bool SData::SaveCache() {
 bool SData::ReloadSettings() {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
+    SError ret;
+
     sc_identity_defaults(&m_identity);
     SC_STR_SET(m_identity.mac, settings.mac.c_str());
     SC_STR_SET(m_identity.time_zone, settings.timeZone.c_str());
@@ -270,7 +272,11 @@ bool SData::ReloadSettings() {
     m_guideManager->SetGuidePreference(settings.guidePreference);
     m_guideManager->SetCacheOptions(settings.guideCache, settings.guideCacheHours * 3600);
 
-    return true;
+    ret = Authenticate();
+    if (ret != SERROR_OK)
+        QueueErrorNotification(ret);
+
+    return ret == SERROR_OK;
 }
 
 bool SData::IsAuthenticated() {
@@ -316,9 +322,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
         m_nextEpgLoadTime = now + (settings.guideCache ? settings.guideCacheHours : 1) * 3600;
         XBMC->Log(LOG_DEBUG, "%s: m_nextEpgLoadTime=%d", __FUNCTION__, m_nextEpgLoadTime);
 
-        //TODO merge with ReloadSettings() when multiple PVR clients are properly supported
-        //TODO replace with auth check
-        if (IsAuthenticated() || SERROR_OK == Authenticate()) {
+        if (IsAuthenticated()) {
             ret = m_guideManager->LoadGuide(start, end);
             if (ret != SERROR_OK)
                 QueueErrorNotification(ret);
@@ -406,12 +410,8 @@ PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool radio) {
     if (radio)
         return PVR_ERROR_NO_ERROR;
 
-    //TODO merge with ReloadSettings() when multiple PVR clients are properly supported
-    //TODO replace with auth check
-    if (!IsAuthenticated() && SERROR_OK != (ret = Authenticate())) {
-        QueueErrorNotification(ret);
+    if (!IsAuthenticated())
         return PVR_ERROR_SERVER_ERROR;
-    }
 
     ret = m_channelManager->LoadChannelGroups();
     if (ret != SERROR_OK) {
@@ -482,12 +482,8 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio) {
     if (radio)
         return PVR_ERROR_NO_ERROR;
 
-    //TODO merge with ReloadSettings() when multiple PVR clients are properly supported
-    //TODO replace with auth check
-    if (!IsAuthenticated() && SERROR_OK != (ret = Authenticate())) {
-        QueueErrorNotification(ret);
+    if (!IsAuthenticated())
         return PVR_ERROR_SERVER_ERROR;
-    }
 
     ret = m_channelManager->LoadChannels();
     if (ret != SERROR_OK) {
@@ -519,11 +515,8 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio) {
 const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
-    //TODO merge with ReloadSettings() when multiple PVR clients are properly supported
-    //TODO replace with auth check
-    if (!IsAuthenticated() && SERROR_OK != Authenticate()) {
+    if (!IsAuthenticated())
         return "";
-    }
 
     SC::Channel *chan;
     std::string cmd;
