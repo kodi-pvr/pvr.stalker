@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -21,61 +21,61 @@
  */
 
 #ifndef PARAM_H
-#define	PARAM_H
+#define PARAM_H
 
 #include <stdbool.h>
 
 #include "action.h"
+#include "list.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
-  typedef enum {
+typedef enum {
     SC_STRING,
     SC_INTEGER,
     SC_BOOLEAN
-  } sc_param_type_t;
+} sc_param_type_t;
 
-  struct sc_param;
-
-  typedef struct sc_param {
+typedef struct sc_param {
     const char *name;
     sc_param_type_t type;
-
     union {
-      char *string;
-      int integer;
-      bool boolean;
+        char *string;
+        int integer;
+        bool boolean;
     } value;
     bool required;
-    struct sc_param *first;
-    struct sc_param *prev;
-    struct sc_param *next;
-  } sc_param_t;
+} sc_param_t;
 
-  typedef struct {
+typedef struct {
     sc_action_t action;
-    sc_param_t *param;
-  } sc_param_request_t;
+    sc_list_t *list;
+} sc_param_params_t;
 
-  sc_param_t* sc_param_create(const char *name, sc_param_type_t type, bool required);
-  sc_param_t* sc_param_create_string(const char *name, char *value, bool required);
-  sc_param_t* sc_param_create_integer(const char *name, int value, bool required);
-  sc_param_t* sc_param_create_boolean(const char *name, bool value, bool required);
-  sc_param_t* sc_param_link(sc_param_t *a, sc_param_t *b);
-  sc_param_t* sc_param_get(sc_param_request_t *params, const char *name);
-  void sc_param_destroy(sc_param_request_t *params, sc_param_t *param);
-  sc_param_t* sc_param_copy(sc_param_t *param);
-  void sc_param_append(sc_param_request_t *params, sc_param_t *param);
-  void sc_param_append(sc_param_request_t *params, sc_param_t *param);
-  void sc_param_free(sc_param_t *param);
-  void sc_param_free_params(sc_param_t *param);
+sc_param_params_t *sc_param_params_create(sc_action_t action);
 
+sc_param_t *sc_param_create(const char *name, sc_param_type_t type, bool required);
 
-#ifdef	__cplusplus
+sc_param_t *sc_param_create_string(const char *name, char *value, bool required);
+
+sc_param_t *sc_param_create_integer(const char *name, int value, bool required);
+
+sc_param_t *sc_param_create_boolean(const char *name, bool value, bool required);
+
+sc_param_t *sc_param_get(sc_param_params_t *params, const char *name);
+
+sc_param_t *sc_param_get2(sc_param_params_t *params, const char *name, sc_list_node_t **param_node);
+
+sc_param_t *sc_param_copy(sc_param_t *param);
+
+void sc_param_free(sc_param_t **param);
+
+void sc_param_params_free(sc_param_params_t **params);
+
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* PARAM_H */
-
+#endif /* PARAM_H */

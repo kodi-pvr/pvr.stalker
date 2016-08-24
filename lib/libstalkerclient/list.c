@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -91,36 +91,38 @@ sc_list_node_t *sc_list_node_unlink(sc_list_t *list, sc_list_node_t *node) {
 }
 
 void sc_list_node_free(sc_list_node_t **node, bool free_data) {
-    //  if (!*node) return;
+    if (!node) return;
+    if (*node) {
+        if (free_data && (*node)->data) {
+            free((*node)->data);
+        }
 
-    if (free_data && (*node)->data) {
-        free((*node)->data);
+        (*node)->data = NULL;
+        (*node)->prev = NULL;
+        (*node)->next = NULL;
+
+        free(*node);
     }
-
-    (*node)->data = NULL;
-    (*node)->prev = NULL;
-    (*node)->next = NULL;
-
-    free(*node);
     *node = NULL;
 }
 
 void sc_list_free(sc_list_t **list, bool free_node_data) {
-    //  if (!*list) return;
+    if (!list) return;
+    if (*list) {
+        sc_list_node_t *node;
+        sc_list_node_t *next;
 
-    sc_list_node_t *node;
-    sc_list_node_t *next;
+        node = (*list)->first;
+        while (node) {
+            next = node->next;
+            sc_list_node_free(&node, free_node_data);
+            node = next;
+        }
 
-    node = (*list)->first;
-    while (node) {
-        next = node->next;
-        sc_list_node_free(&node, free_node_data);
-        node = next;
+        (*list)->first = NULL;
+        (*list)->last = NULL;
+
+        free(*list);
     }
-
-    (*list)->first = NULL;
-    (*list)->last = NULL;
-
-    free(*list);
     *list = NULL;
 }

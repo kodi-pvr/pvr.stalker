@@ -37,8 +37,8 @@ namespace Base {
     template<class EventType>
     class GuideManager {
     public:
-        GuideManager() { };
+        GuideManager() { }
 
-        virtual ~GuideManager() { };
+        virtual ~GuideManager() { }
     };
 }

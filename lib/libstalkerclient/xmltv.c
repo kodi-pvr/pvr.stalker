@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -333,6 +333,7 @@ sc_xmltv_programme_t *sc_xmltv_parse_programme(xmlTextReaderPtr reader) {
             sc_xmltv_get_reader_property_value(reader, "start", &val);
             prog->start = sc_xmltv_to_unix_time(val);
             free(val);
+            val = NULL;
         }
         if (sc_xmltv_check_current_reader_node(reader, XML_READER_TYPE_ELEMENT, "star-rating",
                                                SC_XMLTV_PROGRAMME_DEPTH + 1)) {

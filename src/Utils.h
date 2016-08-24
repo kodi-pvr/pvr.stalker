@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -24,32 +24,31 @@
 
 #include <sstream>
 #include <string>
-#include <vector>
 
 #include <json/json.h>
 
-class Utils
-{
+class Utils {
 public:
-  static std::string GetFilePath(std::string strPath, bool bUserPath = true);
-  static std::string UrlEncode(const std::string &string);
-  static double StringToDouble(const std::string &value);
-  static int StringToInt(const std::string &value);
-  static std::string ConcatenateStringList(const std::vector<std::string> &list);
-  static int GetIntFromJsonValue(Json::Value &value, int defaultValue = 0);
-  static double GetDoubleFromJsonValue(Json::Value &value, double defaultValue = 0);
-  static bool GetBoolFromJsonValue(Json::Value &value, bool defaultValue = false);
-  static std::string DetermineLogoURI(const std::string &basePath, std::string &logo);
-  
-  template<typename T> static std::string ToString(const T &value)
-  {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-  }
-  
-  template<typename T> static void ConcatenateVectors(std::vector<T> &value1, std::vector<T> &value2)
-  {
-    value1.insert(value1.end(), value2.begin(), value2.end());
-  }
+    static std::string GetFilePath(const std::string &path, bool isUserPath = true);
+
+    static std::string UrlEncode(const std::string &string);
+
+    static double StringToDouble(const std::string &value);
+
+    static int StringToInt(const std::string &value);
+
+    static int GetIntFromJsonValue(Json::Value &value, int defaultValue = 0);
+
+    static double GetDoubleFromJsonValue(Json::Value &value, double defaultValue = 0);
+
+    static bool GetBoolFromJsonValue(Json::Value &value);
+
+    static std::string DetermineLogoURI(const std::string &basePath, const std::string &logo);
+
+    template<typename T>
+    static std::string ToString(const T &value) {
+        std::ostringstream oss;
+        oss << value;
+        return oss.str();
+    }
 };

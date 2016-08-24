@@ -31,8 +31,8 @@
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"
 #include "base/Cache.h"
-#include "client.h"
 #include "ChannelManager.h"
+#include "client.h"
 #include "CWatchdog.h"
 #include "Error.h"
 #include "GuideManager.h"
@@ -41,46 +41,52 @@
 #include "Settings.h"
 #include "XMLTV.h"
 
-class SData : Base::Cache
-{
+class SData : Base::Cache {
 public:
-  SData(void);
-  virtual ~SData(void);
-  
-  virtual bool LoadData(void);
-  virtual PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd);
-  virtual int GetChannelGroupsAmount(void);
-  virtual PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio);
-  virtual PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
-  virtual int GetChannelsAmount(void);
-  virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio);
-  virtual const char* GetChannelStreamURL(const PVR_CHANNEL &channel);
+    SData();
 
-  virtual void UnloadEPG();
+    virtual ~SData();
 
-  SC::Settings settings;
+    virtual bool ReloadSettings();
+
+    virtual PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t anEnd);
+
+    virtual int GetChannelGroupsAmount();
+
+    virtual PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool radio);
+
+    virtual PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
+
+    virtual int GetChannelsAmount();
+
+    virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool radio);
+
+    virtual const char *GetChannelStreamURL(const PVR_CHANNEL &channel);
+
+    SC::Settings settings;
 protected:
-  virtual bool LoadCache();
-  virtual bool SaveCache();
-  virtual SError InitAPI();
-  virtual bool IsInitialized();
-  virtual SError Initialize();
+    virtual bool LoadCache();
 
-  virtual void QueueErrorNotification(SError error);
+    virtual bool SaveCache();
+
+    virtual bool IsAuthenticated();
+
+    virtual SError Authenticate();
+
+    virtual void QueueErrorNotification(SError error);
+
 private:
-  bool                        m_bInitedApi;
-  bool                        m_bTokenManuallySet;
-  time_t                      m_iLastEpgAccessTime;
-  time_t                      m_iNextEpgLoadTime;
-  
-  sc_identity_t               m_identity;
-  sc_stb_profile_t            m_profile;
-  std::string                 m_PlaybackURL;
-  P8PLATFORM::CMutex            m_epgMutex;
-  bool                          m_epgThreadActive;
-  std::thread                   m_epgThread;
-  SC::SAPI                      *m_api;
-  SC::SessionManager            *m_sessionManager;
-  SC::ChannelManager            *m_channelManager;
-  SC::GuideManager              *m_guideManager;
+    bool m_tokenManuallySet;
+    time_t m_lastEpgAccessTime;
+    time_t m_nextEpgLoadTime;
+    sc_identity_t m_identity;
+    sc_stb_profile_t m_profile;
+    bool m_epgThreadActive;
+    std::thread m_epgThread;
+    P8PLATFORM::CMutex m_epgMutex;
+    SC::SAPI *m_api;
+    SC::SessionManager *m_sessionManager;
+    SC::ChannelManager *m_channelManager;
+    SC::GuideManager *m_guideManager;
+    std::string m_currentPlaybackUrl;
 };

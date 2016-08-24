@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -71,7 +71,7 @@ namespace SC {
         virtual SError WatchdogGetEvents(int curPlayType, int eventActiveId, Json::Value &parsed);
 
     protected:
-        virtual SError StalkerCall(sc_param_request_t &params, Json::Value &parsed, const std::string &cacheFile = "",
+        virtual SError StalkerCall(sc_param_params_t *params, Json::Value &parsed, const std::string &cacheFile = "",
                                    unsigned int cacheExpiry = 0);
 
     private:

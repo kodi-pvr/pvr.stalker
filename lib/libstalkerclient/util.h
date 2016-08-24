@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  */
 
 #ifndef UTIL_H
-#define	UTIL_H
+#define UTIL_H
 
 #include <string.h>
 
@@ -30,17 +30,14 @@
 #define SC_STR_SET(dst, src) \
   strncpy(dst, src, sizeof(dst) - 1);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
+char *sc_util_strcpy(char *str);
 
-  char* sc_util_strcpy(char *str);
-
-
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* UTIL_H */
-
+#endif /* UTIL_H */

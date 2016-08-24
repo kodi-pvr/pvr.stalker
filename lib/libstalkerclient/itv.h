@@ -1,5 +1,5 @@
 /*
- *      Copyright (C) 2015  Jamal Edey
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
  */
 
 #ifndef ITV_H
-#define	ITV_H
+#define ITV_H
 
 #include <stdbool.h>
 
@@ -34,23 +34,26 @@
 #define SC_ITV_LOGO_PATH_240 SC_ITV_LOGO_PATH "240/"
 #define SC_ITV_LOGO_PATH_320 SC_ITV_LOGO_PATH "320/"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
+bool sc_itv_get_all_channels_defaults(sc_list_t *list);
 
-  bool sc_itv_get_all_channels_defaults(sc_param_request_t *params);
-  bool sc_itv_get_ordered_list_defaults(sc_param_request_t *params);
-  bool sc_itv_create_link_defaults(sc_param_request_t *params);
-  bool sc_itv_get_genres_defaults(sc_param_request_t *params);
-  bool sc_itv_get_epg_info_defaults(sc_param_request_t *params);
-  bool sc_itv_defaults(sc_param_request_t *params);
-  bool sc_itv_prep_request(sc_param_request_t *params, sc_request_t *request);
+bool sc_itv_get_ordered_list_defaults(sc_list_t *list);
 
+bool sc_itv_create_link_defaults(sc_list_t *list);
 
-#ifdef	__cplusplus
+bool sc_itv_get_genres_defaults(sc_list_t *list);
+
+bool sc_itv_get_epg_info_defaults(sc_list_t *list);
+
+bool sc_itv_defaults(sc_param_params_t *params);
+
+bool sc_itv_prep_request(sc_param_params_t *params, sc_request_t *request);
+
+#ifdef __cplusplus
 }
 #endif
 
-#endif	/* ITV_H */
-
+#endif /* ITV_H */
