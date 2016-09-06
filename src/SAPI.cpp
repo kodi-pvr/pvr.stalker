@@ -92,6 +92,7 @@ bool SAPI::STBHandshake(Json::Value &parsed) {
     params = sc_param_params_create(STB_HANDSHAKE);
     if (!sc_stb_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -117,6 +118,7 @@ bool SAPI::STBGetProfile(bool authSecondStep, Json::Value &parsed) {
     params = sc_param_params_create(STB_GET_PROFILE);
     if (!sc_stb_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -163,6 +165,7 @@ bool SAPI::STBDoAuth(Json::Value &parsed) {
     params = sc_param_params_create(STB_DO_AUTH);
     if (!sc_stb_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -202,6 +205,7 @@ bool SAPI::ITVGetAllChannels(Json::Value &parsed) {
     params = sc_param_params_create(ITV_GET_ALL_CHANNELS);
     if (!sc_itv_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -222,6 +226,7 @@ bool SAPI::ITVGetOrderedList(int genre, int page, Json::Value &parsed) {
     params = sc_param_params_create(ITV_GET_ORDERED_LIST);
     if (!sc_itv_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -251,6 +256,7 @@ bool SAPI::ITVCreateLink(std::string &cmd, Json::Value &parsed) {
     params = sc_param_params_create(ITV_CREATE_LINK);
     if (!sc_itv_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -275,6 +281,7 @@ bool SAPI::ITVGetGenres(Json::Value &parsed) {
     params = sc_param_params_create(ITV_GET_GENRES);
     if (!sc_itv_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -295,6 +302,7 @@ bool SAPI::ITVGetEPGInfo(int period, Json::Value &parsed, const std::string &cac
     params = sc_param_params_create(ITV_GET_EPG_INFO);
     if (!sc_itv_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return false;
     }
 
@@ -319,6 +327,7 @@ SError SAPI::WatchdogGetEvents(int curPlayType, int eventActiveId, Json::Value &
     params = sc_param_params_create(WATCHDOG_GET_EVENTS);
     if (!sc_watchdog_defaults(params)) {
         XBMC->Log(LOG_ERROR, "%s: sc_watchdog_defaults failed", __FUNCTION__);
+        sc_param_params_free(&params);
         return SERROR_API;
     }
 
