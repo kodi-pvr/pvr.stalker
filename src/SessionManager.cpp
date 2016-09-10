@@ -156,23 +156,20 @@ SError SessionManager::GetProfile(bool authSecondStep) {
 }
 
 SError SessionManager::Authenticate() {
-    SError ret(SERROR_OK);
     bool wasAuthenticated(m_authenticated);
     int maxRetires(5);
     int numRetries(0);
 
-    m_authMutex.lock();
-    if (m_isAuthenticating) {
-        m_authMutex.unlock();
-        return ret;
-    }
+    if (m_isAuthenticating)
+        return SERROR_OK;
 
+    StopWatchdog();
+
+    m_authMutex.lock();
     m_isAuthenticating = true;
     m_authenticated = false;
     m_lastUnknownError.clear();
     m_authMutex.unlock();
-
-    StopWatchdog();
 
     if (wasAuthenticated && m_statusCallback != nullptr)
         m_statusCallback(SERROR_AUTHORIZATION);
@@ -188,14 +185,11 @@ SError SessionManager::Authenticate() {
         if (numRetries > 1)
             usleep(5000000);
 
-        if (!m_hasUserDefinedToken && SERROR_OK != (ret = DoHandshake()))
+        if (!m_hasUserDefinedToken && SERROR_OK != DoHandshake())
             continue;
 
-        if (SERROR_OK != (ret = GetProfile()))
+        if (SERROR_OK != GetProfile())
             continue;
-
-        StartAuthInvoker();
-        StartWatchdog();
 
         m_authMutex.lock();
         m_authenticated = true;
@@ -206,7 +200,12 @@ SError SessionManager::Authenticate() {
             m_statusCallback(SERROR_OK);
     }
 
-    return ret;
+    if (m_authenticated) {
+        StartAuthInvoker();
+        StartWatchdog();
+    }
+
+    return SERROR_OK;
 }
 
 void SessionManager::StartAuthInvoker() {
