@@ -371,7 +371,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
             unsigned int count;
 
             while (m_epgThreadActive) {
-                XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+                XBMC->Log(LOG_DEBUG, "epgThread");
 
                 time_t now;
 
