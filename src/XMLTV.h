@@ -1,8 +1,7 @@
 #pragma once
 
 /*
- *      Copyright (C) 2015  Jamal Edey
- *      http://www.kenshisoft.com/
+ *      Copyright (C) 2015, 2016  Jamal Edey
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
