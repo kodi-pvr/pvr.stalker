@@ -527,6 +527,8 @@ const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
         return "";
     }
 
+    XBMC->Log(LOG_DEBUG, "%s: cmd=%s", __FUNCTION__, chan->cmd.c_str());
+
     if (chan->cmd.find("matrix") != std::string::npos) {
         // non-standard call to server
         XBMC->Log(LOG_DEBUG, "%s: getting matrix stream url", __FUNCTION__);
