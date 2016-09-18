@@ -1,5 +1,12 @@
+2.8.0 (18-09-2016)
+- regression fixes
+- moved authentication to startup. first set of attempts must succeed for add-on to load
+- disabled protocol options for stream urls
+- return false for stream pause and seek
+
 2.7.1 (20-08-2016)
 - updated language files from Transifex
+
 2.7.0 (22-07-2016)
 - revision
 
