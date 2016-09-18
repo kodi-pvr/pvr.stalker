@@ -1,6 +1,5 @@
 /*
  *      Copyright (C) 2015, 2016  Jamal Edey
- *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -372,7 +371,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
             unsigned int count;
 
             while (m_epgThreadActive) {
-                XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+                XBMC->Log(LOG_DEBUG, "epgThread");
 
                 time_t now;
 
@@ -527,6 +526,8 @@ const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
         XBMC->Log(LOG_ERROR, "%s: channel not found", __FUNCTION__);
         return "";
     }
+
+    XBMC->Log(LOG_DEBUG, "%s: cmd=%s", __FUNCTION__, chan->cmd.c_str());
 
     if (chan->cmd.find("matrix") != std::string::npos) {
         // non-standard call to server

@@ -1,6 +1,5 @@
 /*
  *      Copyright (C) 2016  Jamal Edey
- *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
@@ -117,40 +116,48 @@ int GuideManager::AddEvents(int type, std::vector<Event> &events, Channel &chann
     int addedEvents(0);
 
     if (type == 0) {
-        std::string channelId;
+        try {
+            std::string channelId;
 
-        channelId = Utils::ToString(channel.channelId);
-        if (!m_epgData.isMember("js") || !m_epgData["js"].isMember("data") ||
-            !m_epgData["js"]["data"].isMember(channelId)) {
-            return addedEvents;
+            channelId = Utils::ToString(channel.channelId);
+            if (!m_epgData.isMember("js") || !m_epgData["js"].isObject() || !m_epgData["js"].isMember("data") ||
+                !m_epgData["js"]["data"].isMember(channelId)) {
+                return addedEvents;
+            }
+
+            Json::Value value;
+            time_t startTimestamp;
+            time_t stopTimestamp;
+
+            value = m_epgData["js"]["data"][channelId];
+            if (!value.isObject() && !value.isArray())
+                return addedEvents;
+
+            for (Json::Value::iterator it = value.begin(); it != value.end(); ++it) {
+                try {
+                    startTimestamp = Utils::GetIntFromJsonValue((*it)["start_timestamp"]);
+                    stopTimestamp = Utils::GetIntFromJsonValue((*it)["stop_timestamp"]);
+
+                    if (start != 0 && end != 0 && !(startTimestamp >= start && stopTimestamp <= end))
+                        continue;
+
+                    Event e;
+                    e.uniqueBroadcastId = Utils::GetIntFromJsonValue((*it)["id"]);
+                    e.title = (*it)["name"].asCString();
+                    e.channelNumber = channel.number;
+                    e.startTime = startTimestamp;
+                    e.endTime = stopTimestamp;
+                    e.plot = (*it)["descr"].asCString();
+
+                    events.push_back(e);
+                    addedEvents++;
+                } catch (const std::exception &ex) {
+                    XBMC->Log(LOG_DEBUG, "%s: epg event excep. what=%s", __FUNCTION__, ex.what());
+                }
+            }
+        } catch (const std::exception &ex) {
+            XBMC->Log(LOG_ERROR, "%s: epg data excep. what=%s", __FUNCTION__, ex.what());
         }
-
-        Json::Value value;
-        time_t startTimestamp;
-        time_t stopTimestamp;
-
-        value = m_epgData["js"]["data"][channelId];
-        if (!value.isObject() && !value.isArray())
-            return addedEvents;
-
-        for (Json::Value::iterator it = value.begin(); it != value.end(); ++it) {
-            startTimestamp = Utils::GetIntFromJsonValue((*it)["start_timestamp"]);
-            stopTimestamp = Utils::GetIntFromJsonValue((*it)["stop_timestamp"]);
-
-            if (start != 0 && end != 0 && !(startTimestamp >= start && stopTimestamp <= end))
-                continue;
-
-            Event e;
-            e.uniqueBroadcastId = Utils::GetIntFromJsonValue((*it)["id"]);
-            e.title = (*it)["name"].asCString();
-            e.channelNumber = channel.number;
-            e.startTime = startTimestamp;
-            e.endTime = stopTimestamp;
-            e.plot = (*it)["descr"].asCString();
-
-            events.push_back(e);
-            addedEvents++;
-        };
     }
 
     if (type == 1) {
@@ -190,7 +197,7 @@ int GuideManager::AddEvents(int type, std::vector<Event> &events, Channel &chann
 
                 events.push_back(e);
                 addedEvents++;
-            };
+            }
         }
     }
 

@@ -2,7 +2,6 @@
 
 /*
  *      Copyright (C) 2015, 2016  Jamal Edey
- *      http://www.kenshisoft.com/
  *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU General Public License
