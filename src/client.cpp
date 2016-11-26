@@ -355,7 +355,7 @@ DemuxPacket *DemuxRead(void) { return NULL; }
 bool CanPauseStream(void) { return false; }
 bool CanSeekStream(void) { return false; }
 void PauseStream(bool bPaused) { }
-bool SeekTime(int time, bool backwards, double *startpts) { return false; }
+bool SeekTime(double time, bool backwards, double *startpts) { return false; }
 void SetSpeed(int speed) { }
 bool IsTimeshifting(void) { return false; }
 bool IsRealTimeStream(void) { return true; }
