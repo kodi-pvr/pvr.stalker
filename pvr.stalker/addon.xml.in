@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="2.8.1"
+  version="2.8.2"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>
@@ -24,7 +24,7 @@
     <summary lang="en_US">PVR Client to connect Kodi to Stalker Middleware</summary>
     <summary lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</summary>
     <summary lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</summary>
-    <summary lang="fi_FI">PVR-asiakas, joka kytkee Kodin Stalker Middlewareen</summary>
+    <summary lang="fi_FI">Kodin Stalker Middleware -asiakasohjelma</summary>
     <summary lang="fr_CA">Client de numériscope pour connecter Kodi à l'intergiciel Stalker</summary>
     <summary lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l'intergiciel Stalker</summary>
     <summary lang="gl_ES">Cliente PVR para conectar Kodi a un Stalker Middleware</summary>
@@ -50,8 +50,11 @@
     <summary lang="sr_RS">PVR Клијент за повезивање Kodi са Stalker Middleware</summary>
     <summary lang="sr_RS@latin">PVR Klijent za povezivanje Kodi sa Stalker Middleware</summary>
     <summary lang="sv_SE">PVR-klient för anslutning av Kodi till Stalker Middleware</summary>
+    <summary lang="szl">Klijynt telewizyje dlŏ platformy Stalker Middleware</summary>
+    <summary lang="tr_TR">PVR İstemcisi Kodi'yi Stalker Middleware'e bağlar</summary>
     <summary lang="vi_VN">Trình PVR để kết nối Kodi với Stalker Middleware</summary>
     <summary lang="zh_CN">Kodi 连接 Stalker Middleware 的 PVR 客户端</summary>
+    <summary lang="zh_TW">連接至 Stalker Middleware 的Kodi PVR用戶端</summary>
     <description lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</description>
     <description lang="bg_BG">ПВР клиент за свързване на Kodi със Stalker Middleware</description>
     <description lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</description>
@@ -64,7 +67,7 @@
     <description lang="en_US">PVR Client to connect Kodi to Stalker Middleware</description>
     <description lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</description>
     <description lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</description>
-    <description lang="fi_FI">PVR-asiakas, joka kytkee Kodin Stalker Middlewareen</description>
+    <description lang="fi_FI">PVR-asiakasohjelma, joka kytkeytyy Stalker Middlewareen</description>
     <description lang="fr_CA">Client de numériscope pour connecter Kodi à l'intergiciel Stalker</description>
     <description lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l'intergiciel Stalker</description>
     <description lang="gl_ES">Cliente PVR que conecta Kodi a un Stalker Middleware</description>
@@ -90,8 +93,11 @@
     <description lang="sr_RS">PVR Клијент за повезивање Kodi са Stalker Middleware</description>
     <description lang="sr_RS@latin">PVR Klijent za povezivanje Kodi sa Stalker Middleware</description>
     <description lang="sv_SE">PVR-klient för anslutning av Kodi till Stalker Middleware</description>
+    <description lang="szl">Klijynt telewizyje dlŏ platformy Stalker Middleware</description>
+    <description lang="tr_TR">PVR İstemcisi Kodi'yi Stalker Middleware'e bağlar</description>
     <description lang="vi_VN">Trình PVR để kết nối Kodi với Stalker Middleware</description>
     <description lang="zh_CN">Kodi 连接 Stalker Middleware 的 PVR 客户端</description>
+    <description lang="zh_TW">連接至 Stalker Middleware 的Kodi PVR用戶端</description>
     <disclaimer lang="af_ZA">Hierdie is onstabiele sagteware! Die outeurs is op geen manier verantwoordelik vir gefaalde opnames, inkorrekte tydhouers, gemorsde ure, of enige ander ongewensde effekte.</disclaimer>
     <disclaimer lang="be_BY">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects..</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляно време и други нежелани ефекти.</disclaimer>
@@ -109,7 +115,7 @@
     <disclaimer lang="es_ES">¡Este es un software inestable! Los autores no son de ninguna manera responsables de las grabaciones fallidas o incorrectas, las temporizadores perdidas, ni otros efectos no deseables..</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son de ninguna manera responsables por grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado...</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, ebaõige aegrelee, raisatud tundide ega muude soovimatute asjade eest.</disclaimer>
-    <disclaimer lang="fi_FI">Tämä on epävakaa ohjelmisto! Tekijät eivät ole millään muotoa vastuussa epäonnistuneista tallennuksista, virheellisistä ajastuksia, haaskatusta ajasta, verenpaineen noususta tai mistään muusta epäsuotuisasta vaikutuksesta.</disclaimer>
+    <disclaimer lang="fi_FI">Tämä on epävakaa ohjelma! Sen tekijät eivät ole millään muotoa vastuussa epäonnistuneista tallennuksista, virheellisistä ajastuksista, haaskatusta ajasta, verenpaineen noususta tai mistään muusta epäsuotuisasta vaikutuksesta.</disclaimer>
     <disclaimer lang="fr_CA">Ce logiciel est instable! Les auteurs ne sont aucunement responsables des enregistrements défaillants, des minuteries erronées, des heures perdues ou tout autre effet indésirable.</disclaimer>
     <disclaimer lang="fr_FR">Logiciel en cours d'élaboration ! Les auteurs ne sont en aucun cas responsables de l'échec des enregistrements, programmations défectueuses, temps perdu ou autres effets indésirables.</disclaimer>
     <disclaimer lang="gl_ES">Software non estable, os autores non se fan responsábeis dos erros na gravacións, temporizadores incorrectos, e outros efectos non desexados.</disclaimer>

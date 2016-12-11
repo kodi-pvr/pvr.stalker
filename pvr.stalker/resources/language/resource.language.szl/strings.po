@@ -16,6 +16,174 @@ msgstr ""
 "Language: szl\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "Bazowŏ"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "Aktywny portal"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "Roztōmajte"
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Limit czŏsu skuplowaniŏ (sekundy)"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "Adresa MAC"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "Adresa ôd serwera"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "Cōuna czasowŏ"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "Slygalizowanie"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "Logowanie"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Hasło"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Program"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "Preferyncyje"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "Preferuj liferanta"
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr "Preferuj XMLTV"
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "Ino ôd liferanta"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "Ino ze XMLTV"
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Buforuj daty EPG"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Czŏs życiŏ bufōra (godziny)"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr "Zakres"
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr "Adresa URL"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "Lokalnŏ cesta"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Zaawansowane"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "Tokyn"
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr "Numer seryjny"
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr "ID ôd masziny"
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr "Idyntyfikatōr masziny 2"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "Szkryfka"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Niyznōmy feler. Wejzdrzij do dziynnika, coby doczytać wiyncyj."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Niypodarzōne sztartniyńcie."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Niypodarzōne skuplowanie ze serwerym."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Niypodarzōne slygalizowanie. Prōbowanie zaś."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Niy szło zaladować kanałōw."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Niy szło zaladować skupin kanałōw."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Niy szło zaladować EPG."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Niy szło zaladować adresy ôd szpricy"
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Lygalizacyjŏ stracōnŏ. Lygalizowanie zaś."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Slygalizowane"
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "Portal 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "Portal 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "Portal 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "Portal 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "Portal 5"

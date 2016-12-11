@@ -20,9 +20,33 @@ msgctxt "#30000"
 msgid "General"
 msgstr "一般設定"
 
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "運作中的接入口"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "雜項"
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "連接逾時 (秒)"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC 位址"
+
 msgctxt "#30102"
 msgid "Server Address"
-msgstr "伺服器地址"
+msgstr "伺服器位址"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "時區"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "授權證書"
 
 msgctxt "#30105"
 msgid "Login"
@@ -36,6 +60,130 @@ msgctxt "#30107"
 msgid "Guide"
 msgstr "節目表"
 
+msgctxt "#30108"
+msgid "Preference"
+msgstr "偏好設定"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "優先選用的提供者"
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr "XMLTV優先"
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "僅限提供者"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "僅限XMLTV"
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "快取節目表資料"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "快取更新時間 (時)"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr "概觀"
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr "遠端位址"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "本地路徑"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "進階"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "標記"
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr "序號"
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr "設備ID"
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr "設備ID2"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "簽名"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "未知錯誤。相關細節請檢視log檔。"
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "啟動失敗。"
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "無法連接到伺服器。"
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "取得授權失敗。重試中。"
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "無法讀取頻道。"
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "無法讀取頻道群組。"
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "無法讀取節目表。"
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "無法取得串流位址。"
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "授權遺失。重新取得授權中。"
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "已重取授權。"
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "接入口 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "接入口 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "接入口 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "接入口 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "接入口 5"

@@ -158,7 +158,7 @@ msgstr "Nieudane wczytywanie danych przewodnika."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Nieudane pobieranie adresu URL strumienia."
+msgstr "Nieudane pobieranie adresu URL transmisji."
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."
