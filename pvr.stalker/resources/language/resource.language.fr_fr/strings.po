@@ -118,11 +118,11 @@ msgstr "Numéro de série"
 
 msgctxt "#30122"
 msgid "Device ID"
-msgstr "ID de périphérique"
+msgstr "ID de dispositif"
 
 msgctxt "#30123"
 msgid "Device ID2"
-msgstr "ID2 de périphérique"
+msgstr "ID2 de dispositif"
 
 msgctxt "#30124"
 msgid "Signature"

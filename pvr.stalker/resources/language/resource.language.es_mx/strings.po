@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "Misc"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Tiempo de espera de la conexión (segundos)"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "Dirección MAC"
@@ -76,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Solo XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Datos de la guía de caché"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Tiempo de caché (horas)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -115,6 +127,46 @@ msgstr "ID2 de dispositivo"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "Firma"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Error desconocido. Vea el registro para más detalles."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "El inicio falló."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Error al conectar con el servidor."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Error de autenticación. Reintentando."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "No se pueden cargar los canales."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "No se pueden cargar grupos de canales."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "No se puede cargar la guía."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "No se pudo obtener la URL de transmisión."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Autorización perdida. Re-autenticando."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Re-autenticado."
 
 msgctxt "#31000"
 msgid "Portal 1"

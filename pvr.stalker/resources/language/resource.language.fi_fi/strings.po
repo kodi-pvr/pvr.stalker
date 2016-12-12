@@ -22,7 +22,7 @@ msgstr "Yleiset"
 
 msgctxt "#30001"
 msgid "Active Portal"
-msgstr "Aktiivinen portaali"
+msgstr "Portaalien määrä"
 
 msgctxt "#30002"
 msgid "Misc"
@@ -50,7 +50,7 @@ msgstr "Todennustiedot"
 
 msgctxt "#30105"
 msgid "Login"
-msgstr "Kirjaudu"
+msgstr "Käyttäjätunnus"
 
 msgctxt "#30106"
 msgid "Password"
@@ -62,7 +62,7 @@ msgstr "Ohjelmaopas"
 
 msgctxt "#30108"
 msgid "Preference"
-msgstr "Asetukset"
+msgstr "Oletusasetus"
 
 msgctxt "#30109"
 msgid "Prefer Provider"
@@ -94,11 +94,11 @@ msgstr "XMLTV"
 
 msgctxt "#30116"
 msgid "Scope"
-msgstr "Laajuus"
+msgstr "Sijainti"
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Etäpalvelimen URL"
+msgstr "URL-osoite"
 
 msgctxt "#30118"
 msgid "Local Path"
@@ -118,11 +118,11 @@ msgstr "Sarjanumero"
 
 msgctxt "#30122"
 msgid "Device ID"
-msgstr "Laite ID"
+msgstr "Laitetunnus"
 
 msgctxt "#30123"
 msgid "Device ID2"
-msgstr "Laite ID2"
+msgstr "Laitetunnus 2"
 
 msgctxt "#30124"
 msgid "Signature"

@@ -26,7 +26,11 @@ msgstr "Portal Actiu"
 
 msgctxt "#30002"
 msgid "Misc"
-msgstr "Uns altres"
+msgstr "Altres"
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Temps d'expiració de la connexió (segons)"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -66,7 +70,7 @@ msgstr "Proveïdor preferit"
 
 msgctxt "#30110"
 msgid "Prefer XMLTV"
-msgstr "XMLTV preferit"
+msgstr "Prefereix XMLTV"
 
 msgctxt "#30111"
 msgid "Provider Only"
@@ -90,7 +94,7 @@ msgstr "URL remot"
 
 msgctxt "#30118"
 msgid "Local Path"
-msgstr "Ruta local"
+msgstr "Camí local"
 
 msgctxt "#30119"
 msgid "Advanced"
@@ -115,6 +119,26 @@ msgstr "Identificador de dispositiu2"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "Signatura"
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "No s'ha pogut connectar al servidor."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "No s'han pogut carregar els canals."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "No s'han pogut carregar els grups dels canals."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "No s'ha pogut carregar la guia."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "No s'ha pogut obtenir l'URL de la transmissió."
 
 msgctxt "#31000"
 msgid "Portal 1"
