@@ -50,7 +50,7 @@ msgstr "Credencials d'usuari"
 
 msgctxt "#30105"
 msgid "Login"
-msgstr "Inici de sessió"
+msgstr "Autenticació"
 
 msgctxt "#30106"
 msgid "Password"
