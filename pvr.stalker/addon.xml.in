@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="2.8.3"
+  version="2.8.4"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>
@@ -15,7 +15,7 @@
     <summary lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</summary>
     <summary lang="bg_BG">ПВР клиент за свързване на Kodi с Stalker Middleware</summary>
     <summary lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</summary>
-    <summary lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</summary>
+    <summary lang="cs_CZ">Klient PVR pro připojení Kodi k Stalker Middleware</summary>
     <summary lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</summary>
     <summary lang="de_DE">PVR Client um Kodi mit Stalker Middleware zu verbinden</summary>
     <summary lang="el_GR">ΠελάτηςPVR για σύνδεση του Kodi με τοStalker Middleware</summary>
@@ -38,7 +38,7 @@
     <summary lang="lt_LT">PVR klientas Kodi sujungimui su Stalker Middleware</summary>
     <summary lang="lv_LV">PVR klients, lai pieslēgtu Kodi pie Stalker Middleware</summary>
     <summary lang="ms_MY">Klien PVR untuk sambungkan Kodi dengan Stalker Middleware</summary>
-    <summary lang="nb_NO">PVR Klient for å koble Kodi til Stalker Mellomvare</summary>
+    <summary lang="nb_NO">PVR-klient for å koble Kodi til Stalker Mellomvare</summary>
     <summary lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</summary>
     <summary lang="pl_PL">Klient telewizji dla platformy Stalker Middleware</summary>
     <summary lang="pt_BR">Cliente PVR para conectar Kodi para o Middleware Stalker</summary>
@@ -58,7 +58,7 @@
     <description lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</description>
     <description lang="bg_BG">ПВР клиент за свързване на Kodi със Stalker Middleware</description>
     <description lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</description>
-    <description lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</description>
+    <description lang="cs_CZ">Klient PVR pro připojení Kodi k Stalker Middleware</description>
     <description lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</description>
     <description lang="de_DE">PVR Client um Kodi mit Stalker Middleware zu verbinden</description>
     <description lang="el_GR">Πελάτης PVR για σύνδεση του Kodi με το Stalker Middleware</description>
@@ -81,7 +81,7 @@
     <description lang="lt_LT">PVR klientas Kodi sujungimui su Stalker Middleware</description>
     <description lang="lv_LV">PVR klients, lai pieslēgtu Kodi pie Stalker Middleware</description>
     <description lang="ms_MY">Klien PVR untuk sambungkan Kodi dengan Stalker Middleware</description>
-    <description lang="nb_NO">PVR Klient for å koble Kodi til Stalker Mellomvare</description>
+    <description lang="nb_NO">PVR Klient for å koble Kodi til Stalker-mellomvare</description>
     <description lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</description>
     <description lang="pl_PL">Klient telewizji dla platformy Stalker Middleware</description>
     <description lang="pt_BR">Cliente PVR para conectar Kodi para o Middleware Stalker</description>
@@ -102,7 +102,7 @@
     <disclaimer lang="be_BY">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects..</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляно време и други нежелани ефекти.</disclaimer>
     <disclaimer lang="ca_ES">Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualssevol altres efectes no desitjats..</disclaimer>
-    <disclaimer lang="cs_CZ">Tento software není stabilní. Autoři nejsou žádným způsobem zodpovědní za selhání při nahrávání, neplatné časovače, ztracený čas, či jakékoliv jiné nežádoucí události...</disclaimer>
+    <disclaimer lang="cs_CZ">Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky...</disclaimer>
     <disclaimer lang="cy_GB">Mae hwn yn feddalwedd ansad! Nid yw'r awduron yn gyfrifol mewn unrhyw ffordd am fethu recordio, amseru gwallus, oriau wedi eu gwastraffu nac effeithiau anymunol eraill.</disclaimer>
     <disclaimer lang="da_DK">Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser..</disclaimer>
     <disclaimer lang="de_DE">Dies ist instabile Software! Die Autoren sind in keiner Weise verantwortlich für fehlgeschlagene Aufnahmen, falsche Timer, verschwendete Zeit oder andere ungewünschte Effekte.</disclaimer>

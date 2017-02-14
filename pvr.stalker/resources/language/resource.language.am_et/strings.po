@@ -24,6 +24,18 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "የተለያዩ "
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "ግንኙነት ጊዜው አልፏል (ሰከንዶች)"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC አድራሻ"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "የ ሰርቨር አድራሻ "
+
 msgctxt "#30103"
 msgid "Time Zone"
 msgstr "የ ሰአት ክልል"
@@ -52,6 +64,10 @@ msgctxt "#30111"
 msgid "Provider Only"
 msgstr "አቅራቢ ብቻ"
 
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "XMLTV ብቻ"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "የረቀቀ"
@@ -59,6 +75,38 @@ msgstr "የረቀቀ"
 msgctxt "#30124"
 msgid "Signature"
 msgstr "ፊርማ "
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "ወደ ሰርቨር መገናኘት አልተቻለም"
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "ማረጋገጫ ወድቋል: እንደገና በ መሞከር ላይ"
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "ጣቢያዎች መጫን አልተቻለም"
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "የ ጣቢያዎች ቡድን መጫን አልተቻለም"
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "መምሪያውን መጫን አልተቻለም"
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "የ ማስተላለፊያ URL. ማግኘት አልተቻለም"
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "ፍቃዱ ጠፍቷል እንደገና-በ ማረጋገጥ ላይ"
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "እንደገና-ማረጋገጫ"
 
 msgctxt "#31000"
 msgid "Portal 1"

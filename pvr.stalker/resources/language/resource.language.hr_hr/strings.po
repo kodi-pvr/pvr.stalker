@@ -26,7 +26,7 @@ msgstr "Aktivni portal"
 
 msgctxt "#30002"
 msgid "Misc"
-msgstr "Razno"
+msgstr "Ostalo"
 
 msgctxt "#30003"
 msgid "Connection Timeout (seconds)"
@@ -98,7 +98,7 @@ msgstr "Područje"
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Ukloni URL"
+msgstr "Udaljeni URL"
 
 msgctxt "#30118"
 msgid "Local Path"
@@ -158,7 +158,7 @@ msgstr "Nemoguće učitavanje EPG vodiča."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Neuspješno dobivanje URL streama."
+msgstr "Neuspješno dobavljanje URL streama."
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."
