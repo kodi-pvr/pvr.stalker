@@ -47,6 +47,23 @@ set(STALKER_SOURCES
         ${BASE_SOURCES}
         ${SOURCES})
 
+set(STALKER_HEADERS
+        src/ChannelManager.h
+        src/client.h
+        src/CWatchdog.h
+        src/Error.h
+        src/GuideManager.h
+        src/HTTPSocket.h
+        src/SAPI.h
+        src/SData.h
+        src/SessionManager.h
+        src/Settings.h
+        src/Utils.h
+        src/XMLTV.h
+        src/base/Cache.h
+        src/base/ChannelManager.h
+        src/base/GuideManager.h)
+
 build_addon(pvr.stalker STALKER DEPLIBS)
 
 include(CPack)
