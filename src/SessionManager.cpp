@@ -25,6 +25,7 @@
 #include "Utils.h"
 
 #if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
 #define usleep(usec) Sleep((DWORD)(usec)/1000)
 #else
 #include <unistd.h>
