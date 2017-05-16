@@ -29,6 +29,10 @@
 #include "client.h"
 #include "Utils.h"
 
+#ifdef TARGET_WINDOWS
+#include <windows.h>
+#endif
+
 using namespace ADDON;
 
 XMLTV::XMLTV() {
