@@ -158,9 +158,6 @@ ADDON_STATUS ADDON_Create(void *callbacks, void *props) {
     return m_currentStatus;
 }
 
-void ADDON_Stop() {
-}
-
 void ADDON_Destroy() {
     XBMC->Log(LOG_DEBUG, "%s: Destroying the Stalker Client PVR Add-on", __FUNCTION__);
 
