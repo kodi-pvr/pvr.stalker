@@ -16,6 +16,22 @@ msgstr ""
 "Language: be_BY\n"
 "Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "Login"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Password"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Guide"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Advanced"
