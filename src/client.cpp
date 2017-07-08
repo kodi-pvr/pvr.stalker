@@ -196,6 +196,10 @@ PVR_ERROR GetAddonCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities) {
     pCapabilities->bSupportsEPG = true;
     pCapabilities->bSupportsTV = true;
     pCapabilities->bSupportsChannelGroups = true;
+    pCapabilities->bSupportsRecordings = false;
+    pCapabilities->bSupportsRecordingsRename = false;
+    pCapabilities->bSupportsRecordingsLifetimeChange = false;
+    pCapabilities->bSupportsDescrambleInfo = false;
 
     return PVR_ERROR_NO_ERROR;
 }
@@ -331,5 +335,6 @@ time_t GetPlayingTime() { return 0; }
 time_t GetBufferTimeStart() { return 0; }
 time_t GetBufferTimeEnd() { return 0; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 
 }
