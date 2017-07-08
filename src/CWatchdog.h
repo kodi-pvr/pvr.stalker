@@ -22,6 +22,7 @@
  */
 
 #include <thread>
+#include <functional>
 
 #include "SAPI.h"
 
