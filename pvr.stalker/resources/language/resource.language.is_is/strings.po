@@ -80,6 +80,14 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Aðeins XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Setja dagskrárgögn í skyndiminni"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Tímabil í skyndiminni (klukkutímar)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
@@ -110,35 +118,55 @@ msgstr "Raðnúmer"
 
 msgctxt "#30122"
 msgid "Device ID"
-msgstr "Kennitala tækis"
+msgstr "Auðkenni tækis"
 
 msgctxt "#30123"
 msgid "Device ID2"
-msgstr "Kenni 2 tækis"
+msgstr "Auðkenni tækis 2"
 
 msgctxt "#30124"
 msgid "Signature"
-msgstr "Undirskrift"
+msgstr "Undirritun"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Óþekkt villa. Athugaðu atburðaskrá."
+msgstr "Óþekkt villa. Athugaðu atvikaskrá."
 
 msgctxt "#30502"
 msgid "Startup failed."
-msgstr "Mistókst að ræsa."
+msgstr "Ræsingn mistókst."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
 msgstr "Mistókst að tengjast þjóni."
 
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Auðkenning mistókst. Reyni aftur."
+
 msgctxt "#30505"
 msgid "Unable to load channels."
 msgstr "Mistókst að sækja rásir."
 
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Mistókst að sækja rásahópa."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Mistókst að sækja dagskrá."
+
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Mistókst að streyma URL."
+msgstr "Mistókst að streyma URL-slóð."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Heimild tapaðist, Endur-auðkenni."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Endur-auðkenndi."
 
 msgctxt "#31000"
 msgid "Portal 1"

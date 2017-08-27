@@ -130,7 +130,7 @@ msgstr "Signatur"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Oväntat fel. Kolla loggarna för detaljer."
+msgstr "Okänt fel. Se loggen för detaljer."
 
 msgctxt "#30502"
 msgid "Startup failed."

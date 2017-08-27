@@ -28,6 +28,10 @@ msgctxt "#30002"
 msgid "Misc"
 msgstr "Разни"
 
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "Време на изчакване при свързване (секунди)"
+
 msgctxt "#30101"
 msgid "MAC Address"
 msgstr "MAC адрес"

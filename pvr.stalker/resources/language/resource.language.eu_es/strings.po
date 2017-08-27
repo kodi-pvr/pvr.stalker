@@ -16,6 +16,14 @@ msgstr ""
 "Language: eu_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "Zerbitzariaren helbidea"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "Hasi saioa"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Aurreratua"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="3.1.0"
+  version="3.1.1"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>@ADDON_DEPENDS@</requires>
@@ -12,7 +12,7 @@
     <summary lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</summary>
     <summary lang="bg_BG">ПВР клиент за свързване на Kodi с Stalker Middleware</summary>
     <summary lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</summary>
-    <summary lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</summary>
+    <summary lang="cs_CZ">Klient PVR pro připojení Kodi k Stalker Middleware</summary>
     <summary lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</summary>
     <summary lang="de_DE">PVR Client um Kodi mit Stalker Middleware zu verbinden</summary>
     <summary lang="el_GR">ΠελάτηςPVR για σύνδεση του Kodi με τοStalker Middleware</summary>
@@ -21,6 +21,7 @@
     <summary lang="en_US">PVR Client to connect Kodi to Stalker Middleware</summary>
     <summary lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</summary>
     <summary lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</summary>
+    <summary lang="et_EE">PVR'i klient ühendamaks Kodi Stalker Middleware'ga</summary>
     <summary lang="fi_FI">Kodin Stalker Middleware -asiakasohjelma</summary>
     <summary lang="fr_CA">Client de numériscope pour connecter Kodi à l'intergiciel Stalker</summary>
     <summary lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l'intergiciel Stalker</summary>
@@ -35,7 +36,7 @@
     <summary lang="lt_LT">PVR klientas Kodi sujungimui su Stalker Middleware</summary>
     <summary lang="lv_LV">PVR klients, lai pieslēgtu Kodi pie Stalker Middleware</summary>
     <summary lang="ms_MY">Klien PVR untuk sambungkan Kodi dengan Stalker Middleware</summary>
-    <summary lang="nb_NO">PVR Klient for å koble Kodi til Stalker Mellomvare</summary>
+    <summary lang="nb_NO">PVR-klient for å koble Kodi til Stalker Mellomvare</summary>
     <summary lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</summary>
     <summary lang="pl_PL">Klient telewizji dla platformy Stalker Middleware</summary>
     <summary lang="pt_BR">Cliente PVR para conectar Kodi para o Middleware Stalker</summary>
@@ -55,7 +56,7 @@
     <description lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</description>
     <description lang="bg_BG">ПВР клиент за свързване на Kodi със Stalker Middleware</description>
     <description lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</description>
-    <description lang="cs_CZ">PVR klient pro připojení Kodi k Stalker Middleware</description>
+    <description lang="cs_CZ">Klient PVR pro připojení Kodi k Stalker Middleware</description>
     <description lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</description>
     <description lang="de_DE">PVR Client um Kodi mit Stalker Middleware zu verbinden</description>
     <description lang="el_GR">Πελάτης PVR για σύνδεση του Kodi με το Stalker Middleware</description>
@@ -64,6 +65,7 @@
     <description lang="en_US">PVR Client to connect Kodi to Stalker Middleware</description>
     <description lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</description>
     <description lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</description>
+    <description lang="et_EE">PVR'i klient ühendamaks Kodi Stalker Middleware'ga</description>
     <description lang="fi_FI">PVR-asiakasohjelma, joka kytkeytyy Stalker Middlewareen</description>
     <description lang="fr_CA">Client de numériscope pour connecter Kodi à l'intergiciel Stalker</description>
     <description lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l'intergiciel Stalker</description>
@@ -78,7 +80,7 @@
     <description lang="lt_LT">PVR klientas Kodi sujungimui su Stalker Middleware</description>
     <description lang="lv_LV">PVR klients, lai pieslēgtu Kodi pie Stalker Middleware</description>
     <description lang="ms_MY">Klien PVR untuk sambungkan Kodi dengan Stalker Middleware</description>
-    <description lang="nb_NO">PVR Klient for å koble Kodi til Stalker Mellomvare</description>
+    <description lang="nb_NO">PVR Klient for å koble Kodi til Stalker-mellomvare</description>
     <description lang="nl_NL">PVR-cliënt verbindt Kodi met Stalker Middleware</description>
     <description lang="pl_PL">Klient telewizji dla platformy Stalker Middleware</description>
     <description lang="pt_BR">Cliente PVR para conectar Kodi para o Middleware Stalker</description>
@@ -99,7 +101,7 @@
     <disclaimer lang="be_BY">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects..</disclaimer>
     <disclaimer lang="bg_BG">Тази програма е нестабилна! Авторите не носят отговорност за неуспешно записване, некоректни броячи, пропиляно време и други нежелани ефекти.</disclaimer>
     <disclaimer lang="ca_ES">Això és programari inestable! Els autors no són de cap manera responsables dels enregistraments que han fallat, temporitzadors incorrectes, hores perdudes, o qualssevol altres efectes no desitjats..</disclaimer>
-    <disclaimer lang="cs_CZ">Tento software není stabilní. Autoři nejsou žádným způsobem zodpovědní za selhání při nahrávání, neplatné časovače, ztracený čas, či jakékoliv jiné nežádoucí události...</disclaimer>
+    <disclaimer lang="cs_CZ">Tento software není stabilní! Autoři nejsou žádným způsobem zodpovědní za neúspěšná nahrávání, chybné časovače, ztracený čas nebo jakékoliv jiné nežádoucí výsledky...</disclaimer>
     <disclaimer lang="cy_GB">Mae hwn yn feddalwedd ansad! Nid yw'r awduron yn gyfrifol mewn unrhyw ffordd am fethu recordio, amseru gwallus, oriau wedi eu gwastraffu nac effeithiau anymunol eraill.</disclaimer>
     <disclaimer lang="da_DK">Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser..</disclaimer>
     <disclaimer lang="de_DE">Dies ist instabile Software! Die Autoren sind in keiner Weise verantwortlich für fehlgeschlagene Aufnahmen, falsche Timer, verschwendete Zeit oder andere ungewünschte Effekte.</disclaimer>
@@ -112,6 +114,7 @@
     <disclaimer lang="es_ES">¡Este es un software inestable! Los autores no son de ninguna manera responsables de las grabaciones fallidas o incorrectas, las temporizadores perdidas, ni otros efectos no deseables..</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son de ninguna manera responsables por grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado...</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, ebaõige aegrelee, raisatud tundide ega muude soovimatute asjade eest.</disclaimer>
+    <disclaimer lang="eu_ES">Software hau beta bertsioan dago! Egilea ez da arduratzen grabaketa erroretaz, kronometro erroreak, hordu galduak edo beste edozein ondorio ezerosotaz</disclaimer>
     <disclaimer lang="fi_FI">Tämä on epävakaa ohjelma! Sen tekijät eivät ole millään muotoa vastuussa epäonnistuneista tallennuksista, virheellisistä ajastuksista, haaskatusta ajasta, verenpaineen noususta tai mistään muusta epäsuotuisasta vaikutuksesta.</disclaimer>
     <disclaimer lang="fr_CA">Ce logiciel est instable! Les auteurs ne sont aucunement responsables des enregistrements défaillants, des minuteries erronées, des heures perdues ou tout autre effet indésirable.</disclaimer>
     <disclaimer lang="fr_FR">Logiciel en cours d'élaboration ! Les auteurs ne sont en aucun cas responsables de l'échec des enregistrements, programmations défectueuses, temps perdu ou autres effets indésirables.</disclaimer>
@@ -131,7 +134,7 @@
     <disclaimer lang="mn_MN">Тус програм нь гүйцэд хийгдэж дуусаагүй! Зохиогч нь алдаатай бичлэг, цагийн буруу хөтлөлт, алдагдсан цаг хугацаа эсвэл бусад ямар нэгэн хүсээгүй үр дүнд хариуцлага хүлээхгүй.</disclaimer>
     <disclaimer lang="ms_MY">Ini merupakan perisian tidak stabil! Pengarang tidak bertanggungjawab atas kegagalan rakaman, pemasa tidak betul, masa yang dibazirkan, atau apa jua kesan yang tidak dikehendaki..</disclaimer>
     <disclaimer lang="mt_MT">Dan il-programm mhuwiex stabbli! L-Awturi m'humiex responsabbli bl-ebda mod għal rekordings li ma jirnexxewx, arloġġi żbaljati, siegħat moħlija, jew kwalunkwe effett ieħor mhux mixtieq.</disclaimer>
-    <disclaimer lang="nb_NO">Dette er ustabil programvare! Skaperen har ikke på noen måte ansvar for feilede opptak, feile timere, bortkastede timer, eller andre uønskede effekter..</disclaimer>
+    <disclaimer lang="nb_NO">Dette er ustabil programvare! Skaperen har ikke på noen måte ansvar for feilede opptak, uriktige tidsur, bortkastede timer, eller andre uønskede effekter..</disclaimer>
     <disclaimer lang="nl_NL">Dit is instabiele software! De makers zijn op geen enkele wijze verantwoordelijk voor foutieve opnames, incorrecte timers, verloren uren, of andere ongewenste bijverschijnselen.</disclaimer>
     <disclaimer lang="pl_PL">Oprogramowanie nadal jest w fazie rozwoju i jest niestabilne! Autorzy w żaden sposób nie są odpowiedzialni za nieudane nagrania, błędy w harmonogramie nagrań, zmarnowany czas ani jakiekolwiek inne niepożądane efekty.</disclaimer>
     <disclaimer lang="pt_BR">Este é um software instável! Os autores não são responsáveis por falhas nas gravações, agendamentos incorretos, horas dispendidas, ou quaisquer outros efeitos indesejáveis</disclaimer>
@@ -144,7 +147,7 @@
     <disclaimer lang="sq_AL">Ky program nuk është ende stabël! Autorët e këtij programi nuk janë në as një menyr përgjegjës për rregistrime të gabuara, timer të pasaktë, kohë të humbur ose efekte të tilla të padëshirueshme.</disclaimer>
     <disclaimer lang="sr_RS">Овај софтвер је нестабилан! Аутори ни на који начин нису одговорни за неуспела снимања, неисправне тајмере, изгубљене сате, или било које друге нежељене ефекте.</disclaimer>
     <disclaimer lang="sr_RS@latin">Ovaj softver je nestabilan! Autori ni na koji način nisu odgovorni za neuspela snimanja, neispravne tajmere, izgubljene sate, ili bilo koje druge neželjene efekte.</disclaimer>
-    <disclaimer lang="sv_SE">Detta är ostabil mjukvara! Upphovsmännen är inte ansvariga för misslyckade inspelningar, inkorrekta timers, bortslösade timmar, eller några andra oönskade effekter..</disclaimer>
+    <disclaimer lang="sv_SE">Detta är instabil mjukvara! Upphovsmännen är inte ansvariga för misslyckade inspelningar, inkorrekta timers, bortslösade timmar, eller några andra oönskade effekter..</disclaimer>
     <disclaimer lang="szl">To je niystabilny softwer! Autōry niy sōm ôdpedzialne za niypodarzōne graniy, niynŏleżne godziny EPG, stracōne godziny i inksze niychciane efekty.</disclaimer>
     <disclaimer lang="te_IN">ఇది అస్థిర సాఫ్ట్వేర్! విఫలమైన రికార్డింగ్లు, తప్పు టైమర్లు, వృధా గంటల, లేదా ఏ ఇతర అవాంఛనీయ ప్రభావాలకు ఏ విధంగా రచయితలు భాద్యుతులు కారు.</disclaimer>
     <disclaimer lang="tg_TJ">Ин нармафзори ноустувор аст! Муаллифон барои вайрониҳои сабт, вақтсанҷҳои нодуруст, соатҳои бефоида ва дигар таъсирҳои номатлуб ҷавобгар намебошанд.</disclaimer>

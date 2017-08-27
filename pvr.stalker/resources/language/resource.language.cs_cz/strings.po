@@ -18,11 +18,11 @@ msgstr ""
 
 msgctxt "#30000"
 msgid "General"
-msgstr "Hlavní"
+msgstr "Obecné"
 
 msgctxt "#30001"
 msgid "Active Portal"
-msgstr "Activní portál"
+msgstr "Aktivní portál"
 
 msgctxt "#30002"
 msgid "Misc"
@@ -30,11 +30,11 @@ msgstr "Různé"
 
 msgctxt "#30003"
 msgid "Connection Timeout (seconds)"
-msgstr "Časový limit spojení (v sekundách)"
+msgstr "Časový limit spojení (sekundy)"
 
 msgctxt "#30101"
 msgid "MAC Address"
-msgstr "MAC Adresa"
+msgstr "Adresa MAC"
 
 msgctxt "#30102"
 msgid "Server Address"
@@ -58,19 +58,19 @@ msgstr "Heslo"
 
 msgctxt "#30107"
 msgid "Guide"
-msgstr "Průvodce"
+msgstr "Program"
 
 msgctxt "#30108"
 msgid "Preference"
-msgstr "Nastavení"
+msgstr "Předvolby"
 
 msgctxt "#30109"
 msgid "Prefer Provider"
-msgstr "Preferovaný poskytovatel"
+msgstr "Upřednostňovat poskytovatele"
 
 msgctxt "#30110"
 msgid "Prefer XMLTV"
-msgstr "Preferovaná XMLTV"
+msgstr "Upřednostňovat XMLTV"
 
 msgctxt "#30111"
 msgid "Provider Only"
@@ -82,11 +82,11 @@ msgstr "Pouze XMLTV"
 
 msgctxt "#30113"
 msgid "Cache Guide Data"
-msgstr "Uložit tel. program do mezipaměti."
+msgstr "Ukládat data programu do mezipaměti"
 
 msgctxt "#30114"
 msgid "Cache Time (hours)"
-msgstr "Doba uložení mezipaměti (v hodinách)"
+msgstr "Doba ukládání do mezipaměti (hodiny)"
 
 msgctxt "#30115"
 msgid "XMLTV"
@@ -98,7 +98,7 @@ msgstr "Rozsah"
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Vzdálená adresa"
+msgstr "Vzdálená URL"
 
 msgctxt "#30118"
 msgid "Local Path"
@@ -106,7 +106,7 @@ msgstr "Místní cesta"
 
 msgctxt "#30119"
 msgid "Advanced"
-msgstr "Pokročilé"
+msgstr "Rozšířené"
 
 msgctxt "#30120"
 msgid "Token"
@@ -130,19 +130,19 @@ msgstr "Podpis"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Neznámá chyba. Zkontrolujte log pro více informací."
+msgstr "Neznámá chyba. Zkontrolujte protokol pro podrobnosti."
 
 msgctxt "#30502"
 msgid "Startup failed."
-msgstr "Spuštění selhalo"
+msgstr "Spuštění selhalo."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
-msgstr "Selhalo připojení k serveru."
+msgstr "Nepodařilo se připojit k serveru."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
-msgstr "Selhala autentifikace. Zkouším znovu."
+msgstr "Ověření selhalo. Opakování."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
@@ -158,15 +158,15 @@ msgstr "Nelze načíst program."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Nelze načíst URL streamu."
+msgstr "Nelze získat URL datového proudu."
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."
-msgstr "Autorizace ztracena. Znovu autorizuji."
+msgstr "Ověření ztraceno. Nové ověřování."
 
 msgctxt "#30510"
 msgid "Re-authenticated."
-msgstr "Znovu autorizováno."
+msgstr "Znovu ověřeno."
 
 msgctxt "#31000"
 msgid "Portal 1"

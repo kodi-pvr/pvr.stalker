@@ -50,7 +50,7 @@ msgstr "Credencials d'usuari"
 
 msgctxt "#30105"
 msgid "Login"
-msgstr "Inici de sessió"
+msgstr "Autenticació"
 
 msgctxt "#30106"
 msgid "Password"
@@ -120,9 +120,21 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Signatura"
 
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Error desconegut. Vegeu el registre per als detalls."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Ha fallat l'inici."
+
 msgctxt "#30503"
 msgid "Failed to connect to server."
 msgstr "No s'ha pogut connectar al servidor."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Ha fallat l'autenticació. Es torna a intentar."
 
 msgctxt "#30505"
 msgid "Unable to load channels."

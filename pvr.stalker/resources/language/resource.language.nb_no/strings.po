@@ -30,7 +30,7 @@ msgstr "Diverse"
 
 msgctxt "#30003"
 msgid "Connection Timeout (seconds)"
-msgstr "Tilkobling Tidsavbrukk (sekunder)"
+msgstr "Tilkoblingstidsavbrudd (sekunder)"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -82,11 +82,11 @@ msgstr "Kun XMLTV"
 
 msgctxt "#30113"
 msgid "Cache Guide Data"
-msgstr "Lagret Guide Data"
+msgstr "Lagret dataguide"
 
 msgctxt "#30114"
 msgid "Cache Time (hours)"
-msgstr "Lagret Tid (timer)"
+msgstr "Lagret tid (timer)"
 
 msgctxt "#30115"
 msgid "XMLTV"
@@ -134,7 +134,7 @@ msgstr "Ukjent feil. Sjekk logg for detaljer."
 
 msgctxt "#30502"
 msgid "Startup failed."
-msgstr "Oppstart feilet."
+msgstr "Oppstart mislyktes."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
@@ -146,11 +146,11 @@ msgstr "Autentisering feilet. Prøver igjen."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
-msgstr "Kunne i hente kanaler."
+msgstr "Kunne ikke hente kanaler."
 
 msgctxt "#30506"
 msgid "Unable to load channel groups."
-msgstr "Kunne ikke hente kanal grupper."
+msgstr "Kunne ikke hente kanalgrupper."
 
 msgctxt "#30507"
 msgid "Unable to load guide."
@@ -158,11 +158,11 @@ msgstr "Kunne ikke hente guide."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Kunne ikke hente strøm URL."
+msgstr "Kunne ikke hente strømmens nettadresse."
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."
-msgstr "Autentisering tapt. Autentisering på nytt."
+msgstr "Autentisering tapt. Autentiserer på nytt."
 
 msgctxt "#30510"
 msgid "Re-authenticated."
