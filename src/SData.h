@@ -62,6 +62,8 @@ public:
 
     virtual const char *GetChannelStreamURL(const PVR_CHANNEL &channel);
 
+    virtual PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
+
     SC::Settings settings;
 protected:
     virtual bool LoadCache();

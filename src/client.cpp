@@ -274,8 +274,11 @@ const char *GetLiveStreamURL(const PVR_CHANNEL &channel) {
     return url;
 }
 
-unsigned int GetChannelSwitchDelay(void) {
-    return 0;
+PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount) {
+  if (!m_data)
+    return PVR_ERROR_SERVER_ERROR;
+
+  return m_data->GetChannelStreamProperties(channel, properties, iPropertiesCount);
 }
 
 /** UNUSED API FUNCTIONS */
@@ -311,12 +314,12 @@ int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
 long long PositionLiveStream(void) { return -1; }
 long long LengthLiveStream(void) { return -1; }
-bool SwitchChannel(const PVR_CHANNEL &channel) { return false; }
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES *pProperties) { return PVR_ERROR_NOT_IMPLEMENTED; }
 bool OpenRecordedStream(const PVR_RECORDING &recording) { return false; }
 void CloseRecordedStream(void) { }
 int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1; }
+PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
 long long PositionRecordedStream(void) { return -1; }
 long long LengthRecordedStream(void) { return -1; }
@@ -337,5 +340,8 @@ time_t GetBufferTimeEnd() { return 0; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-
+PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR IsEPGTagPlayable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR IsEPGTagRecordable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+PVR_ERROR GetEPGTagStreamProperties(const EPG_TAG*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 }
