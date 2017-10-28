@@ -341,7 +341,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channe
 
         tag.iUniqueBroadcastId = event->uniqueBroadcastId;
         tag.strTitle = event->title.c_str();
-        tag.iChannelNumber = event->channelNumber;
+        tag.iUniqueChannelId = chan->uniqueId;
         tag.startTime = event->startTime;
         tag.endTime = event->endTime;
         tag.strPlot = event->plot.c_str();
@@ -501,7 +501,6 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio) {
         tag.bIsRadio = false;
         tag.iChannelNumber = channel->number;
         strncpy(tag.strChannelName, channel->name.c_str(), sizeof(tag.strChannelName) - 1);
-        strncpy(tag.strStreamURL, channel->streamUrl.c_str(), sizeof(tag.strStreamURL) - 1);
         strncpy(tag.strIconPath, channel->iconPath.c_str(), sizeof(tag.strIconPath) - 1);
         tag.bIsHidden = false;
 
@@ -509,6 +508,29 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio) {
     }
 
     return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
+{
+  std::string strUrl;
+  std::vector<SC::Channel> channels;
+  channels = m_channelManager->GetChannels();
+  for (const auto& stalkerChannel : channels)
+  {
+    if (stalkerChannel.uniqueId == channel->iUniqueId)
+    {
+      strUrl = stalkerChannel.streamUrl;
+    }
+  }
+  if (strUrl.empty()) {
+    return PVR_ERROR_FAILED;
+  }
+  strncpy(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL, sizeof(properties[0].strName));
+  strncpy(properties[0].strValue, strUrl.c_str(), sizeof(properties[0].strValue));
+
+  *iPropertiesCount = 1;
+
+  return PVR_ERROR_NO_ERROR;
 }
 
 const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
