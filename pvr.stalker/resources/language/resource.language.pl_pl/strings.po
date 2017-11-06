@@ -130,7 +130,7 @@ msgstr "Sygnatura"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Nieznany błąd. Sprawdź szczegóły w pliku dziennika diagnostycznego."
+msgstr "Nieznany błąd. Sprawdź szczegóły w pliku dziennika zdarzeń."
 
 msgctxt "#30502"
 msgid "Startup failed."
@@ -146,11 +146,11 @@ msgstr "Nieudane uwierzytelnienie. Ponawianie próby."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
-msgstr "Niedane wczytanie listy kanałów."
+msgstr "Niedane wczytywanie listy kanałów."
 
 msgctxt "#30506"
 msgid "Unable to load channel groups."
-msgstr "Nieudane wczytanie grup kanałów."
+msgstr "Nieudane wczytywanie grup kanałów."
 
 msgctxt "#30507"
 msgid "Unable to load guide."
