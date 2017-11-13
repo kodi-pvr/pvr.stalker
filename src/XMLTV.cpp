@@ -31,6 +31,9 @@
 
 #ifdef TARGET_WINDOWS
 #include <windows.h>
+#ifdef DeleteFile
+#undef DeleteFile
+#endif
 #endif
 
 using namespace ADDON;
@@ -67,11 +70,7 @@ bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string &path) {
         XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __FUNCTION__);
 
     if ((!xmltv_channels || !m_useCache) && XBMC->FileExists(m_cacheFile.c_str(), false)) {
-#ifdef TARGET_WINDOWS
-        DeleteFile(response.url.c_str());
-#else
         XBMC->DeleteFile(response.url.c_str());
-#endif
     }
 
     if (!xmltv_channels)

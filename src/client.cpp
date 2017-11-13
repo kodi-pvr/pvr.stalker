@@ -46,6 +46,10 @@
   sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
   GET_SETTING_INT(setting, store, def);
 
+#if defined(TARGET_WINDOWS) && defined(CreateDirectory)
+#undef CreateDirectory
+#endif
+
 using namespace ADDON;
 
 CHelper_libXBMC_addon *XBMC = NULL;
@@ -85,11 +89,7 @@ ADDON_STATUS ADDON_Create(void *callbacks, void *props) {
     m_data = new SData;
 
     if (!XBMC->DirectoryExists(g_strUserPath.c_str())) {
-#ifdef TARGET_WINDOWS
-        CreateDirectory(g_strUserPath.c_str(), NULL);
-#else
         XBMC->CreateDirectory(g_strUserPath.c_str());
-#endif
     }
 
     int portal;

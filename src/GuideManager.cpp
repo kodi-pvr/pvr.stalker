@@ -24,6 +24,9 @@
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #define usleep(usec) Sleep((DWORD)(usec)/1000)
+#ifdef DeleteFile
+#undef DeleteFile
+#endif
 #else
 #include <unistd.h>
 #endif
@@ -75,11 +78,7 @@ SError GuideManager::LoadGuide(time_t start, time_t end) {
         if (!(ret = m_api->ITVGetEPGInfo(period, m_epgData, cacheFile, cacheExpiry))) {
             XBMC->Log(LOG_ERROR, "%s: ITVGetEPGInfo failed", __FUNCTION__);
             if (m_useCache && XBMC->FileExists(cacheFile.c_str(), false)) {
-#ifdef TARGET_WINDOWS
-                DeleteFile(cacheFile.c_str());
-#else
                 XBMC->DeleteFile(cacheFile.c_str());
-#endif
             }
         }
     }
