@@ -1,1 +1,1 @@
-jsoncpp https://github.com/open-source-parsers/jsoncpp/archive/0.10.6.tar.gz
+jsoncpp http://mirrors.kodi.tv/build-deps/sources/jsoncpp-1.8.3.tar.gz
