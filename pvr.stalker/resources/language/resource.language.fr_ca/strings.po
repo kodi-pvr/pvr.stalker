@@ -142,7 +142,7 @@ msgstr "Échec de connexion au serveur."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
-msgstr "Échec d'authentification. Nouvelle tentative."
+msgstr "Échec d’authentification. Nouvelle tentative."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
@@ -158,7 +158,7 @@ msgstr "Impossible de charger le guide."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Échec d'obtention de l'URL du flux."
+msgstr "Échec d’obtention de l’URL du flux."
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."

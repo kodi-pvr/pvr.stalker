@@ -38,7 +38,7 @@ msgstr "MAC-Adres"
 
 msgctxt "#30102"
 msgid "Server Address"
-msgstr "Server adres"
+msgstr "Serveradres"
 
 msgctxt "#30103"
 msgid "Time Zone"
@@ -46,11 +46,11 @@ msgstr "Tijdszone"
 
 msgctxt "#30104"
 msgid "Auth Credentials"
-msgstr "Authenticatie gegevens"
+msgstr "Authenticatiegegevens"
 
 msgctxt "#30105"
 msgid "Login"
-msgstr "Log-in"
+msgstr "Gebruikersnaam"
 
 msgctxt "#30106"
 msgid "Password"
@@ -82,11 +82,11 @@ msgstr "EnkelXMLTV"
 
 msgctxt "#30113"
 msgid "Cache Guide Data"
-msgstr "Buffer gids data"
+msgstr "Buffer gidsdata"
 
 msgctxt "#30114"
 msgid "Cache Time (hours)"
-msgstr "Buffer tijd (uren)"
+msgstr "Buffertijd (uren)"
 
 msgctxt "#30115"
 msgid "XMLTV"
@@ -98,7 +98,7 @@ msgstr "Omvang"
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Afstand URL"
+msgstr "Externe URL"
 
 msgctxt "#30118"
 msgid "Local Path"
@@ -114,7 +114,7 @@ msgstr "Token"
 
 msgctxt "#30121"
 msgid "Serial Number"
-msgstr "Serie nummer"
+msgstr "Serienummer"
 
 msgctxt "#30122"
 msgid "Device ID"
@@ -130,7 +130,7 @@ msgstr "Handtekening"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Onbekende fout. Zie het log voor meer details."
+msgstr "Onbekende fout. Zie het logbestand voor meer details."
 
 msgctxt "#30502"
 msgid "Startup failed."
@@ -138,11 +138,11 @@ msgstr "Opstart mislukt."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
-msgstr "Niet gelukt te verbinden met server."
+msgstr "Verbinding met de server is mislukt."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
-msgstr "Authenticatie mislukt. Probeert nogmaals."
+msgstr "Authenticatie mislukt. Probeer het nogmaals."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
@@ -158,15 +158,15 @@ msgstr "Niet gelukt de gids te laden."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Niet gelukt de stream URL. te verkrijgen."
+msgstr "Niet gelukt de stream-URL te ontvangen."
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."
-msgstr "Autorisatie kwijt. Her-authenticeren."
+msgstr "Autorisatie kwijt. Opnieuw authenticeren."
 
 msgctxt "#30510"
 msgid "Re-authenticated."
-msgstr "Her-authenticeerd"
+msgstr "Geherauthenticeerd"
 
 msgctxt "#31000"
 msgid "Portal 1"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="3.2.2"
+  version="3.2.3"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>@ADDON_DEPENDS@</requires>
@@ -23,7 +23,7 @@
     <summary lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</summary>
     <summary lang="et_EE">PVR'i klient ühendamaks Kodi Stalker Middleware'ga</summary>
     <summary lang="fi_FI">Kodin Stalker Middleware -asiakasohjelma</summary>
-    <summary lang="fr_CA">Client de numériscope pour connecter Kodi à l'intergiciel Stalker</summary>
+    <summary lang="fr_CA">Client de numériscope pour connecter Kodi à l’intergiciel Stalker</summary>
     <summary lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l'intergiciel Stalker</summary>
     <summary lang="gl_ES">Cliente PVR para conectar Kodi a un Stalker Middleware</summary>
     <summary lang="he_IL">לקוח טלוויזיה חיה עבור Stalker Middleware</summary>
@@ -67,7 +67,7 @@
     <description lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</description>
     <description lang="et_EE">PVR'i klient ühendamaks Kodi Stalker Middleware'ga</description>
     <description lang="fi_FI">PVR-asiakasohjelma, joka kytkeytyy Stalker Middlewareen</description>
-    <description lang="fr_CA">Client de numériscope pour connecter Kodi à l'intergiciel Stalker</description>
+    <description lang="fr_CA">Client de numériscope pour connecter Kodi à l’intergiciel Stalker</description>
     <description lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l'intergiciel Stalker</description>
     <description lang="gl_ES">Cliente PVR que conecta Kodi a un Stalker Middleware</description>
     <description lang="he_IL">לקוח טלוויזיה חיה עבור Stalker Middleware</description>
