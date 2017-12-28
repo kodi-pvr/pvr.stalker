@@ -21,6 +21,7 @@
 
 #include "SAPI.h"
 
+#include <memory>
 #include <sstream>
 
 #include "libstalkerclient/itv.h"
@@ -353,7 +354,9 @@ SError SAPI::StalkerCall(sc_param_params_t *params, Json::Value &parsed, const s
     HTTPSocket::Request request;
     HTTPSocket::Response response;
     HTTPSocket sock(m_timeout);
-    Json::Reader reader;
+    std::string jsonReaderError;
+    Json::CharReaderBuilder jsonReaderBuilder;
+    std::unique_ptr<Json::CharReader> const reader(jsonReaderBuilder.newCharReader());
 
     memset(&scRequest, 0, sizeof(scRequest));
     if (!sc_request_build(m_identity, params, &scRequest))
@@ -394,8 +397,7 @@ SError SAPI::StalkerCall(sc_param_params_t *params, Json::Value &parsed, const s
         XBMC->Log(LOG_ERROR, "%s: api call failed", __FUNCTION__);
         return SERROR_API;
     }
-
-    if (!reader.parse(response.body, parsed)) {
+    if (!reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &parsed, &jsonReaderError)) {
         XBMC->Log(LOG_ERROR, "%s: parsing failed", __FUNCTION__);
         if (response.body.compare(SC_SAPI_AUTHORIZATION_FAILED) == 0) {
             XBMC->Log(LOG_ERROR, "%s: authorization failed", __FUNCTION__);
