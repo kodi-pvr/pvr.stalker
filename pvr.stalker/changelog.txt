@@ -1,3 +1,6 @@
+3.3.0
+- Updated to PVR addon API v5.8.0
+
 3.2.2
 - Bump jsoncpp to version 1.8.3
 

@@ -288,7 +288,6 @@ PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook,
 PVR_ERROR OpenDialogChannelScan(void) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR DeleteChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR RenameChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR MoveChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR OpenDialogChannelSettings(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR OpenDialogChannelAdd(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
 int GetRecordingsAmount(bool deleted) { return PVR_ERROR_NOT_IMPLEMENTED; }
@@ -312,7 +311,6 @@ bool OpenLiveStream(const PVR_CHANNEL &channel) { return false; }
 void CloseLiveStream(void) { }
 int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1; }
 long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
-long long PositionLiveStream(void) { return -1; }
 long long LengthLiveStream(void) { return -1; }
 PVR_ERROR SignalStatus(PVR_SIGNAL_STATUS &signalStatus) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES *pProperties) { return PVR_ERROR_NOT_IMPLEMENTED; }
@@ -321,7 +319,6 @@ void CloseRecordedStream(void) { }
 int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1; }
 PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
-long long PositionRecordedStream(void) { return -1; }
 long long LengthRecordedStream(void) { return -1; }
 void DemuxReset(void) { }
 void DemuxAbort(void) { }
@@ -334,9 +331,6 @@ bool SeekTime(double time, bool backwards, double *startpts) { return false; }
 void SetSpeed(int speed) { }
 bool IsTimeshifting(void) { return false; }
 bool IsRealTimeStream(void) { return true; }
-time_t GetPlayingTime() { return 0; }
-time_t GetBufferTimeStart() { return 0; }
-time_t GetBufferTimeEnd() { return 0; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR GetDescrambleInfo(PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
