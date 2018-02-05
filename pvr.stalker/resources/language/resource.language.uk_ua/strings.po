@@ -16,6 +16,98 @@ msgstr ""
 "Language: uk_UA\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC-адреса"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "Адреса Сервера"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "Часовий Пояс"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "Облікові дані для авторизації"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr " Логін"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "Пароль"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Керівництво"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Додатково"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "Невідома помилка. Дивіться журнал для деталей."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Не вдалося запустити."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Не вдалося підключитися до сервера."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Автентифікація не вдалась. Повтор."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Не вдається завантажити канали."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Не вдається завантажити групи каналів."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Не вдається завантажити посібник."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Не вдалося отримати URL-адресу потоку."
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Авторизація втрачена. Повторне автентифікація."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Повторне автентифіковано."
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "Портал 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "Портал 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "Портал 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "Портал 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "Портал 5"

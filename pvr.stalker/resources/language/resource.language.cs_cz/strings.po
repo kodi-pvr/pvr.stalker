@@ -98,7 +98,7 @@ msgstr "Rozsah"
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Vzdálená URL"
+msgstr "Vzdálená URL adresa"
 
 msgctxt "#30118"
 msgid "Local Path"
@@ -134,7 +134,7 @@ msgstr "Neznámá chyba. Zkontrolujte protokol pro podrobnosti."
 
 msgctxt "#30502"
 msgid "Startup failed."
-msgstr "Spuštění selhalo."
+msgstr "Spuštění se nezdařilo."
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
@@ -142,7 +142,7 @@ msgstr "Nepodařilo se připojit k serveru."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
-msgstr "Ověření selhalo. Opakování."
+msgstr "Ověření se nezdařilo. Opakování."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
