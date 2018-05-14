@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="3.3.3"
+  version="3.3.4"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>@ADDON_DEPENDS@</requires>
@@ -10,7 +10,7 @@
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
   <extension point="xbmc.addon.metadata">
     <summary lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</summary>
-    <summary lang="bg_BG">ПВР клиент за свързване на Kodi с Stalker Middleware</summary>
+    <summary lang="bg_BG">Клиент за ПВР за свързване на Kodi със „Stalker Middleware“</summary>
     <summary lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</summary>
     <summary lang="cs_CZ">Klient PVR pro připojení Kodi k Stalker Middleware</summary>
     <summary lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</summary>
@@ -54,7 +54,7 @@
     <summary lang="zh_CN">Kodi 连接 Stalker Middleware 的 PVR 客户端</summary>
     <summary lang="zh_TW">連接至 Stalker Middleware 的Kodi PVR用戶端</summary>
     <description lang="af_ZA">PVR Kliënt om Kodi aan Stalker Middleware te konnekteer</description>
-    <description lang="bg_BG">ПВР клиент за свързване на Kodi със Stalker Middleware</description>
+    <description lang="bg_BG">Клиент за ПВР за свързване на Kodi със „Stalker Middleware“</description>
     <description lang="ca_ES">Client PVR per connectar Kodi al Middleware Stalker</description>
     <description lang="cs_CZ">Klient PVR pro připojení Kodi k Stalker Middleware</description>
     <description lang="da_DK">PVR klient som forbinder Kodi til Stalker Middleware</description>

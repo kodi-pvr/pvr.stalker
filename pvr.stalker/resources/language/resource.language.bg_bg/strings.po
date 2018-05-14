@@ -44,6 +44,10 @@ msgctxt "#30103"
 msgid "Time Zone"
 msgstr "Часови пояс"
 
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "Данни за удостоверяване"
+
 msgctxt "#30105"
 msgid "Login"
 msgstr "Влизане"
@@ -60,25 +64,53 @@ msgctxt "#30108"
 msgid "Preference"
 msgstr "Предпочитания"
 
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "Да се предпочита доставчикът"
+
 msgctxt "#30110"
 msgid "Prefer XMLTV"
-msgstr "Предпочитай XMLTV"
+msgstr "Да се предпочита XMLTV"
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "Само доставчикът"
 
 msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "Само XMLTV"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "Кеширане на данните за справочника"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "Време за кеширане (часове)"
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
 
+msgctxt "#30116"
+msgid "Scope"
+msgstr "Обхват"
+
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Отдалечен URL адрес"
+msgstr "Отдалечен адрес"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "Местен път"
 
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Допълнителни"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "Жетон"
 
 msgctxt "#30121"
 msgid "Serial Number"
@@ -86,15 +118,55 @@ msgstr "Сериен номер"
 
 msgctxt "#30122"
 msgid "Device ID"
-msgstr "ID на устройството"
+msgstr "Ид. на устройството"
 
 msgctxt "#30123"
 msgid "Device ID2"
-msgstr "ID2 на устройството"
+msgstr "Ид.2 на устройството"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "Подпис"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Неизвестна грешка. Проверете журнала за подробности."
+msgstr "Неизвестна грешка. Проверете журнала."
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "Стартирането не беше успешно."
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "Не може да се установи връзка със сървъра."
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "Неуспешно удостоверяване. Извършва се повторен опит."
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "Каналите не могат да бъдат заредени."
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "Групите от канали не могат да бъдат заредени."
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "Справочникът не може да бъде зареден."
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "Адресът на потока не може да бъде получен"
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "Удостоверяването беше отменено. Извършва се повторно удостоверяване."
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "Повторното удостоверяване е успешно."
 
 msgctxt "#31000"
 msgid "Portal 1"
