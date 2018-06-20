@@ -512,6 +512,9 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio) {
 
 PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
+  if (*iPropertiesCount < 2)
+     return PVR_ERROR_INVALID_PARAMETERS;
+
   std::string strUrl;
   std::vector<SC::Channel> channels;
   channels = m_channelManager->GetChannels();
@@ -525,10 +528,12 @@ PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAME
   if (strUrl.empty()) {
     return PVR_ERROR_FAILED;
   }
-  strncpy(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL, sizeof(properties[0].strName));
-  strncpy(properties[0].strValue, strUrl.c_str(), sizeof(properties[0].strValue));
+  strncpy(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL, sizeof(properties[0].strName) - 1);
+  strncpy(properties[0].strValue, strUrl.c_str(), sizeof(properties[0].strValue) - 1);
+  strncpy(properties[1].strName, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, sizeof(properties[1].strName) - 1);
+  strncpy(properties[1].strValue, "true", sizeof(properties[1].strValue) - 1);
 
-  *iPropertiesCount = 1;
+  *iPropertiesCount = 2;
 
   return PVR_ERROR_NO_ERROR;
 }
