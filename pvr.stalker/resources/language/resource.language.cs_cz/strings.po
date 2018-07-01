@@ -130,7 +130,7 @@ msgstr "Podpis"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Neznámá chyba. Zkontrolujte protokol pro podrobnosti."
+msgstr "Neznámá chyba. Podrobnosti naleznete v záznamu událostí (log)."
 
 msgctxt "#30502"
 msgid "Startup failed."

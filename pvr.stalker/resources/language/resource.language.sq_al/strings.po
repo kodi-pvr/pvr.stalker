@@ -16,6 +16,10 @@ msgstr ""
 "Language: sq_AL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "T'përgjithshëm"
+
 msgctxt "#30106"
 msgid "Password"
 msgstr "Fjalëkalimi"
