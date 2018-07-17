@@ -528,8 +528,11 @@ PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAME
   if (strUrl.empty()) {
     return PVR_ERROR_FAILED;
   }
+  
+  const char *url = GetChannelStreamURL(*channel);
+        
   strncpy(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL, sizeof(properties[0].strName) - 1);
-  strncpy(properties[0].strValue, strUrl.c_str(), sizeof(properties[0].strValue) - 1);
+  strncpy(properties[0].strValue, url, strlen(url));
   strncpy(properties[1].strName, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, sizeof(properties[1].strName) - 1);
   strncpy(properties[1].strValue, "true", sizeof(properties[1].strValue) - 1);
 
