@@ -1,5 +1,6 @@
 3.4.3
 - Code cleanup
+- Fix channel playback
 
 3.4.2
 - Updated language files from Transifex
