@@ -95,7 +95,6 @@ bool ChannelManager::ParseChannels(Json::Value &parsed) {
             channel.number = Utils::StringToInt((*it)["number"].asString());
             channel.name = (*it)["name"].asString();
 
-            // "pvr://stream/" causes GetLiveStreamURL to be called
             channel.streamUrl = "pvr://stream/" + Utils::ToString(channel.uniqueId);
 
             std::string strLogo = (*it)["logo"].asString();

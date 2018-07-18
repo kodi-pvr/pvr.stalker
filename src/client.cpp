@@ -265,15 +265,6 @@ PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio) {
     return m_data->GetChannels(handle, bRadio);
 }
 
-const char *GetLiveStreamURL(const PVR_CHANNEL &channel) {
-    const char *url = "";
-
-    if (m_data)
-        url = m_data->GetChannelStreamURL(channel);
-
-    return url;
-}
-
 PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount) {
   if (!m_data)
     return PVR_ERROR_SERVER_ERROR;

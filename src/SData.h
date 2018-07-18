@@ -44,39 +44,39 @@ class SData : Base::Cache {
 public:
     SData();
 
-    virtual ~SData();
+    ~SData();
 
-    virtual bool ReloadSettings();
+    bool ReloadSettings();
 
-    virtual PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t anEnd);
+    PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t anEnd);
 
-    virtual int GetChannelGroupsAmount();
+    int GetChannelGroupsAmount();
 
-    virtual PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool radio);
+    PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool radio);
 
-    virtual PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
+    PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group);
 
-    virtual int GetChannelsAmount();
+    int GetChannelsAmount();
 
-    virtual PVR_ERROR GetChannels(ADDON_HANDLE handle, bool radio);
+    PVR_ERROR GetChannels(ADDON_HANDLE handle, bool radio);
 
-    virtual const char *GetChannelStreamURL(const PVR_CHANNEL &channel);
-
-    virtual PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
+    PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount);
 
     SC::Settings settings;
 protected:
-    virtual bool LoadCache();
+    bool LoadCache();
 
-    virtual bool SaveCache();
+    bool SaveCache();
 
-    virtual bool IsAuthenticated();
+    bool IsAuthenticated() const;
 
-    virtual SError Authenticate();
+    SError Authenticate();
 
-    virtual void QueueErrorNotification(SError error);
+    void QueueErrorNotification(SError error) const;
 
 private:
+    std::string GetChannelStreamURL(const PVR_CHANNEL &channel) const;
+
     bool m_tokenManuallySet;
     time_t m_lastEpgAccessTime;
     time_t m_nextEpgLoadTime;
@@ -89,5 +89,4 @@ private:
     SC::SessionManager *m_sessionManager;
     SC::ChannelManager *m_channelManager;
     SC::GuideManager *m_guideManager;
-    std::string m_currentPlaybackUrl;
 };

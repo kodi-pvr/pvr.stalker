@@ -69,7 +69,7 @@ SData::~SData() {
     SAFE_DELETE(m_guideManager);
 }
 
-void SData::QueueErrorNotification(SError error) {
+void SData::QueueErrorNotification(SError error) const {
     int errorMsg = 0;
 
     switch (error) {
@@ -278,7 +278,7 @@ bool SData::ReloadSettings() {
     return ret == SERROR_OK;
 }
 
-bool SData::IsAuthenticated() {
+bool SData::IsAuthenticated() const {
     return m_sessionManager->IsAuthenticated();
 }
 
@@ -512,22 +512,14 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio) {
 
 PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount)
 {
-  if (*iPropertiesCount < 2)
+  if (!channel || !properties || *iPropertiesCount < 2)
      return PVR_ERROR_INVALID_PARAMETERS;
 
-  std::string strUrl;
-  std::vector<SC::Channel> channels;
-  channels = m_channelManager->GetChannels();
-  for (const auto& stalkerChannel : channels)
-  {
-    if (stalkerChannel.uniqueId == channel->iUniqueId)
-    {
-      strUrl = stalkerChannel.streamUrl;
-    }
-  }
-  if (strUrl.empty()) {
+  const std::string strUrl = GetChannelStreamURL(*channel);
+
+  if (strUrl.empty())
     return PVR_ERROR_FAILED;
-  }
+
   strncpy(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL, sizeof(properties[0].strName) - 1);
   strncpy(properties[0].strValue, strUrl.c_str(), sizeof(properties[0].strValue) - 1);
   strncpy(properties[1].strName, PVR_STREAM_PROPERTY_ISREALTIMESTREAM, sizeof(properties[1].strName) - 1);
@@ -538,11 +530,13 @@ PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAME
   return PVR_ERROR_NO_ERROR;
 }
 
-const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
+std::string SData::GetChannelStreamURL(const PVR_CHANNEL &channel) const {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
+    std::string streamUrl;
+
     if (!IsAuthenticated())
-        return "";
+        return streamUrl;
 
     SC::Channel *chan;
     std::string cmd;
@@ -551,7 +545,7 @@ const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
     chan = m_channelManager->GetChannel(channel.iUniqueId);
     if (chan == nullptr) {
         XBMC->Log(LOG_ERROR, "%s: channel not found", __FUNCTION__);
-        return "";
+        return streamUrl;
     }
 
     XBMC->Log(LOG_DEBUG, "%s: cmd=%s", __FUNCTION__, chan->cmd.c_str());
@@ -601,24 +595,24 @@ const char *SData::GetChannelStreamURL(const PVR_CHANNEL &channel) {
         // cmd format
         // (?:ffrt\d*\s|)(.*)
         if ((pos = cmd.find(" ")) != std::string::npos)
-            m_currentPlaybackUrl = cmd.substr(pos + 1);
+            streamUrl = cmd.substr(pos + 1);
         else
-            m_currentPlaybackUrl = cmd;
+            streamUrl = cmd;
     } else {
-        m_currentPlaybackUrl = m_channelManager->GetStreamURL(*chan);
+        streamUrl = m_channelManager->GetStreamURL(*chan);
     }
 
-    if (m_currentPlaybackUrl.empty()) {
+    if (streamUrl.empty()) {
         XBMC->Log(LOG_ERROR, "%s: no stream url found", __FUNCTION__);
         QueueErrorNotification(SERROR_STREAM_URL);
     } else {
         // protocol options for http(s) urls only
         // <= zero disables timeout
-//        if (m_currentPlaybackUrl.find("http") == 0 && settings.connectionTimeout > 0)
-//            m_currentPlaybackUrl += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
+//        if (streamUrl.find("http") == 0 && settings.connectionTimeout > 0)
+//            streamUrl += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
 
-        XBMC->Log(LOG_DEBUG, "%s: m_currentPlaybackUrl=%s", __FUNCTION__, m_currentPlaybackUrl.c_str());
+        XBMC->Log(LOG_DEBUG, "%s: streamUrl=%s", __FUNCTION__, streamUrl.c_str());
     }
 
-    return m_currentPlaybackUrl.c_str();
+    return streamUrl;
 }
