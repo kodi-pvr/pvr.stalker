@@ -118,11 +118,11 @@ msgstr "Sériové číslo"
 
 msgctxt "#30122"
 msgid "Device ID"
-msgstr "ID zařízení"
+msgstr "Identif. zařízení"
 
 msgctxt "#30123"
 msgid "Device ID2"
-msgstr "ID2 zařízení"
+msgstr "2. identif. zařízení"
 
 msgctxt "#30124"
 msgid "Signature"
@@ -142,11 +142,11 @@ msgstr "Nepodařilo se připojit k serveru."
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
-msgstr "Ověření se nezdařilo. Opakování."
+msgstr "Ověření se nezdařilo. Zkouší se znovu."
 
 msgctxt "#30505"
 msgid "Unable to load channels."
-msgstr "Nelze načíst kanály."
+msgstr "Nedaří se načíst kanály."
 
 msgctxt "#30506"
 msgid "Unable to load channel groups."
@@ -154,7 +154,7 @@ msgstr "Nelze načíst skupiny kanálů."
 
 msgctxt "#30507"
 msgid "Unable to load guide."
-msgstr "Nelze načíst program."
+msgstr "Nedaří se načíst program."
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
