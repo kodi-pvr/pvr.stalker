@@ -22,7 +22,7 @@ msgstr "Geral"
 
 msgctxt "#30001"
 msgid "Active Portal"
-msgstr "Ativar Portal"
+msgstr "Portal ativo"
 
 msgctxt "#30002"
 msgid "Misc"
