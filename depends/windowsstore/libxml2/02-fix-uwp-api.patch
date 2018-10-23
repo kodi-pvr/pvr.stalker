@@ -1,3 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 913da3e..07cbec1 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -147,7 +147,12 @@ target_include_directories(
+ target_compile_definitions(libxml2 
+   PRIVATE 
+   _CRT_SECURE_NO_WARNINGS
+-  _CRT_STDC_NO_DEPRECATE)
++  _CRT_SECURE_NO_DEPRECATE
++  _CRT_STDC_NO_DEPRECATE
++  _CRT_NONSTDC_NO_DEPRECATE
++  HAVE_WIN32_THREADS
++  _WINSOCK_DEPRECATED_NO_WARNINGS
++)
+ 
+ if(BUILD_SHARED_LIBS AND MSVC)
+   target_link_libraries(libxml2 PRIVATE ws2_32.lib)
 diff --git a/catalog.c b/catalog.c
 index 6dfdfbb..a5655f0 100644
 --- a/catalog.c
@@ -107,19 +125,15 @@ index 1a79c09..9d8bd15 100644
        xmlWrapStat = xmlWrapStatUtf8;
        xmlWrapOpen = xmlWrapOpenUtf8;
  #ifdef HAVE_ZLIB_H
-@@ -3841,10 +3849,12 @@ xmlParserGetDirectory(const char *filename) {
+@@ -3841,7 +3849,7 @@ xmlParserGetDirectory(const char *filename) {
  	else *cur = 0;
  	ret = xmlMemStrdup(dir);
      } else {
-+#if defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP
-         if (getcwd(dir, 1024) != NULL) {
- 	    dir[1023] = 0;
- 	    ret = xmlMemStrdup(dir);
- 	}
-+#endif
-     }
-     return(ret);
- #undef IS_XMLPGD_SEP
+-        if (getcwd(dir, 1024) != NULL) {
++        if (_getcwd(dir, 1024) != NULL) {
+	    dir[1023] = 0;
+	    ret = xmlMemStrdup(dir);
+	}
 diff --git a/xmlmemory.c b/xmlmemory.c
 index f08c8c3..8b9c35e 100644
 --- a/xmlmemory.c
@@ -139,7 +153,7 @@ diff --git a/xmlmodule.c b/xmlmodule.c
 index 50ed666..be21bcc 100644
 --- a/xmlmodule.c
 +++ b/xmlmodule.c
-@@ -308,7 +308,11 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
+@@ -308,7 +308,14 @@ xmlModulePlatformSymbol(void *handle, const char *name, void **symbol)
  static void *
  xmlModulePlatformOpen(const char *name)
  {
@@ -147,7 +161,10 @@ index 50ed666..be21bcc 100644
 +#if !defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP)
 +     return LoadLibraryA(name);
 +#else
-+     return LoadPackagedLibrary(name, 0);
++     wchar_t* nameW = (wchar_t*)malloc(strlen(name)+1);
++     mbstowcs(nameW, name, strlen(name));
++     return LoadPackagedLibrary(nameW, 0);
++     free(nameW);
 +#endif
  }
  
