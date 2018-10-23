@@ -1,3 +1,6 @@
+3.4.6
+- Bump zlib to version 1.2.11
+
 3.4.3
 - Code cleanup
 - Fix channel playback
