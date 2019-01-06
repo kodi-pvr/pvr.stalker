@@ -28,6 +28,18 @@ msgctxt "#30105"
 msgid "Login"
 msgstr "Hasi saioa"
 
+msgctxt "#30106"
+msgid "Password"
+msgstr "Pasahitza"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "Gida"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "Hobespena"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Aurreratua"
