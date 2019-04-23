@@ -223,11 +223,11 @@ const char *GetBackendHostname(void) {
     return "";
 }
 
-PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t iStart, time_t iEnd) {
+PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd) {
     if (!m_data)
         return PVR_ERROR_SERVER_ERROR;
 
-    return m_data->GetEPGForChannel(handle, channel, iStart, iEnd);
+    return m_data->GetEPGForChannel(handle, iChannelUid, iStart, iEnd);
 }
 
 int GetChannelGroupsAmount(void) {
@@ -315,12 +315,12 @@ void DemuxReset(void) { }
 void DemuxAbort(void) { }
 void DemuxFlush(void) { }
 DemuxPacket *DemuxRead(void) { return NULL; }
+void FillBuffer(bool mode) {}
 bool CanPauseStream(void) { return false; }
 bool CanSeekStream(void) { return false; }
 void PauseStream(bool bPaused) { }
 bool SeekTime(double time, bool backwards, double *startpts) { return false; }
 void SetSpeed(int speed) { }
-bool IsTimeshifting(void) { return false; }
 bool IsRealTimeStream(void) { return true; }
 PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
 PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }

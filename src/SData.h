@@ -48,7 +48,7 @@ public:
 
     bool ReloadSettings();
 
-    PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t anEnd);
+    PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t anEnd);
 
     int GetChannelGroupsAmount();
 
