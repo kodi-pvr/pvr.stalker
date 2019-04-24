@@ -1,3 +1,6 @@
+4.0.0
+- Update to PVR addon API v6.0.0
+
 3.4.6
 - Bump zlib to version 1.2.11
 

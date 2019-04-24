@@ -296,14 +296,14 @@ SError SData::Authenticate() {
     return SERROR_OK;
 }
 
-PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CHANNEL &channel, time_t start, time_t end) {
+PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t end) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
     SC::Channel *chan;
     time_t now;
     SError ret;
 
-    chan = m_channelManager->GetChannel(channel.iUniqueId);
+    chan = m_channelManager->GetChannel(iChannelUid);
     if (chan == nullptr) {
         XBMC->Log(LOG_ERROR, "%s: channel not found", __FUNCTION__);
         return PVR_ERROR_SERVER_ERROR;
