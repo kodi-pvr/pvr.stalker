@@ -1,21 +1,3 @@
-diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 913da3e..07cbec1 100644
---- a/CMakeLists.txt
-+++ b/CMakeLists.txt
-@@ -147,7 +147,12 @@ target_include_directories(
- target_compile_definitions(libxml2 
-   PRIVATE 
-   _CRT_SECURE_NO_WARNINGS
--  _CRT_STDC_NO_DEPRECATE)
-+  _CRT_SECURE_NO_DEPRECATE
-+  _CRT_STDC_NO_DEPRECATE
-+  _CRT_NONSTDC_NO_DEPRECATE
-+  HAVE_WIN32_THREADS
-+  _WINSOCK_DEPRECATED_NO_WARNINGS
-+)
- 
- if(BUILD_SHARED_LIBS AND MSVC)
-   target_link_libraries(libxml2 PRIVATE ws2_32.lib)
 diff --git a/catalog.c b/catalog.c
 index 6dfdfbb..a5655f0 100644
 --- a/catalog.c
