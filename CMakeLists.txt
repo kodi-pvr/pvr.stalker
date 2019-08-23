@@ -12,7 +12,7 @@ find_package(JsonCpp REQUIRED)
 include_directories(
         ${kodiplatform_INCLUDE_DIRS}
         ${p8-platform_INCLUDE_DIRS}
-        ${KODI_INCLUDE_DIR}
+        ${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
         ${PROJECT_SOURCE_DIR}/lib
         ${LIBXML2_INCLUDE_DIR}
         ${JSONCPP_INCLUDE_DIRS})
