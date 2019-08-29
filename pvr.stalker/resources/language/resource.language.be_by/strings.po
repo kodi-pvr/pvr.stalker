@@ -20,6 +20,10 @@ msgctxt "#30000"
 msgid "General"
 msgstr "General"
 
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "Адрас сервера"
+
 msgctxt "#30105"
 msgid "Login"
 msgstr "Login"

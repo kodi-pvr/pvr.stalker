@@ -16,6 +16,174 @@ msgstr ""
 "Language: ja_JP\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "一般"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr "有効なポータル"
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr "その他"
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr "接続が時間切れ (秒)"
+
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr "MAC アドレス"
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr "サーバーのアドレス"
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr "タイムゾーン"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr "認証"
+
+msgctxt "#30105"
+msgid "Login"
+msgstr "ログイン"
+
+msgctxt "#30106"
+msgid "Password"
+msgstr "パスワード"
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr "ガイド"
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr "優先権"
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr "優先するプロバイダ"
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr "XMLTVを優先"
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr "プロバイダのみ"
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr "XMLTVのみ"
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr "ガイドデータのキャッシュ"
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr "キャッシュ期間 (時間)"
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr "XMLTV"
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr "範囲"
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr "リモートURL"
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr "ローカルのパス"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "高度な設定"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr "トークン"
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr "シリアル番号"
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr "デバイスID"
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr "デバイスID2"
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr "署名"
+
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr "不明なエラー。詳細はlogを参照。"
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr "スタートアップ失敗。"
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr "サーバーに接続できませんでした。"
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr "認証に失敗しました。再試行します。"
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr "チャンネルをロードすることができません。"
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr "チャンネルグループをロードすることができません。"
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr "ガイドをロードすることができません。"
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr "ストリームURLの取得ができませんでした。"
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr "認証を忘失しました。再認証してください。"
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr "再認証。"
+
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr "ポータル 1"
+
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr "ポータル 2"
+
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr "ポータル 3"
+
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr "ポータル 4"
+
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr "ポータル 5"
