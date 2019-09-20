@@ -1,3 +1,10 @@
+4.1.1
+- Update CMake build version to 3.5
+- Cleanup CMake depend libstalkerclient
+- Change interface header include way
+- Fix package check for JsonCpp
+- Add appveyor.yml and update .travis.yml to xcode 10.4 for test build
+
 4.1.0
 - Recompile for 6.1.0 PVR Addon API compatibility
 
