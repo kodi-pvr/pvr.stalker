@@ -11,6 +11,10 @@ set(SOURCES src/lib_json/json_reader.cpp
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+if(WIN32)
+  add_compile_options(/wd4996)
+endif()
+
 add_library(jsoncpp ${SOURCES})
 
 install(TARGETS jsoncpp DESTINATION ${CMAKE_INSTALL_PREFIX}/lib) 

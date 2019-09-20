@@ -15,6 +15,10 @@ include_directories(
         ${LIBXML2_INCLUDE_DIR}
         ${JSONCPP_INCLUDE_DIRS})
 
+if(WIN32)
+  add_compile_options(/wd4996)
+endif()
+
 add_subdirectory(lib/libstalkerclient)
 
 set(DEPLIBS
