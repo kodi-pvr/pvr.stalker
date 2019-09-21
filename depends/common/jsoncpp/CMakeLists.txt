@@ -1,7 +1,6 @@
+cmake_minimum_required(VERSION 3.5)
 project(jsoncpp)
 
-cmake_minimum_required(VERSION 3.1)
-enable_language(CXX)
 SET(CMAKE_CXX_STANDARD 11)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_CXX_EXTENSIONS OFF)
@@ -11,6 +10,10 @@ set(SOURCES src/lib_json/json_reader.cpp
             src/lib_json/json_writer.cpp)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
+
+if(WIN32)
+  add_compile_options(/wd4996)
+endif()
 
 add_library(jsoncpp ${SOURCES})
 

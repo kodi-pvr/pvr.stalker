@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include "xbmc_epg_types.h"
+#include "kodi/xbmc_epg_types.h"
 
 #include "libstalkerclient/xmltv.h"
 #include "HTTPSocket.h"
