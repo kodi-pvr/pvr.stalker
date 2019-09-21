@@ -1,3 +1,18 @@
+3.4.10
+- Update CMake build version to 3.5
+- Cleanup CMake depend libstalkerclient
+- Change interface header include way
+- Fix package check for JsonCpp
+
+3.4.9
+- Updated language files from Transifex
+
+3.4.8
+- Updated language files from Transifex
+
+3.4.7
+- Updated language files from Transifex
+
 3.4.6
 - Bump zlib to version 1.2.11
 
