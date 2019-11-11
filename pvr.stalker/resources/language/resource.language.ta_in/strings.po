@@ -16,6 +16,10 @@ msgstr ""
 "Language: ta_IN\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "பொதுவானது"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "மேம்பட்ட"

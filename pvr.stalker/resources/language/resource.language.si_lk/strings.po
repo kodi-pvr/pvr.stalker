@@ -16,6 +16,10 @@ msgstr ""
 "Language: si_LK\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "#30000"
+msgid "General"
+msgstr "සාමාන්‍ය"
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "උසස්"
