@@ -1,3 +1,8 @@
+4.1.2
+- Updated language files from Transifex
+- Replace AppVeyor with Azure for test build (better performance)
+- Add p8-platform to own depends
+
 4.1.1
 - Update CMake build version to 3.5
 - Cleanup CMake depend libstalkerclient
