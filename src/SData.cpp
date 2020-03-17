@@ -296,6 +296,20 @@ SError SData::Authenticate() {
     return SERROR_OK;
 }
 
+namespace
+{
+
+std::string ParseAsW3CDateString(time_t time)
+{
+  std::tm* tm = std::localtime(&time);
+  char buffer[16];
+  std::strftime(buffer, 16, "%Y-%m-%d", tm);
+
+  return buffer;
+}
+
+} // unnamed namespace
+
 PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t end) {
     XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
 
@@ -353,9 +367,12 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
         tag.iGenreType = event->genreType;
         if (tag.iGenreType == EPG_GENRE_USE_STRING)
             tag.strGenreDescription = event->genreDescription.c_str();
-        tag.firstAired = event->firstAired;
+        std::string strFirstAired(event->firstAired > 0 ? ParseAsW3CDateString(event->firstAired) : "");
+        tag.strFirstAired = strFirstAired.c_str();
         tag.iStarRating = event->starRating;
+        tag.iSeriesNumber = EPG_TAG_INVALID_SERIES_EPISODE;
         tag.iEpisodeNumber = event->episodeNumber;
+        tag.iEpisodePartNumber = EPG_TAG_INVALID_SERIES_EPISODE;
         tag.strEpisodeName = event->episodeName.c_str();
         tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
 

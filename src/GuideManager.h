@@ -43,7 +43,7 @@ namespace SC {
         std::string genreDescription;
         time_t firstAired = 0;
         int starRating = 0;
-        int episodeNumber = 0;
+        int episodeNumber = EPG_TAG_INVALID_SERIES_EPISODE;
         std::string episodeName;
     };
 

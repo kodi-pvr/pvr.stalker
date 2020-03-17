@@ -124,7 +124,7 @@ void sc_xmltv_free(enum sc_xmltv_strct type, void *strct) {
 
             sc_list_free(&p->categories, true);
 
-            p->episode_num = 0;
+            p->episode_num = -1;
             p->previously_shown = 0;
             if (p->star_rating) free(p->star_rating);
             p->star_rating = NULL;
