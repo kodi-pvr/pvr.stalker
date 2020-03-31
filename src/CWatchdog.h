@@ -47,3 +47,4 @@ namespace SC {
         std::thread m_thread;
     };
 }
+
