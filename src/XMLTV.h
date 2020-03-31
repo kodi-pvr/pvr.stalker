@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "kodi/xbmc_epg_types.h"
+#include "kodi/xbmc_pvr_types.h"
 
 #include "libstalkerclient/xmltv.h"
 #include "HTTPSocket.h"
