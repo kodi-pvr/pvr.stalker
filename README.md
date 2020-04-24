@@ -1,11 +1,11 @@
-[![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
+[![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 [![Build Status](https://travis-ci.org/kodi-pvr/pvr.stalker.svg?branch=Matrix)](https://travis-ci.org/kodi-pvr/pvr.stalker/branches)
 [![Build Status](https://dev.azure.com/teamkodi/kodi-pvr/_apis/build/status/kodi-pvr.pvr.stalker?branchName=Matrix)](https://dev.azure.com/teamkodi/kodi-pvr/_build/latest?definitionId=71&branchName=Matrix)
 [![Build Status](https://jenkins.kodi.tv/view/Addons/job/kodi-pvr/job/pvr.stalker/job/Matrix/badge/icon)](https://jenkins.kodi.tv/blue/organizations/jenkins/kodi-pvr%2Fpvr.stalker/branches/)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5120/badge.svg)](https://scan.coverity.com/projects/5120)
 
 # Stalker PVR
-Stalker Middleware PVR client addon for [Kodi] (https://kodi.tv)
+Stalker Middleware PVR client addon for [Kodi](https://kodi.tv)
 
 ## Build instructions
 
@@ -19,5 +19,5 @@ Stalker Middleware PVR client addon for [Kodi] (https://kodi.tv)
 
 ##### Useful links
 
-* [Kodi's PVR user support] (https://forum.kodi.tv/forumdisplay.php?fid=167)
-* [Kodi's PVR development support] (https://forum.kodi.tv/forumdisplay.php?fid=136)
+* [Kodi's PVR user support](https://forum.kodi.tv/forumdisplay.php?fid=167)
+* [Kodi's PVR development support](https://forum.kodi.tv/forumdisplay.php?fid=136)
