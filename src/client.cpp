@@ -69,7 +69,7 @@ ADDON_STATUS ADDON_Create(void *callbacks, void *props) {
 
     XBMC->Log(LOG_DEBUG, "%s: Creating the Stalker Client PVR Add-on", __FUNCTION__);
 
-    PVR_PROPERTIES *pvrProps = (PVR_PROPERTIES *) props;
+    AddonProperties_PVR *pvrProps = (AddonProperties_PVR *) props;
     g_strUserPath = pvrProps->strUserPath;
     g_strClientPath = pvrProps->strClientPath;
 
