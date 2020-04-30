@@ -1,3 +1,6 @@
+v4.1.7:
+- Update PVR API 6.5.0
+
 v4.1.6:
 - Update PVR API 6.4.0
 - Correct license name on addon.xml
