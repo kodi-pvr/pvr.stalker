@@ -50,7 +50,7 @@ ADDON_STATUS m_currentStatus = ADDON_STATUS_UNKNOWN;
 
 extern "C" {
 
-ADDON_STATUS ADDON_Create(void *callbacks, void *props) {
+ADDON_STATUS ADDON_Create(void *callbacks, const char *globalApiVersion, void *props) {
     if (!callbacks || !props)
         return ADDON_STATUS_UNKNOWN;
 
