@@ -8,10 +8,10 @@
 
 #include "client.h"
 
+#include "SData.h"
+
 #include <kodi/xbmc_pvr_dll.h>
 #include <p8-platform/util/util.h>
-
-#include "SData.h"
 
 #define PORTAL_SUFFIX_FORMAT "%s_%d"
 
@@ -39,44 +39,49 @@
 
 using namespace ADDON;
 
-CHelper_libXBMC_addon *XBMC = NULL;
-CHelper_libXBMC_pvr *PVR = NULL;
+CHelper_libXBMC_addon* XBMC = NULL;
+CHelper_libXBMC_pvr* PVR = NULL;
 
 std::string g_strUserPath = "";
 std::string g_strClientPath = "";
 
-SData *m_data = NULL;
+SData* m_data = NULL;
 ADDON_STATUS m_currentStatus = ADDON_STATUS_UNKNOWN;
 
-extern "C" {
+extern "C"
+{
 
-ADDON_STATUS ADDON_Create(void *callbacks, const char *globalApiVersion, void *props) {
+  ADDON_STATUS ADDON_Create(void* callbacks, const char* globalApiVersion, void* props)
+  {
     if (!callbacks || !props)
-        return ADDON_STATUS_UNKNOWN;
+      return ADDON_STATUS_UNKNOWN;
 
     XBMC = new CHelper_libXBMC_addon;
-    if (!XBMC->RegisterMe(callbacks)) {
-        SAFE_DELETE(XBMC);
-        return ADDON_STATUS_PERMANENT_FAILURE;
+    if (!XBMC->RegisterMe(callbacks))
+    {
+      SAFE_DELETE(XBMC);
+      return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
     PVR = new CHelper_libXBMC_pvr;
-    if (!PVR->RegisterMe(callbacks)) {
-        SAFE_DELETE(PVR);
-        SAFE_DELETE(XBMC);
-        return ADDON_STATUS_PERMANENT_FAILURE;
+    if (!PVR->RegisterMe(callbacks))
+    {
+      SAFE_DELETE(PVR);
+      SAFE_DELETE(XBMC);
+      return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
     XBMC->Log(LOG_DEBUG, "%s: Creating the Stalker Client PVR Add-on", __FUNCTION__);
 
-    AddonProperties_PVR *pvrProps = (AddonProperties_PVR *) props;
+    AddonProperties_PVR* pvrProps = (AddonProperties_PVR*)props;
     g_strUserPath = pvrProps->strUserPath;
     g_strClientPath = pvrProps->strClientPath;
 
     m_data = new SData;
 
-    if (!XBMC->DirectoryExists(g_strUserPath.c_str())) {
-        XBMC->CreateDirectory(g_strUserPath.c_str());
+    if (!XBMC->DirectoryExists(g_strUserPath.c_str()))
+    {
+      XBMC->CreateDirectory(g_strUserPath.c_str());
     }
 
     int portal;
@@ -84,37 +89,52 @@ ADDON_STATUS ADDON_Create(void *callbacks, const char *globalApiVersion, void *p
     char setting[256];
     int enumTemp;
 
-    GET_SETTING_INT("active_portal", m_data->settings.activePortal, SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
-    GET_SETTING_INT("connection_timeout", m_data->settings.connectionTimeout, SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
+    GET_SETTING_INT("active_portal", m_data->settings.activePortal,
+                    SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
+    GET_SETTING_INT("connection_timeout", m_data->settings.connectionTimeout,
+                    SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
     // calc based on index (5 second steps)
     m_data->settings.connectionTimeout *= 5;
 
     portal = m_data->settings.activePortal;
     GET_SETTING_STR2(setting, "mac", portal, buffer, m_data->settings.mac, SC_SETTINGS_DEFAULT_MAC);
-    GET_SETTING_STR2(setting, "server", portal, buffer, m_data->settings.server, SC_SETTINGS_DEFAULT_SERVER);
-    GET_SETTING_STR2(setting, "time_zone", portal, buffer, m_data->settings.timeZone, SC_SETTINGS_DEFAULT_TIME_ZONE);
-    GET_SETTING_STR2(setting, "login", portal, buffer, m_data->settings.login, SC_SETTINGS_DEFAULT_LOGIN);
-    GET_SETTING_STR2(setting, "password", portal, buffer, m_data->settings.password, SC_SETTINGS_DEFAULT_PASSWORD);
-    GET_SETTING_INT2(setting, "guide_preference", portal, enumTemp, SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE);
-    m_data->settings.guidePreference = (SC::Settings::GuidePreference) enumTemp;
-    GET_SETTING_INT2(setting, "guide_cache", portal, m_data->settings.guideCache, SC_SETTINGS_DEFAULT_GUIDE_CACHE);
+    GET_SETTING_STR2(setting, "server", portal, buffer, m_data->settings.server,
+                     SC_SETTINGS_DEFAULT_SERVER);
+    GET_SETTING_STR2(setting, "time_zone", portal, buffer, m_data->settings.timeZone,
+                     SC_SETTINGS_DEFAULT_TIME_ZONE);
+    GET_SETTING_STR2(setting, "login", portal, buffer, m_data->settings.login,
+                     SC_SETTINGS_DEFAULT_LOGIN);
+    GET_SETTING_STR2(setting, "password", portal, buffer, m_data->settings.password,
+                     SC_SETTINGS_DEFAULT_PASSWORD);
+    GET_SETTING_INT2(setting, "guide_preference", portal, enumTemp,
+                     SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE);
+    m_data->settings.guidePreference = (SC::Settings::GuidePreference)enumTemp;
+    GET_SETTING_INT2(setting, "guide_cache", portal, m_data->settings.guideCache,
+                     SC_SETTINGS_DEFAULT_GUIDE_CACHE);
     GET_SETTING_INT2(setting, "guide_cache_hours", portal, m_data->settings.guideCacheHours,
                      SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS);
     GET_SETTING_INT2(setting, "xmltv_scope", portal, enumTemp, SC_SETTINGS_DEFAULT_XMLTV_SCOPE);
-    m_data->settings.xmltvScope = (HTTPSocket::Scope) enumTemp;
-    if (m_data->settings.xmltvScope == HTTPSocket::Scope::SCOPE_REMOTE) {
-        GET_SETTING_STR2(setting, "xmltv_url", portal, buffer, m_data->settings.xmltvPath,
-                         SC_SETTINGS_DEFAULT_XMLTV_URL);
-    } else {
-        GET_SETTING_STR2(setting, "xmltv_path", portal, buffer, m_data->settings.xmltvPath,
-                         SC_SETTINGS_DEFAULT_XMLTV_PATH);
+    m_data->settings.xmltvScope = (HTTPSocket::Scope)enumTemp;
+    if (m_data->settings.xmltvScope == HTTPSocket::Scope::SCOPE_REMOTE)
+    {
+      GET_SETTING_STR2(setting, "xmltv_url", portal, buffer, m_data->settings.xmltvPath,
+                       SC_SETTINGS_DEFAULT_XMLTV_URL);
     }
-    GET_SETTING_STR2(setting, "token", portal, buffer, m_data->settings.token, SC_SETTINGS_DEFAULT_TOKEN);
+    else
+    {
+      GET_SETTING_STR2(setting, "xmltv_path", portal, buffer, m_data->settings.xmltvPath,
+                       SC_SETTINGS_DEFAULT_XMLTV_PATH);
+    }
+    GET_SETTING_STR2(setting, "token", portal, buffer, m_data->settings.token,
+                     SC_SETTINGS_DEFAULT_TOKEN);
     GET_SETTING_STR2(setting, "serial_number", portal, buffer, m_data->settings.serialNumber,
                      SC_SETTINGS_DEFAULT_SERIAL_NUMBER);
-    GET_SETTING_STR2(setting, "device_id", portal, buffer, m_data->settings.deviceId, SC_SETTINGS_DEFAULT_DEVICE_ID);
-    GET_SETTING_STR2(setting, "device_id2", portal, buffer, m_data->settings.deviceId2, SC_SETTINGS_DEFAULT_DEVICE_ID2);
-    GET_SETTING_STR2(setting, "signature", portal, buffer, m_data->settings.signature, SC_SETTINGS_DEFAULT_SIGNATURE);
+    GET_SETTING_STR2(setting, "device_id", portal, buffer, m_data->settings.deviceId,
+                     SC_SETTINGS_DEFAULT_DEVICE_ID);
+    GET_SETTING_STR2(setting, "device_id2", portal, buffer, m_data->settings.deviceId2,
+                     SC_SETTINGS_DEFAULT_DEVICE_ID2);
+    GET_SETTING_STR2(setting, "signature", portal, buffer, m_data->settings.signature,
+                     SC_SETTINGS_DEFAULT_SIGNATURE);
 
     XBMC->Log(LOG_DEBUG, "active_portal=%d", m_data->settings.activePortal);
     XBMC->Log(LOG_DEBUG, "connection_timeout=%d", m_data->settings.connectionTimeout);
@@ -135,17 +155,19 @@ ADDON_STATUS ADDON_Create(void *callbacks, const char *globalApiVersion, void *p
     XBMC->Log(LOG_DEBUG, "deviceId2=%s", m_data->settings.deviceId2.c_str());
     XBMC->Log(LOG_DEBUG, "signature=%s", m_data->settings.signature.c_str());
 
-    if (!m_data->ReloadSettings()) {
-        ADDON_Destroy();
-        m_currentStatus = ADDON_STATUS_LOST_CONNECTION;
-        return m_currentStatus;
+    if (!m_data->ReloadSettings())
+    {
+      ADDON_Destroy();
+      m_currentStatus = ADDON_STATUS_LOST_CONNECTION;
+      return m_currentStatus;
     }
 
     m_currentStatus = ADDON_STATUS_OK;
     return m_currentStatus;
-}
+  }
 
-void ADDON_Destroy() {
+  void ADDON_Destroy()
+  {
     XBMC->Log(LOG_DEBUG, "%s: Destroying the Stalker Client PVR Add-on", __FUNCTION__);
 
     SAFE_DELETE(m_data);
@@ -153,33 +175,29 @@ void ADDON_Destroy() {
     SAFE_DELETE(XBMC);
 
     m_currentStatus = ADDON_STATUS_UNKNOWN;
-}
+  }
 
-ADDON_STATUS ADDON_GetStatus() {
-    return m_currentStatus;
-}
+  ADDON_STATUS ADDON_GetStatus() { return m_currentStatus; }
 
-ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue) {
+  ADDON_STATUS ADDON_SetSetting(const char* settingName, const void* settingValue)
+  {
     return ADDON_STATUS_NEED_RESTART;
-}
+  }
 
-/***********************************************************
+  /***********************************************************
  * PVR Client AddOn specific public library functions
  ***********************************************************/
 
-void OnSystemSleep() {
-}
+  void OnSystemSleep() {}
 
-void OnSystemWake() {
-}
+  void OnSystemWake() {}
 
-void OnPowerSavingActivated() {
-}
+  void OnPowerSavingActivated() {}
 
-void OnPowerSavingDeactivated() {
-}
+  void OnPowerSavingDeactivated() {}
 
-PVR_ERROR GetCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities) {
+  PVR_ERROR GetCapabilities(PVR_ADDON_CAPABILITIES* pCapabilities)
+  {
     pCapabilities->bSupportsEPG = true;
     pCapabilities->bSupportsTV = true;
     pCapabilities->bSupportsChannelGroups = true;
@@ -189,135 +207,178 @@ PVR_ERROR GetCapabilities(PVR_ADDON_CAPABILITIES *pCapabilities) {
     pCapabilities->bSupportsDescrambleInfo = false;
 
     return PVR_ERROR_NO_ERROR;
-}
+  }
 
-const char *GetBackendName(void) {
-    static const char *strBackendName = "Stalker Middleware";
+  const char* GetBackendName(void)
+  {
+    static const char* strBackendName = "Stalker Middleware";
     return strBackendName;
-}
+  }
 
-const char *GetBackendVersion(void) {
-    static const char *strBackendVersion = "Unknown";
+  const char* GetBackendVersion(void)
+  {
+    static const char* strBackendVersion = "Unknown";
     return strBackendVersion;
-}
+  }
 
-const char *GetConnectionString(void) {
-    static const char *strConnectionString = m_data->settings.server.c_str();
+  const char* GetConnectionString(void)
+  {
+    static const char* strConnectionString = m_data->settings.server.c_str();
     return strConnectionString;
-}
+  }
 
-const char *GetBackendHostname(void) {
-    return "";
-}
+  const char* GetBackendHostname(void) { return ""; }
 
-PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd) {
+  PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t iStart, time_t iEnd)
+  {
     if (!m_data)
-        return PVR_ERROR_SERVER_ERROR;
+      return PVR_ERROR_SERVER_ERROR;
 
     return m_data->GetEPGForChannel(handle, iChannelUid, iStart, iEnd);
-}
+  }
 
-int GetChannelGroupsAmount(void) {
+  int GetChannelGroupsAmount(void)
+  {
     if (!m_data)
-        return -1;
+      return -1;
 
     return m_data->GetChannelGroupsAmount();
-}
+  }
 
-PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio) {
+  PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool bRadio)
+  {
     if (!m_data)
-        return PVR_ERROR_SERVER_ERROR;
+      return PVR_ERROR_SERVER_ERROR;
 
     return m_data->GetChannelGroups(handle, bRadio);
-}
+  }
 
-PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP &group) {
+  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP& group)
+  {
     if (!m_data)
-        return PVR_ERROR_SERVER_ERROR;
+      return PVR_ERROR_SERVER_ERROR;
 
     return m_data->GetChannelGroupMembers(handle, group);
-}
+  }
 
-int GetChannelsAmount(void) {
+  int GetChannelsAmount(void)
+  {
     if (!m_data)
-        return 0;
+      return 0;
 
     return m_data->GetChannelsAmount();
-}
+  }
 
-PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio) {
+  PVR_ERROR GetChannels(ADDON_HANDLE handle, bool bRadio)
+  {
     if (!m_data)
-        return PVR_ERROR_SERVER_ERROR;
+      return PVR_ERROR_SERVER_ERROR;
 
     return m_data->GetChannels(handle, bRadio);
-}
+  }
 
-PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel, PVR_NAMED_VALUE* properties, unsigned int* iPropertiesCount) {
-  if (!m_data)
-    return PVR_ERROR_SERVER_ERROR;
+  PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel,
+                                       PVR_NAMED_VALUE* properties,
+                                       unsigned int* iPropertiesCount)
+  {
+    if (!m_data)
+      return PVR_ERROR_SERVER_ERROR;
 
-  return m_data->GetChannelStreamProperties(channel, properties, iPropertiesCount);
-}
+    return m_data->GetChannelStreamProperties(channel, properties, iPropertiesCount);
+  }
 
-/** UNUSED API FUNCTIONS */
-PVR_ERROR GetDriveSpace(long long *iTotal, long long *iUsed) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR CallMenuHook(const PVR_MENUHOOK &menuhook,
-                       const PVR_MENUHOOK_DATA &item) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR OpenDialogChannelScan(void) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR DeleteChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR RenameChannel(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR OpenDialogChannelSettings(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR OpenDialogChannelAdd(const PVR_CHANNEL &channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
-int GetRecordingsAmount(bool deleted) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR DeleteRecording(const PVR_RECORDING &recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR UndeleteRecording(const PVR_RECORDING &recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR RenameRecording(const PVR_RECORDING &recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING &recording, int count) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING &recording,
-                                         int lastplayedposition) { return PVR_ERROR_NOT_IMPLEMENTED; }
-int GetRecordingLastPlayedPosition(const PVR_RECORDING &recording) { return -1; }
-PVR_ERROR GetRecordingEdl(const PVR_RECORDING &, PVR_EDL_ENTRY edl[], int *size) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetRecordingSize(const PVR_RECORDING* recording, int64_t* sizeInBytes) { return PVR_ERROR_NOT_IMPLEMENTED; }
-int GetTimersAmount(void) { return -1; }
-PVR_ERROR GetTimers(ADDON_HANDLE handle) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int *size) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR AddTimer(const PVR_TIMER &timer) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR DeleteTimer(const PVR_TIMER &timer, bool bForceDelete) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR UpdateTimer(const PVR_TIMER &timer) { return PVR_ERROR_NOT_IMPLEMENTED; }
-bool OpenLiveStream(const PVR_CHANNEL &channel) { return false; }
-void CloseLiveStream(void) { }
-int ReadLiveStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1; }
-long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
-long long LengthLiveStream(void) { return -1; }
-PVR_ERROR GetSignalStatus(int channelUid, PVR_SIGNAL_STATUS *signalStatus) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES *pProperties) { return PVR_ERROR_NOT_IMPLEMENTED; }
-bool OpenRecordedStream(const PVR_RECORDING &recording) { return false; }
-void CloseRecordedStream(void) { }
-int ReadRecordedStream(unsigned char *pBuffer, unsigned int iBufferSize) { return -1; }
-PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
-long long LengthRecordedStream(void) { return -1; }
-void DemuxReset(void) { }
-void DemuxAbort(void) { }
-void DemuxFlush(void) { }
-DemuxPacket *DemuxRead(void) { return NULL; }
-void FillBuffer(bool mode) {}
-bool CanPauseStream(void) { return false; }
-bool CanSeekStream(void) { return false; }
-void PauseStream(bool bPaused) { }
-bool SeekTime(double time, bool backwards, double *startpts) { return false; }
-void SetSpeed(int speed) { }
-bool IsRealTimeStream(void) { return true; }
-PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetDescrambleInfo(int, PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR IsEPGTagPlayable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR IsEPGTagRecordable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetEPGTagStreamProperties(const EPG_TAG*, PVR_NAMED_VALUE*, unsigned int*) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetEPGTagEdl(const EPG_TAG* epgTag, PVR_EDL_ENTRY edl[], int *size) { return PVR_ERROR_NOT_IMPLEMENTED; }
-PVR_ERROR GetStreamReadChunkSize(int* chunksize) { return PVR_ERROR_NOT_IMPLEMENTED; }
-
+  /** UNUSED API FUNCTIONS */
+  PVR_ERROR GetDriveSpace(long long* iTotal, long long* iUsed) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR CallMenuHook(const PVR_MENUHOOK& menuhook, const PVR_MENUHOOK_DATA& item)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR OpenDialogChannelScan(void) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR DeleteChannel(const PVR_CHANNEL& channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR RenameChannel(const PVR_CHANNEL& channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR OpenDialogChannelSettings(const PVR_CHANNEL& channel)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR OpenDialogChannelAdd(const PVR_CHANNEL& channel) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  int GetRecordingsAmount(bool deleted) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR GetRecordings(ADDON_HANDLE handle, bool deleted) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR DeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR UndeleteRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR DeleteAllRecordingsFromTrash() { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR RenameRecording(const PVR_RECORDING& recording) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR SetRecordingPlayCount(const PVR_RECORDING& recording, int count)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR SetRecordingLastPlayedPosition(const PVR_RECORDING& recording, int lastplayedposition)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  int GetRecordingLastPlayedPosition(const PVR_RECORDING& recording) { return -1; }
+  PVR_ERROR GetRecordingEdl(const PVR_RECORDING&, PVR_EDL_ENTRY edl[], int* size)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR GetRecordingSize(const PVR_RECORDING* recording, int64_t* sizeInBytes)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  int GetTimersAmount(void) { return -1; }
+  PVR_ERROR GetTimers(ADDON_HANDLE handle) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR GetTimerTypes(PVR_TIMER_TYPE types[], int* size) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR AddTimer(const PVR_TIMER& timer) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR DeleteTimer(const PVR_TIMER& timer, bool bForceDelete)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR UpdateTimer(const PVR_TIMER& timer) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  bool OpenLiveStream(const PVR_CHANNEL& channel) { return false; }
+  void CloseLiveStream(void) {}
+  int ReadLiveStream(unsigned char* pBuffer, unsigned int iBufferSize) { return -1; }
+  long long SeekLiveStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
+  long long LengthLiveStream(void) { return -1; }
+  PVR_ERROR GetSignalStatus(int channelUid, PVR_SIGNAL_STATUS* signalStatus)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR GetStreamProperties(PVR_STREAM_PROPERTIES* pProperties)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  bool OpenRecordedStream(const PVR_RECORDING& recording) { return false; }
+  void CloseRecordedStream(void) {}
+  int ReadRecordedStream(unsigned char* pBuffer, unsigned int iBufferSize) { return -1; }
+  PVR_ERROR GetRecordingStreamProperties(const PVR_RECORDING*, PVR_NAMED_VALUE*, unsigned int*)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  long long SeekRecordedStream(long long iPosition, int iWhence /* = SEEK_SET */) { return -1; }
+  long long LengthRecordedStream(void) { return -1; }
+  void DemuxReset(void) {}
+  void DemuxAbort(void) {}
+  void DemuxFlush(void) {}
+  DemuxPacket* DemuxRead(void) { return NULL; }
+  void FillBuffer(bool mode) {}
+  bool CanPauseStream(void) { return false; }
+  bool CanSeekStream(void) { return false; }
+  void PauseStream(bool bPaused) {}
+  bool SeekTime(double time, bool backwards, double* startpts) { return false; }
+  void SetSpeed(int speed) {}
+  bool IsRealTimeStream(void) { return true; }
+  PVR_ERROR SetEPGTimeFrame(int) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR SetRecordingLifetime(const PVR_RECORDING*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR GetDescrambleInfo(int, PVR_DESCRAMBLE_INFO*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR GetStreamTimes(PVR_STREAM_TIMES*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR IsEPGTagPlayable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR IsEPGTagRecordable(const EPG_TAG*, bool*) { return PVR_ERROR_NOT_IMPLEMENTED; }
+  PVR_ERROR GetEPGTagStreamProperties(const EPG_TAG*, PVR_NAMED_VALUE*, unsigned int*)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR GetEPGTagEdl(const EPG_TAG* epgTag, PVR_EDL_ENTRY edl[], int* size)
+  {
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  }
+  PVR_ERROR GetStreamReadChunkSize(int* chunksize) { return PVR_ERROR_NOT_IMPLEMENTED; }
 }

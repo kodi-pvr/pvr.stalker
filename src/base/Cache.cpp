@@ -10,61 +10,85 @@
 
 using namespace Base;
 
-Cache::Cache() {
+Cache::Cache()
+{
 }
 
-Cache::~Cache() {
+Cache::~Cache()
+{
 }
 
-bool Cache::Open(const std::string &cacheFile, xmlDocPtr &doc, xmlNodePtr &rootNode, const std::string &rootNodeName) {
-    bool failed(false);
-    doc = xmlReadFile(cacheFile.c_str(), NULL, 0);
-    if (!doc) {
-//        fprintf(stderr, "%s: failed to read cache file", __FUNCTION__);
-        failed = true;
-    } else {
-        rootNode = xmlDocGetRootElement(doc);
-        if (!rootNode || xmlStrcmp(rootNode->name, (const xmlChar *) rootNodeName.c_str())) {
-//            fprintf(stderr, "%s: 'cache' root element not found", __FUNCTION__);
-            failed = true;
-        }
+bool Cache::Open(const std::string& cacheFile,
+                 xmlDocPtr& doc,
+                 xmlNodePtr& rootNode,
+                 const std::string& rootNodeName)
+{
+  bool failed(false);
+  doc = xmlReadFile(cacheFile.c_str(), NULL, 0);
+  if (!doc)
+  {
+    //        fprintf(stderr, "%s: failed to read cache file", __FUNCTION__);
+    failed = true;
+  }
+  else
+  {
+    rootNode = xmlDocGetRootElement(doc);
+    if (!rootNode || xmlStrcmp(rootNode->name, (const xmlChar*)rootNodeName.c_str()))
+    {
+      //            fprintf(stderr, "%s: 'cache' root element not found", __FUNCTION__);
+      failed = true;
     }
-    return !failed;
+  }
+  return !failed;
 }
 
-xmlNodePtr Cache::FindNodeByName(xmlNodePtr &startNode, const xmlChar *name) {
-    xmlNodePtr node = NULL;
-    for (node = startNode; node; node = node->next) {
-//        fprintf(stderr, "%s: name=%s\n", __FUNCTION__, node->name);
-        if (!xmlStrcmp(node->name, name)) {
-            return node;
-        }
+xmlNodePtr Cache::FindNodeByName(xmlNodePtr& startNode, const xmlChar* name)
+{
+  xmlNodePtr node = NULL;
+  for (node = startNode; node; node = node->next)
+  {
+    //        fprintf(stderr, "%s: name=%s\n", __FUNCTION__, node->name);
+    if (!xmlStrcmp(node->name, name))
+    {
+      return node;
     }
-    return NULL;
+  }
+  return NULL;
 }
 
-xmlNodePtr Cache::FindAndGetNodeValue(xmlNodePtr &parentNode, const xmlChar *name, std::string &value) {
-    xmlNodePtr node = NULL;
-    node = FindNodeByName(parentNode->children, name);
-    if (!node) {
-//        fprintf(stderr, "%s: '%s' element not found\n", __FUNCTION__, name);
-    } else {
-        xmlChar *val = NULL;
-        val = xmlNodeGetContent(node);
-        if (val) {
-            value = (const char *) val;
-        }
-        xmlFree(val);
+xmlNodePtr Cache::FindAndGetNodeValue(xmlNodePtr& parentNode,
+                                      const xmlChar* name,
+                                      std::string& value)
+{
+  xmlNodePtr node = NULL;
+  node = FindNodeByName(parentNode->children, name);
+  if (!node)
+  {
+    //        fprintf(stderr, "%s: '%s' element not found\n", __FUNCTION__, name);
+  }
+  else
+  {
+    xmlChar* val = NULL;
+    val = xmlNodeGetContent(node);
+    if (val)
+    {
+      value = (const char*)val;
     }
-    return node;
+    xmlFree(val);
+  }
+  return node;
 }
 
-xmlNodePtr Cache::FindAndSetNodeValue(xmlNodePtr &parentNode, const xmlChar *name, const xmlChar *value) {
-    xmlNodePtr node = NULL;
-    node = FindNodeByName(parentNode->children, name);
-    if (!node) {
-        node = xmlNewChild(parentNode, NULL, name, NULL);
-    }
-    xmlNodeSetContent(node, value);
-    return node;
+xmlNodePtr Cache::FindAndSetNodeValue(xmlNodePtr& parentNode,
+                                      const xmlChar* name,
+                                      const xmlChar* value)
+{
+  xmlNodePtr node = NULL;
+  node = FindNodeByName(parentNode->children, name);
+  if (!node)
+  {
+    node = xmlNewChild(parentNode, NULL, name, NULL);
+  }
+  xmlNodeSetContent(node, value);
+  return node;
 }

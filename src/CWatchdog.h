@@ -8,30 +8,31 @@
 
 #pragma once
 
-#include <thread>
-#include <functional>
-
 #include "SAPI.h"
 
-namespace SC {
-    class CWatchdog {
-    public:
-        CWatchdog(unsigned int interval, SAPI *api, std::function<void(SError)> errorCallback);
+#include <functional>
+#include <thread>
 
-        virtual ~CWatchdog();
+namespace SC
+{
+class CWatchdog
+{
+public:
+  CWatchdog(unsigned int interval, SAPI* api, std::function<void(SError)> errorCallback);
 
-        virtual void Start();
+  virtual ~CWatchdog();
 
-        virtual void Stop();
+  virtual void Start();
 
-    private:
-        void Process();
+  virtual void Stop();
 
-        unsigned int m_interval;
-        SAPI *m_api;
-        std::function<void(SError)> m_errorCallback;
-        bool m_threadActive;
-        std::thread m_thread;
-    };
-}
+private:
+  void Process();
 
+  unsigned int m_interval;
+  SAPI* m_api;
+  std::function<void(SError)> m_errorCallback;
+  bool m_threadActive;
+  std::thread m_thread;
+};
+} // namespace SC
