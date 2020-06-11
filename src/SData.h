@@ -17,39 +17,50 @@
 #include "Settings.h"
 #include "XMLTV.h"
 #include "base/Cache.h"
-#include "client.h"
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"
 
 #include <json/json.h>
+#include <kodi/addon-instance/PVR.h>
 #include <mutex>
 #include <thread>
 #include <vector>
 
-class SData : Base::Cache
+class ATTRIBUTE_HIDDEN SData : public kodi::addon::CAddonBase,
+                               public kodi::addon::CInstancePVRClient,
+                               private Base::Cache
 {
 public:
   SData();
-
   ~SData();
 
-  bool ReloadSettings();
+  ADDON_STATUS Create() override;
+  ADDON_STATUS SetSetting(const std::string& settingName,
+                          const kodi::CSettingValue& settingValue) override
+  {
+    return ADDON_STATUS_NEED_RESTART;
+  }
 
-  PVR_ERROR GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t anEnd);
+  PVR_ERROR GetCapabilities(kodi::addon::PVRCapabilities& capabilities) override;
+  PVR_ERROR GetBackendName(std::string& name) override;
+  PVR_ERROR GetBackendVersion(std::string& version) override;
+  PVR_ERROR GetConnectionString(std::string& connection) override;
 
-  int GetChannelGroupsAmount();
+  PVR_ERROR GetEPGForChannel(int channelUid,
+                             time_t start,
+                             time_t end,
+                             kodi::addon::PVREPGTagsResultSet& results) override;
 
-  PVR_ERROR GetChannelGroups(ADDON_HANDLE handle, bool radio);
+  PVR_ERROR GetChannelGroupsAmount(int& amount) override;
+  PVR_ERROR GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results) override;
+  PVR_ERROR GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+                                   kodi::addon::PVRChannelGroupMembersResultSet& results) override;
 
-  PVR_ERROR GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP& group);
-
-  int GetChannelsAmount();
-
-  PVR_ERROR GetChannels(ADDON_HANDLE handle, bool radio);
-
-  PVR_ERROR GetChannelStreamProperties(const PVR_CHANNEL* channel,
-                                       PVR_NAMED_VALUE* properties,
-                                       unsigned int* iPropertiesCount);
+  PVR_ERROR GetChannelsAmount(int& amount) override;
+  PVR_ERROR GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results) override;
+  PVR_ERROR GetChannelStreamProperties(
+      const kodi::addon::PVRChannel& channel,
+      std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
   SC::Settings settings;
 
@@ -65,7 +76,8 @@ protected:
   void QueueErrorNotification(SError error) const;
 
 private:
-  std::string GetChannelStreamURL(const PVR_CHANNEL& channel) const;
+  bool ReloadSettings();
+  std::string GetChannelStreamURL(const kodi::addon::PVRChannel& channel) const;
 
   bool m_tokenManuallySet = false;
   time_t m_lastEpgAccessTime = 0;

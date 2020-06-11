@@ -8,19 +8,13 @@
 
 #include "GuideManager.h"
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#ifdef DeleteFile
-#undef DeleteFile
-#endif
-#endif
-
 #include "Utils.h"
 
 #include <chrono>
+#include <kodi/Filesystem.h>
+#include <kodi/General.h>
 #include <thread>
 
-using namespace ADDON;
 using namespace SC;
 
 GuideManager::~GuideManager()
@@ -31,7 +25,7 @@ GuideManager::~GuideManager()
 
 SError GuideManager::LoadGuide(time_t start, time_t end)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_XMLTV_ONLY)
     return SERROR_OK;
@@ -56,14 +50,14 @@ SError GuideManager::LoadGuide(time_t start, time_t end)
   {
     // don't sleep on first try
     if (numRetries > 1)
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+      std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     if (!(ret = m_api->ITVGetEPGInfo(period, m_epgData, cacheFile, cacheExpiry)))
     {
-      XBMC->Log(LOG_ERROR, "%s: ITVGetEPGInfo failed", __func__);
-      if (m_useCache && XBMC->FileExists(cacheFile.c_str(), false))
+      kodi::Log(ADDON_LOG_ERROR, "%s: ITVGetEPGInfo failed", __func__);
+      if (m_useCache && kodi::vfs::FileExists(cacheFile, false))
       {
-        XBMC->DeleteFile(cacheFile.c_str());
+        kodi::vfs::DeleteFile(cacheFile);
       }
     }
   }
@@ -73,7 +67,7 @@ SError GuideManager::LoadGuide(time_t start, time_t end)
 
 SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
     return SERROR_OK;
@@ -93,7 +87,7 @@ SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
       std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     if (!(ret = m_xmltv->Parse(scope, path)))
-      XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __func__);
+      kodi::Log(ADDON_LOG_ERROR, "%s: XMLTV Parse failed", __func__);
   }
 
   return ret ? SERROR_OK : SERROR_LOAD_EPG;
@@ -148,13 +142,13 @@ int GuideManager::AddEvents(
         }
         catch (const std::exception& ex)
         {
-          XBMC->Log(LOG_DEBUG, "%s: epg event excep. what=%s", __func__, ex.what());
+          kodi::Log(ADDON_LOG_DEBUG, "%s: epg event excep. what=%s", __func__, ex.what());
         }
       }
     }
     catch (const std::exception& ex)
     {
-      XBMC->Log(LOG_ERROR, "%s: epg data excep. what=%s", __func__, ex.what());
+      kodi::Log(ADDON_LOG_ERROR, "%s: epg data excep. what=%s", __func__, ex.what());
     }
   }
 
@@ -209,7 +203,7 @@ int GuideManager::AddEvents(
 
 std::vector<Event> GuideManager::GetChannelEvents(Channel& channel, time_t start, time_t end)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   std::vector<Event> events;
   int addedEvents;

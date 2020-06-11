@@ -9,14 +9,11 @@
 #include "HTTPSocket.h"
 
 #include "Utils.h"
-#include "client.h"
 
-#include "p8-platform/os.h"
-#include "p8-platform/util/StringUtils.h"
+#include <kodi/Filesystem.h>
+#include <p8-platform/util/StringUtils.h>
 
 #define TEMP_BUFFER_SIZE 1024
-
-using namespace ADDON;
 
 HTTPSocket::HTTPSocket(unsigned int timeout) : m_timeout(timeout)
 {
@@ -87,8 +84,8 @@ void HTTPSocket::BuildRequestURL(Request& request)
 bool HTTPSocket::Get(Request& request, Response& response, bool reqUseCache)
 {
   std::string reqUrl;
-  void* reqHdl = nullptr;
-  void* resHdl = nullptr;
+  kodi::vfs::CFile reqHdl;
+  kodi::vfs::CFile resHdl;
   char buffer[TEMP_BUFFER_SIZE];
   ssize_t res;
 
@@ -102,41 +99,34 @@ bool HTTPSocket::Get(Request& request, Response& response, bool reqUseCache)
     reqUrl = response.url;
   }
 
-  reqHdl = XBMC->OpenFile(reqUrl.c_str(), 0);
-  if (!reqHdl)
+  if (!reqHdl.OpenFile(reqUrl, 0))
   {
-    XBMC->Log(LOG_ERROR, "%s: failed to open reqUrl=%s", __func__, reqUrl.c_str());
+    kodi::Log(ADDON_LOG_ERROR, "%s: failed to open reqUrl=%s", __func__, reqUrl.c_str());
     return false;
   }
 
   if (!reqUseCache && response.useCache)
   {
-    resHdl = XBMC->OpenFileForWrite(response.url.c_str(), true);
-    if (!resHdl)
+    if (!resHdl.OpenFileForWrite(response.url, true))
     {
-      XBMC->Log(LOG_ERROR, "%s: failed to open url=%s", __func__, response.url.c_str());
-      XBMC->CloseFile(reqHdl);
+      kodi::Log(ADDON_LOG_ERROR, "%s: failed to open url=%s", __func__, response.url.c_str());
       return false;
     }
   }
 
   memset(buffer, 0, sizeof(buffer));
-  while ((res = XBMC->ReadFile(reqHdl, buffer, sizeof(buffer) - 1)) > 0)
+  while ((res = reqHdl.Read(buffer, sizeof(buffer) - 1)) > 0)
   {
-    if (resHdl && XBMC->WriteFile(resHdl, buffer, (size_t)res) == -1)
+    if (resHdl.IsOpen() && resHdl.Write(buffer, (size_t)res) == -1)
     {
-      XBMC->Log(LOG_ERROR, "%s: error when writing to url=%s", __func__, response.url.c_str());
+      kodi::Log(ADDON_LOG_ERROR, "%s: error when writing to url=%s", __func__,
+                response.url.c_str());
       break;
     }
     if (response.writeToBody)
       response.body += buffer;
     memset(buffer, 0, sizeof(buffer));
   }
-
-  if (resHdl)
-    XBMC->CloseFile(resHdl);
-
-  XBMC->CloseFile(reqHdl);
 
   return true;
 }
@@ -145,17 +135,18 @@ bool HTTPSocket::ResponseIsFresh(Response& response)
 {
   bool result(false);
 
-  if (XBMC->FileExists(response.url.c_str(), false))
+  if (kodi::vfs::FileExists(response.url, false))
   {
-    struct __stat64 fileStat;
-    XBMC->StatFile(response.url.c_str(), &fileStat);
+    kodi::vfs::FileStatus fileStat;
+    kodi::vfs::StatFile(response.url, fileStat);
 
     time_t now;
     time(&now);
 
-    XBMC->Log(LOG_DEBUG, "%s: now=%d | st_mtime=%d", __func__, now, fileStat.st_mtime);
+    kodi::Log(ADDON_LOG_DEBUG, "%s: now=%d | st_mtime=%d", __func__, now,
+              fileStat.GetModificationTime());
 
-    result = (fileStat.st_mtime + response.expiry) > now;
+    result = (fileStat.GetModificationTime() + response.expiry) > now;
   }
 
   return result;
@@ -178,13 +169,13 @@ bool HTTPSocket::Execute(Request& request, Response& response)
 
   if (!result)
   {
-    XBMC->Log(LOG_ERROR, "%s: request failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: request failed", __func__);
     return false;
   }
 
   if (response.writeToBody)
   {
-    XBMC->Log(LOG_DEBUG, "%s: %s", __func__,
+    kodi::Log(ADDON_LOG_DEBUG, "%s: %s", __func__,
               response.body.substr(0, 512).c_str()); // 512 is max
   }
 

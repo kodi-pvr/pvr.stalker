@@ -10,22 +10,21 @@
 
 #include "HTTPSocket.h"
 #include "Utils.h"
-#include "client.h"
 #include "libstalkerclient/itv.h"
 #include "libstalkerclient/stb.h"
 #include "libstalkerclient/watchdog.h"
 
+#include <kodi/General.h>
 #include <memory>
 #include <sstream>
 
 #define SC_SAPI_AUTHORIZATION_FAILED "Authorization failed."
 
-using namespace ADDON;
 using namespace SC;
 
 void SAPI::SetEndpoint(const std::string& endpoint)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   std::string server;
   size_t startPos;
@@ -62,14 +61,14 @@ void SAPI::SetEndpoint(const std::string& endpoint)
     m_referer = m_basePath;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: m_basePath=%s", __func__, m_basePath.c_str());
-  XBMC->Log(LOG_DEBUG, "%s: m_endpoint=%s", __func__, m_endpoint.c_str());
-  XBMC->Log(LOG_DEBUG, "%s: m_referer=%s", __func__, m_referer.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "%s: m_basePath=%s", __func__, m_basePath.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "%s: m_endpoint=%s", __func__, m_endpoint.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "%s: m_referer=%s", __func__, m_referer.c_str());
 }
 
 bool SAPI::STBHandshake(Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -78,7 +77,7 @@ bool SAPI::STBHandshake(Json::Value& parsed)
   params = sc_param_params_create(STB_HANDSHAKE);
   if (!sc_stb_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_stb_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -98,7 +97,7 @@ bool SAPI::STBHandshake(Json::Value& parsed)
 
 bool SAPI::STBGetProfile(bool authSecondStep, Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -107,7 +106,7 @@ bool SAPI::STBGetProfile(bool authSecondStep, Json::Value& parsed)
   params = sc_param_params_create(STB_GET_PROFILE);
   if (!sc_stb_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_stb_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -151,7 +150,7 @@ bool SAPI::STBGetProfile(bool authSecondStep, Json::Value& parsed)
 
 bool SAPI::STBDoAuth(Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -160,7 +159,7 @@ bool SAPI::STBDoAuth(Json::Value& parsed)
   params = sc_param_params_create(STB_DO_AUTH);
   if (!sc_stb_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_stb_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_stb_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -198,7 +197,7 @@ bool SAPI::STBDoAuth(Json::Value& parsed)
 
 bool SAPI::ITVGetAllChannels(Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   SError ret(SERROR_OK);
@@ -206,7 +205,7 @@ bool SAPI::ITVGetAllChannels(Json::Value& parsed)
   params = sc_param_params_create(ITV_GET_ALL_CHANNELS);
   if (!sc_itv_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -220,7 +219,7 @@ bool SAPI::ITVGetAllChannels(Json::Value& parsed)
 
 bool SAPI::ITVGetOrderedList(int genre, int page, Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -229,7 +228,7 @@ bool SAPI::ITVGetOrderedList(int genre, int page, Json::Value& parsed)
   params = sc_param_params_create(ITV_GET_ORDERED_LIST);
   if (!sc_itv_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -254,7 +253,7 @@ bool SAPI::ITVGetOrderedList(int genre, int page, Json::Value& parsed)
 
 bool SAPI::ITVCreateLink(std::string& cmd, Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -263,7 +262,7 @@ bool SAPI::ITVCreateLink(std::string& cmd, Json::Value& parsed)
   params = sc_param_params_create(ITV_CREATE_LINK);
   if (!sc_itv_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -283,7 +282,7 @@ bool SAPI::ITVCreateLink(std::string& cmd, Json::Value& parsed)
 
 bool SAPI::ITVGetGenres(Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   SError ret(SERROR_OK);
@@ -291,7 +290,7 @@ bool SAPI::ITVGetGenres(Json::Value& parsed)
   params = sc_param_params_create(ITV_GET_GENRES);
   if (!sc_itv_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -308,7 +307,7 @@ bool SAPI::ITVGetEPGInfo(int period,
                          const std::string& cacheFile,
                          unsigned int cacheExpiry)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -317,7 +316,7 @@ bool SAPI::ITVGetEPGInfo(int period,
   params = sc_param_params_create(ITV_GET_EPG_INFO);
   if (!sc_itv_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_itv_defaults failed", __func__);
     sc_param_params_free(&params);
     return false;
   }
@@ -336,7 +335,7 @@ bool SAPI::ITVGetEPGInfo(int period,
 
 SError SAPI::WatchdogGetEvents(int curPlayType, int eventActiveId, Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_param_params_t* params;
   sc_param_t* param;
@@ -345,7 +344,7 @@ SError SAPI::WatchdogGetEvents(int curPlayType, int eventActiveId, Json::Value& 
   params = sc_param_params_create(WATCHDOG_GET_EVENTS);
   if (!sc_watchdog_defaults(params))
   {
-    XBMC->Log(LOG_ERROR, "%s: sc_watchdog_defaults failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: sc_watchdog_defaults failed", __func__);
     sc_param_params_free(&params);
     return SERROR_API;
   }
@@ -368,7 +367,7 @@ SError SAPI::StalkerCall(sc_param_params_t* params,
                          const std::string& cacheFile,
                          unsigned int cacheExpiry)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   sc_request_t scRequest;
   sc_request_nameVal_t* scNameVal;
@@ -382,7 +381,7 @@ SError SAPI::StalkerCall(sc_param_params_t* params,
 
   memset(&scRequest, 0, sizeof(scRequest));
   if (!sc_request_build(m_identity, params, &scRequest))
-    XBMC->Log(LOG_ERROR, "sc_request_build failed");
+    kodi::Log(ADDON_LOG_ERROR, "sc_request_build failed");
 
   scNameVal = scRequest.headers;
   while (scNameVal)
@@ -419,16 +418,16 @@ SError SAPI::StalkerCall(sc_param_params_t* params,
 
   if (!sock.Execute(request, response))
   {
-    XBMC->Log(LOG_ERROR, "%s: api call failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: api call failed", __func__);
     return SERROR_API;
   }
   if (!reader->parse(response.body.c_str(), response.body.c_str() + response.body.size(), &parsed,
                      &jsonReaderError))
   {
-    XBMC->Log(LOG_ERROR, "%s: parsing failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: parsing failed", __func__);
     if (response.body.compare(SC_SAPI_AUTHORIZATION_FAILED) == 0)
     {
-      XBMC->Log(LOG_ERROR, "%s: authorization failed", __func__);
+      kodi::Log(ADDON_LOG_ERROR, "%s: authorization failed", __func__);
       return SERROR_AUTHORIZATION;
     }
     return SERROR_UNKNOWN;

@@ -13,8 +13,8 @@
 
 #include <chrono>
 #include <cmath>
+#include <kodi/General.h>
 #include <p8-platform/util/StringUtils.h>
-#include <p8-platform/util/util.h>
 
 #define SERROR_MSG_UNKNOWN 30501
 #define SERROR_MSG_INITIALIZE 30502
@@ -26,9 +26,6 @@
 #define SERROR_MSG_STREAM_URL 30508
 #define SERROR_MSG_AUTHORIZATION 30509
 #define MSG_RE_AUTHENTICATED 30510
-
-using namespace ADDON;
-using namespace P8PLATFORM;
 
 SData::SData() : Base::Cache()
 {
@@ -42,10 +39,10 @@ SData::~SData()
   if (m_epgThread.joinable())
     m_epgThread.join();
 
-  SAFE_DELETE(m_api);
-  SAFE_DELETE(m_sessionManager);
-  SAFE_DELETE(m_channelManager);
-  SAFE_DELETE(m_guideManager);
+  delete m_api;
+  delete m_sessionManager;
+  delete m_channelManager;
+  delete m_guideManager;
 }
 
 void SData::QueueErrorNotification(SError error) const
@@ -85,17 +82,17 @@ void SData::QueueErrorNotification(SError error) const
         errorMsg = SERROR_MSG_UNKNOWN;
         break;
       }
-      XBMC->QueueNotification(QUEUE_ERROR, m_sessionManager->GetLastUnknownError().c_str());
+      kodi::QueueNotification(QUEUE_ERROR, "", m_sessionManager->GetLastUnknownError());
       break;
   }
 
   if (errorMsg > 0)
-    XBMC->QueueNotification(QUEUE_ERROR, XBMC->GetLocalizedString(errorMsg));
+    kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(errorMsg));
 }
 
 bool SData::LoadCache()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   std::string cacheFile;
   xmlDocPtr doc = nullptr;
@@ -116,7 +113,7 @@ bool SData::LoadCache()
   portalsNode = FindNodeByName(rootNode->children, (const xmlChar*)"portals");
   if (!portalsNode)
   {
-    XBMC->Log(LOG_DEBUG, "%s: 'portals' element not found", __func__);
+    kodi::Log(ADDON_LOG_DEBUG, "%s: 'portals' element not found", __func__);
   }
   else
   {
@@ -145,7 +142,7 @@ bool SData::LoadCache()
         FindAndGetNodeValue(portalNode, (const xmlChar*)"token", val);
         SC_STR_SET(m_identity.token, val.c_str());
 
-        XBMC->Log(LOG_DEBUG, "%s: token=%s", __func__, m_identity.token);
+        kodi::Log(ADDON_LOG_DEBUG, "%s: token=%s", __func__, m_identity.token);
       }
     }
   }
@@ -157,7 +154,7 @@ bool SData::LoadCache()
 
 bool SData::SaveCache()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   std::string cacheFile;
   bool ret;
@@ -227,7 +224,7 @@ bool SData::SaveCache()
                              1) >= 0;
   if (!ret)
   {
-    XBMC->Log(LOG_ERROR, "%s: failed to save cache file", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: failed to save cache file", __func__);
   }
 
   xmlFreeDoc(doc);
@@ -237,7 +234,7 @@ bool SData::SaveCache()
 
 bool SData::ReloadSettings()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -268,7 +265,7 @@ bool SData::ReloadSettings()
   m_sessionManager->SetStatusCallback([this](SError err) {
     if (err == SERROR_OK)
     {
-      XBMC->QueueNotification(QUEUE_INFO, XBMC->GetLocalizedString(MSG_RE_AUTHENTICATED));
+      kodi::QueueNotification(QUEUE_INFO, "", kodi::GetLocalizedString(MSG_RE_AUTHENTICATED));
     }
     else
     {
@@ -296,7 +293,7 @@ bool SData::IsAuthenticated() const
 
 SError SData::Authenticate()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -323,23 +320,136 @@ std::string ParseAsW3CDateString(time_t time)
 
 } // unnamed namespace
 
-PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t end)
+#define PORTAL_SUFFIX_FORMAT "%s_%d"
+
+#define GET_SETTING_STR2(setting, name, portal, store, def) \
+  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
+  store = kodi::GetSettingString(setting, def);
+
+#define GET_SETTING_INT2(setting, name, portal, store, def) \
+  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
+  store = kodi::GetSettingInt(setting, def);
+
+ADDON_STATUS SData::Create()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  settings.activePortal = kodi::GetSettingInt("active_portal", SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
+  settings.connectionTimeout =
+      kodi::GetSettingInt("connection_timeout", SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
+  // calc based on index (5 second steps)
+  settings.connectionTimeout *= 5;
+
+  char setting[256];
+  int enumTemp;
+  int portal = settings.activePortal;
+  GET_SETTING_STR2(setting, "mac", portal, settings.mac, SC_SETTINGS_DEFAULT_MAC);
+  GET_SETTING_STR2(setting, "server", portal, settings.server, SC_SETTINGS_DEFAULT_SERVER);
+  GET_SETTING_STR2(setting, "time_zone", portal, settings.timeZone, SC_SETTINGS_DEFAULT_TIME_ZONE);
+  GET_SETTING_STR2(setting, "login", portal, settings.login, SC_SETTINGS_DEFAULT_LOGIN);
+  GET_SETTING_STR2(setting, "password", portal, settings.password, SC_SETTINGS_DEFAULT_PASSWORD);
+  GET_SETTING_INT2(setting, "guide_preference", portal, enumTemp,
+                   SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE);
+  settings.guidePreference = (SC::Settings::GuidePreference)enumTemp;
+  GET_SETTING_INT2(setting, "guide_cache", portal, settings.guideCache,
+                   SC_SETTINGS_DEFAULT_GUIDE_CACHE);
+  GET_SETTING_INT2(setting, "guide_cache_hours", portal, settings.guideCacheHours,
+                   SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS);
+  GET_SETTING_INT2(setting, "xmltv_scope", portal, enumTemp, SC_SETTINGS_DEFAULT_XMLTV_SCOPE);
+  settings.xmltvScope = (HTTPSocket::Scope)enumTemp;
+  if (settings.xmltvScope == HTTPSocket::Scope::SCOPE_REMOTE)
+  {
+    GET_SETTING_STR2(setting, "xmltv_url", portal, settings.xmltvPath,
+                     SC_SETTINGS_DEFAULT_XMLTV_URL);
+  }
+  else
+  {
+    GET_SETTING_STR2(setting, "xmltv_path", portal, settings.xmltvPath,
+                     SC_SETTINGS_DEFAULT_XMLTV_PATH);
+  }
+  GET_SETTING_STR2(setting, "token", portal, settings.token, SC_SETTINGS_DEFAULT_TOKEN);
+  GET_SETTING_STR2(setting, "serial_number", portal, settings.serialNumber,
+                   SC_SETTINGS_DEFAULT_SERIAL_NUMBER);
+  GET_SETTING_STR2(setting, "device_id", portal, settings.deviceId, SC_SETTINGS_DEFAULT_DEVICE_ID);
+  GET_SETTING_STR2(setting, "device_id2", portal, settings.deviceId2,
+                   SC_SETTINGS_DEFAULT_DEVICE_ID2);
+  GET_SETTING_STR2(setting, "signature", portal, settings.signature, SC_SETTINGS_DEFAULT_SIGNATURE);
+
+  kodi::Log(ADDON_LOG_DEBUG, "active_portal=%d", settings.activePortal);
+  kodi::Log(ADDON_LOG_DEBUG, "connection_timeout=%d", settings.connectionTimeout);
+
+  kodi::Log(ADDON_LOG_DEBUG, "mac=%s", settings.mac.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "server=%s", settings.server.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "timeZone=%s", settings.timeZone.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "login=%s", settings.login.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "password=%s", settings.password.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "guidePreference=%d", settings.guidePreference);
+  kodi::Log(ADDON_LOG_DEBUG, "guideCache=%d", settings.guideCache);
+  kodi::Log(ADDON_LOG_DEBUG, "guideCacheHours=%d", settings.guideCacheHours);
+  kodi::Log(ADDON_LOG_DEBUG, "xmltvScope=%d", settings.xmltvScope);
+  kodi::Log(ADDON_LOG_DEBUG, "xmltvPath=%s", settings.xmltvPath.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "token=%s", settings.token.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "serialNumber=%s", settings.serialNumber.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "deviceId=%s", settings.deviceId.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "deviceId2=%s", settings.deviceId2.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "signature=%s", settings.signature.c_str());
+
+  if (!ReloadSettings())
+  {
+    return ADDON_STATUS_LOST_CONNECTION;
+  }
+
+  return ADDON_STATUS_OK;
+}
+
+PVR_ERROR SData::GetCapabilities(kodi::addon::PVRCapabilities& capabilities)
+{
+  capabilities.SetSupportsEPG(true);
+  capabilities.SetSupportsTV(true);
+  capabilities.SetSupportsChannelGroups(true);
+  capabilities.SetSupportsRecordings(false);
+  capabilities.SetSupportsRecordingsRename(false);
+  capabilities.SetSupportsRecordingsLifetimeChange(false);
+  capabilities.SetSupportsDescrambleInfo(false);
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR SData::GetBackendName(std::string& name)
+{
+  name = "Stalker Middleware";
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR SData::GetBackendVersion(std::string& version)
+{
+  version = "Unknown";
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR SData::GetConnectionString(std::string& connection)
+{
+  connection = settings.server;
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR SData::GetEPGForChannel(int channelUid,
+                                  time_t start,
+                                  time_t end,
+                                  kodi::addon::PVREPGTagsResultSet& results)
+{
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SC::Channel* chan;
   time_t now;
   SError ret;
 
-  chan = m_channelManager->GetChannel(iChannelUid);
+  chan = m_channelManager->GetChannel(channelUid);
   if (chan == nullptr)
   {
-    XBMC->Log(LOG_ERROR, "%s: channel not found", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: channel not found", __func__);
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s", __func__, start, end, chan->number,
-            chan->name.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "%s: time range: %d - %d | %d - %s", __func__, start, end,
+            chan->number, chan->name.c_str());
 
   m_epgMutex.lock();
 
@@ -349,7 +459,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
   {
     // limit to 1 hour if caching is disabled
     m_nextEpgLoadTime = now + (settings.guideCache ? settings.guideCacheHours : 1) * 3600;
-    XBMC->Log(LOG_DEBUG, "%s: m_nextEpgLoadTime=%d", __func__, m_nextEpgLoadTime);
+    kodi::Log(ADDON_LOG_DEBUG, "%s: m_nextEpgLoadTime=%d", __func__, m_nextEpgLoadTime);
 
     if (IsAuthenticated())
     {
@@ -368,33 +478,32 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
   events = m_guideManager->GetChannelEvents(*chan, start, end);
   for (std::vector<SC::Event>::iterator event = events.begin(); event != events.end(); ++event)
   {
-    EPG_TAG tag;
-    memset(&tag, 0, sizeof(EPG_TAG));
+    kodi::addon::PVREPGTag tag;
 
-    tag.iUniqueBroadcastId = event->uniqueBroadcastId;
-    tag.strTitle = event->title.c_str();
-    tag.iUniqueChannelId = chan->uniqueId;
-    tag.startTime = event->startTime;
-    tag.endTime = event->endTime;
-    tag.strPlot = event->plot.c_str();
-    tag.strCast = event->cast.c_str();
-    tag.strDirector = event->directors.c_str();
-    tag.strWriter = event->writers.c_str();
-    tag.iYear = event->year;
-    tag.strIconPath = event->iconPath.c_str();
-    tag.iGenreType = event->genreType;
-    if (tag.iGenreType == EPG_GENRE_USE_STRING)
-      tag.strGenreDescription = event->genreDescription.c_str();
+    tag.SetUniqueBroadcastId(event->uniqueBroadcastId);
+    tag.SetTitle(event->title);
+    tag.SetUniqueChannelId(chan->uniqueId);
+    tag.SetStartTime(event->startTime);
+    tag.SetEndTime(event->endTime);
+    tag.SetPlot(event->plot);
+    tag.SetCast(event->cast);
+    tag.SetDirector(event->directors);
+    tag.SetWriter(event->writers);
+    tag.SetYear(event->year);
+    tag.SetIconPath(event->iconPath);
+    tag.SetGenreType(event->genreType);
+    if (tag.GetGenreType() == EPG_GENRE_USE_STRING)
+      tag.SetGenreDescription(event->genreDescription);
     std::string strFirstAired(event->firstAired > 0 ? ParseAsW3CDateString(event->firstAired) : "");
-    tag.strFirstAired = strFirstAired.c_str();
-    tag.iStarRating = event->starRating;
-    tag.iSeriesNumber = EPG_TAG_INVALID_SERIES_EPISODE;
-    tag.iEpisodeNumber = event->episodeNumber;
-    tag.iEpisodePartNumber = EPG_TAG_INVALID_SERIES_EPISODE;
-    tag.strEpisodeName = event->episodeName.c_str();
-    tag.iFlags = EPG_TAG_FLAG_UNDEFINED;
+    tag.SetFirstAired(strFirstAired);
+    tag.SetStarRating(event->starRating);
+    tag.SetSeriesNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+    tag.SetEpisodeNumber(event->episodeNumber);
+    tag.SetEpisodePartNumber(EPG_TAG_INVALID_SERIES_EPISODE);
+    tag.SetEpisodeName(event->episodeName);
+    tag.SetFlags(EPG_TAG_FLAG_UNDEFINED);
 
-    PVR->TransferEpgEntry(handle, &tag);
+    results.Add(tag);
   }
 
   m_epgMutex.unlock();
@@ -408,7 +517,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
 
       while (m_epgThreadActive)
       {
-        XBMC->Log(LOG_DEBUG, "epgThread");
+        kodi::Log(ADDON_LOG_DEBUG, "epgThread");
 
         time_t now;
 
@@ -435,14 +544,15 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
   return PVR_ERROR_NO_ERROR;
 }
 
-int SData::GetChannelGroupsAmount()
+PVR_ERROR SData::GetChannelGroupsAmount(int& amount)
 {
-  return m_channelManager->GetChannelGroups().size();
+  amount = m_channelManager->GetChannelGroups().size();
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool radio)
+PVR_ERROR SData::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -469,28 +579,28 @@ PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool radio)
     if (!group->id.compare("*"))
       continue;
 
-    PVR_CHANNEL_GROUP tag;
-    memset(&tag, 0, sizeof(tag));
+    kodi::addon::PVRChannelGroup tag;
 
-    strncpy(tag.strGroupName, group->name.c_str(), sizeof(tag.strGroupName) - 1);
-    tag.bIsRadio = false;
+    tag.SetGroupName(group->name);
+    tag.SetIsRadio(false);
 
-    PVR->TransferChannelGroup(handle, &tag);
+    results.Add(tag);
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP& group)
+PVR_ERROR SData::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+                                        kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SC::ChannelGroup* channelGroup;
 
-  channelGroup = m_channelManager->GetChannelGroup(group.strGroupName);
+  channelGroup = m_channelManager->GetChannelGroup(group.GetGroupName());
   if (channelGroup == nullptr)
   {
-    XBMC->Log(LOG_ERROR, "%s: channel not found", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: channel not found", __func__);
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -503,27 +613,27 @@ PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_G
     if (channel->tvGenreId.compare(channelGroup->id))
       continue;
 
-    PVR_CHANNEL_GROUP_MEMBER tag;
-    memset(&tag, 0, sizeof(tag));
+    kodi::addon::PVRChannelGroupMember tag;
 
-    strncpy(tag.strGroupName, channelGroup->name.c_str(), sizeof(tag.strGroupName) - 1);
-    tag.iChannelUniqueId = channel->uniqueId;
-    tag.iChannelNumber = channel->number;
+    tag.SetGroupName(channelGroup->name);
+    tag.SetChannelUniqueId(channel->uniqueId);
+    tag.SetChannelNumber(channel->number);
 
-    PVR->TransferChannelGroupMember(handle, &tag);
+    results.Add(tag);
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-int SData::GetChannelsAmount()
+PVR_ERROR SData::GetChannelsAmount(int& amount)
 {
-  return m_channelManager->GetChannels().size();
+  amount = m_channelManager->GetChannels().size();
+  return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio)
+PVR_ERROR SData::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -546,48 +656,38 @@ PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio)
   for (std::vector<SC::Channel>::iterator channel = channels.begin(); channel != channels.end();
        ++channel)
   {
-    PVR_CHANNEL tag;
-    memset(&tag, 0, sizeof(tag));
+    kodi::addon::PVRChannel tag;
 
-    tag.iUniqueId = channel->uniqueId;
-    tag.bIsRadio = false;
-    tag.iChannelNumber = channel->number;
-    strncpy(tag.strChannelName, channel->name.c_str(), sizeof(tag.strChannelName) - 1);
-    strncpy(tag.strIconPath, channel->iconPath.c_str(), sizeof(tag.strIconPath) - 1);
-    tag.bIsHidden = false;
+    tag.SetUniqueId(channel->uniqueId);
+    tag.SetIsRadio(false);
+    tag.SetChannelNumber(channel->number);
+    tag.SetChannelName(channel->name);
+    tag.SetIconPath(channel->iconPath);
+    tag.SetIsHidden(false);
 
-    PVR->TransferChannelEntry(handle, &tag);
+    results.Add(tag);
   }
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel,
-                                            PVR_NAMED_VALUE* properties,
-                                            unsigned int* iPropertiesCount)
+PVR_ERROR SData::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel,
+                                            std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
-  if (!channel || !properties || *iPropertiesCount < 2)
-    return PVR_ERROR_INVALID_PARAMETERS;
-
-  const std::string strUrl = GetChannelStreamURL(*channel);
+  const std::string strUrl = GetChannelStreamURL(channel);
 
   if (strUrl.empty())
     return PVR_ERROR_FAILED;
 
-  strncpy(properties[0].strName, PVR_STREAM_PROPERTY_STREAMURL, sizeof(properties[0].strName) - 1);
-  strncpy(properties[0].strValue, strUrl.c_str(), sizeof(properties[0].strValue) - 1);
-  strncpy(properties[1].strName, PVR_STREAM_PROPERTY_ISREALTIMESTREAM,
-          sizeof(properties[1].strName) - 1);
-  strncpy(properties[1].strValue, "true", sizeof(properties[1].strValue) - 1);
-
-  *iPropertiesCount = 2;
+  properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, strUrl.c_str());
+  properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "true");
 
   return PVR_ERROR_NO_ERROR;
 }
 
-std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
+std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) const
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   std::string streamUrl;
 
@@ -598,19 +698,19 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
   std::string cmd;
   size_t pos;
 
-  chan = m_channelManager->GetChannel(channel.iUniqueId);
+  chan = m_channelManager->GetChannel(channel.GetUniqueId());
   if (chan == nullptr)
   {
-    XBMC->Log(LOG_ERROR, "%s: channel not found", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: channel not found", __func__);
     return streamUrl;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: cmd=%s", __func__, chan->cmd.c_str());
+  kodi::Log(ADDON_LOG_DEBUG, "%s: cmd=%s", __func__, chan->cmd.c_str());
 
   if (chan->cmd.find("matrix") != std::string::npos)
   {
     // non-standard call to server
-    XBMC->Log(LOG_DEBUG, "%s: getting matrix stream url", __func__);
+    kodi::Log(ADDON_LOG_DEBUG, "%s: getting matrix stream url", __func__);
 
     std::vector<std::string> strSplit;
     std::ostringstream oss;
@@ -637,26 +737,26 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
         }
         else
         {
-          XBMC->Log(LOG_ERROR, "%s: empty response?", __func__);
+          kodi::Log(ADDON_LOG_ERROR, "%s: empty response?", __func__);
           failed = true;
         }
       }
       else
       {
-        XBMC->Log(LOG_ERROR, "%s: matrix call failed", __func__);
+        kodi::Log(ADDON_LOG_ERROR, "%s: matrix call failed", __func__);
         failed = true;
       }
     }
     else
     {
-      XBMC->Log(LOG_ERROR, "%s: not a matrix channel?", __func__);
+      kodi::Log(ADDON_LOG_ERROR, "%s: not a matrix channel?", __func__);
       failed = true;
     }
 
     // fall back. maybe this is a valid, regular cmd/url
     if (failed)
     {
-      XBMC->Log(LOG_DEBUG, "%s: falling back to original channel cmd", __func__);
+      kodi::Log(ADDON_LOG_DEBUG, "%s: falling back to original channel cmd", __func__);
       cmd = chan->cmd;
     }
 
@@ -674,7 +774,7 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
 
   if (streamUrl.empty())
   {
-    XBMC->Log(LOG_ERROR, "%s: no stream url found", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: no stream url found", __func__);
     QueueErrorNotification(SERROR_STREAM_URL);
   }
   else
@@ -684,8 +784,10 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
     //        if (streamUrl.find("http") == 0 && settings.connectionTimeout > 0)
     //            streamUrl += "|Connection-Timeout=" + std::to_string(settings.connectionTimeout);
 
-    XBMC->Log(LOG_DEBUG, "%s: streamUrl=%s", __func__, streamUrl.c_str());
+    kodi::Log(ADDON_LOG_DEBUG, "%s: streamUrl=%s", __func__, streamUrl.c_str());
   }
 
   return streamUrl;
 }
+
+ADDONCREATOR(SData)

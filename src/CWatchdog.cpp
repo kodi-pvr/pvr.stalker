@@ -8,12 +8,10 @@
 
 #include "CWatchdog.h"
 
-#include "client.h"
-
 #include <chrono>
+#include <kodi/General.h>
 #include <thread>
 
-using namespace ADDON;
 using namespace SC;
 
 CWatchdog::CWatchdog(uint32_t interval, SAPI* api, std::function<void(SError)> errorCallback)
@@ -41,7 +39,7 @@ void CWatchdog::Stop()
 
 void CWatchdog::Process()
 {
-  XBMC->Log(LOG_DEBUG, "%s: start", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s: start", __func__);
 
   int curPlayType;
   int eventActiveId;
@@ -59,7 +57,7 @@ void CWatchdog::Process()
     ret = m_api->WatchdogGetEvents(curPlayType, eventActiveId, parsed);
     if (ret != SERROR_OK)
     {
-      XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __func__);
+      kodi::Log(ADDON_LOG_ERROR, "%s: WatchdogGetEvents failed", __func__);
 
       if (m_errorCallback != nullptr)
         m_errorCallback(ret);
@@ -79,5 +77,5 @@ void CWatchdog::Process()
     }
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: stop", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s: stop", __func__);
 }

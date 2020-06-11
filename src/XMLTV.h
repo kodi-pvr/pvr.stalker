@@ -11,9 +11,8 @@
 #include "HTTPSocket.h"
 #include "libstalkerclient/xmltv.h"
 
-#include "kodi/xbmc_pvr_types.h"
-
 #include <ctime>
+#include <kodi/addon-instance/pvr/EPG.h>
 #include <map>
 #include <string>
 #include <vector>

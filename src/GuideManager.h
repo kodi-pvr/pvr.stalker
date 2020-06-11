@@ -14,8 +14,8 @@
 #include "Settings.h"
 #include "XMLTV.h"
 #include "base/GuideManager.h"
-#include "client.h"
 
+#include <kodi/addon-instance/pvr/EPG.h>
 #include <memory>
 
 namespace SC
@@ -68,7 +68,8 @@ private:
   int AddEvents(int type, std::vector<Event>& events, Channel& channel, time_t start, time_t end);
 
   SAPI* m_api = nullptr;
-  Settings::GuidePreference m_guidePreference = (SC::Settings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
+  Settings::GuidePreference m_guidePreference =
+      (SC::Settings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
   bool m_useCache = SC_SETTINGS_DEFAULT_GUIDE_CACHE;
   unsigned int m_expiry = SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS * 3600;
   std::shared_ptr<XMLTV> m_xmltv = std::make_shared<XMLTV>();

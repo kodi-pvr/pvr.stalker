@@ -8,15 +8,14 @@
 
 #include "Utils.h"
 
-#include "client.h"
 #include "libstalkerclient/itv.h"
 
 #include <iomanip>
-#include <p8-platform/os.h>
+#include <kodi/General.h>
 
 std::string Utils::GetFilePath(const std::string& path, bool isUserPath)
 {
-  return (isUserPath ? g_strUserPath : g_strClientPath) + PATH_SEPARATOR_CHAR + path;
+  return (isUserPath ? kodi::GetBaseUserPath(path) : kodi::GetAddonPath(path));
 }
 
 // http://stackoverflow.com/a/17708801

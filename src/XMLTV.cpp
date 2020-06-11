@@ -9,21 +9,11 @@
 #include "XMLTV.h"
 
 #include "Utils.h"
-#include "client.h"
-
-#include "p8-platform/util/StringUtils.h"
 
 #include <algorithm>
 #include <iterator>
-
-#ifdef TARGET_WINDOWS
-#include <windows.h>
-#ifdef DeleteFile
-#undef DeleteFile
-#endif
-#endif
-
-using namespace ADDON;
+#include <kodi/Filesystem.h>
+#include <p8-platform/util/StringUtils.h>
 
 XMLTV::~XMLTV()
 {
@@ -32,7 +22,7 @@ XMLTV::~XMLTV()
 
 bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string& path)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   HTTPSocket sock(15);
   HTTPSocket::Request request;
@@ -50,11 +40,11 @@ bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string& path)
   response.writeToBody = false;
 
   if (!sock.Execute(request, response) || !(xmltv_channels = sc_xmltv_parse(m_cacheFile.c_str())))
-    XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: failed to load XMLTV data", __func__);
 
-  if ((!xmltv_channels || !m_useCache) && XBMC->FileExists(m_cacheFile.c_str(), false))
+  if ((!xmltv_channels || !m_useCache) && kodi::vfs::FileExists(m_cacheFile, false))
   {
-    XBMC->DeleteFile(response.url.c_str());
+    kodi::vfs::DeleteFile(response.url);
   }
 
   if (!xmltv_channels)
@@ -85,7 +75,7 @@ bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string& path)
     }
 
     if (c.displayNames.size())
-      XBMC->Log(LOG_DEBUG, "%s", c.displayNames.front().c_str());
+      kodi::Log(ADDON_LOG_DEBUG, "%s", c.displayNames.front().c_str());
 
     node2 = chan->programmes->first;
     while (node2)

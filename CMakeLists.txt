@@ -31,7 +31,6 @@ set(BASE_SOURCES
         src/base/Cache.cpp)
 
 set(SOURCES
-        src/client.cpp
         src/ChannelManager.cpp
         src/CWatchdog.cpp
         src/GuideManager.cpp
@@ -48,7 +47,6 @@ set(STALKER_SOURCES
 
 set(STALKER_HEADERS
         src/ChannelManager.h
-        src/client.h
         src/CWatchdog.h
         src/Error.h
         src/GuideManager.h

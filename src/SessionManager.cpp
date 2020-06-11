@@ -9,12 +9,11 @@
 #include "SessionManager.h"
 
 #include "Utils.h"
-#include "client.h"
 
 #include <chrono>
+#include <kodi/General.h>
 #include <thread>
 
-using namespace ADDON;
 using namespace SC;
 
 SessionManager::~SessionManager()
@@ -30,20 +29,20 @@ SessionManager::~SessionManager()
 
 SError SessionManager::DoHandshake()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
 
   if (!m_api->STBHandshake(parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: STBHandshake failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: STBHandshake failed", __func__);
     return SERROR_AUTHENTICATION;
   }
 
   if (parsed["js"].isMember("token"))
     SC_STR_SET(m_identity->token, parsed["js"]["token"].asCString());
 
-  XBMC->Log(LOG_DEBUG, "%s: token=%s", __func__, m_identity->token);
+  kodi::Log(ADDON_LOG_DEBUG, "%s: token=%s", __func__, m_identity->token);
 
   if (parsed["js"].isMember("not_valid"))
     m_identity->valid_token = !Utils::GetIntFromJsonValue(parsed["js"]["not_valid"]);
@@ -53,14 +52,14 @@ SError SessionManager::DoHandshake()
 
 SError SessionManager::DoAuth()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
   SError ret(SERROR_OK);
 
   if (!m_api->STBDoAuth(parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: STBDoAuth failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: STBDoAuth failed", __func__);
     return SERROR_AUTHENTICATION;
   }
 
@@ -72,14 +71,14 @@ SError SessionManager::DoAuth()
 
 SError SessionManager::GetProfile(bool authSecondStep)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __func__);
+  kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
   SError ret(SERROR_OK);
 
   if (!m_api->STBGetProfile(authSecondStep, parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: STBGetProfile failed", __func__);
+    kodi::Log(ADDON_LOG_ERROR, "%s: STBGetProfile failed", __func__);
     return SERROR_AUTHENTICATION;
   }
 
@@ -103,7 +102,7 @@ SError SessionManager::GetProfile(bool authSecondStep)
   if (parsed["js"].isMember("timeslot"))
     m_profile->timeslot = Utils::GetDoubleFromJsonValue(parsed["js"]["timeslot"]);
 
-  XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __func__, m_profile->timeslot);
+  kodi::Log(ADDON_LOG_DEBUG, "%s: timeslot=%f", __func__, m_profile->timeslot);
 
   switch (m_profile->status)
   {
@@ -118,8 +117,8 @@ SError SessionManager::GetProfile(bool authSecondStep)
     case 1:
     default:
       m_lastUnknownError = m_profile->msg;
-      XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s", __func__, m_profile->status,
-                m_profile->msg, m_profile->block_msg);
+      kodi::Log(ADDON_LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s", __func__,
+                m_profile->status, m_profile->msg, m_profile->block_msg);
       return SERROR_UNKNOWN;
   }
 
