@@ -17,9 +17,8 @@ namespace Base
 class Cache
 {
 public:
-  Cache();
-
-  virtual ~Cache();
+  Cache() = default;
+  virtual ~Cache() = default;
 
 protected:
   virtual bool Open(const std::string& cacheFile,

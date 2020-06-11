@@ -57,8 +57,7 @@ public:
   };
 
   HTTPSocket(unsigned int timeout = HTTPSOCKET_MINIMUM_TIMEOUT);
-
-  virtual ~HTTPSocket();
+  virtual ~HTTPSocket() = default;
 
   virtual bool Execute(Request& request, Response& response);
 

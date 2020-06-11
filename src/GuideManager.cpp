@@ -10,27 +10,18 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
-#define usleep(usec) Sleep((DWORD)(usec) / 1000)
 #ifdef DeleteFile
 #undef DeleteFile
 #endif
-#else
-#include <unistd.h>
 #endif
 
 #include "Utils.h"
 
+#include <chrono>
+#include <thread>
+
 using namespace ADDON;
 using namespace SC;
-
-GuideManager::GuideManager() : Base::GuideManager<Event>()
-{
-  m_api = nullptr;
-  m_guidePreference = (SC::Settings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
-  m_useCache = SC_SETTINGS_DEFAULT_GUIDE_CACHE;
-  m_expiry = SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS * 3600;
-  m_xmltv = std::make_shared<XMLTV>();
-}
 
 GuideManager::~GuideManager()
 {
@@ -40,7 +31,7 @@ GuideManager::~GuideManager()
 
 SError GuideManager::LoadGuide(time_t start, time_t end)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_XMLTV_ONLY)
     return SERROR_OK;
@@ -65,11 +56,11 @@ SError GuideManager::LoadGuide(time_t start, time_t end)
   {
     // don't sleep on first try
     if (numRetries > 1)
-      usleep(5000000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     if (!(ret = m_api->ITVGetEPGInfo(period, m_epgData, cacheFile, cacheExpiry)))
     {
-      XBMC->Log(LOG_ERROR, "%s: ITVGetEPGInfo failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: ITVGetEPGInfo failed", __func__);
       if (m_useCache && XBMC->FileExists(cacheFile.c_str(), false))
       {
         XBMC->DeleteFile(cacheFile.c_str());
@@ -82,7 +73,7 @@ SError GuideManager::LoadGuide(time_t start, time_t end)
 
 SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
     return SERROR_OK;
@@ -99,10 +90,10 @@ SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
   {
     // don't sleep on first try
     if (numRetries > 1)
-      usleep(5000000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     if (!(ret = m_xmltv->Parse(scope, path)))
-      XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: XMLTV Parse failed", __func__);
   }
 
   return ret ? SERROR_OK : SERROR_LOAD_EPG;
@@ -119,7 +110,7 @@ int GuideManager::AddEvents(
     {
       std::string channelId;
 
-      channelId = Utils::ToString(channel.channelId);
+      channelId = std::to_string(channel.channelId);
       if (!m_epgData.isMember("js") || !m_epgData["js"].isObject() ||
           !m_epgData["js"].isMember("data") || !m_epgData["js"]["data"].isMember(channelId))
       {
@@ -157,13 +148,13 @@ int GuideManager::AddEvents(
         }
         catch (const std::exception& ex)
         {
-          XBMC->Log(LOG_DEBUG, "%s: epg event excep. what=%s", __FUNCTION__, ex.what());
+          XBMC->Log(LOG_DEBUG, "%s: epg event excep. what=%s", __func__, ex.what());
         }
       }
     }
     catch (const std::exception& ex)
     {
-      XBMC->Log(LOG_ERROR, "%s: epg data excep. what=%s", __FUNCTION__, ex.what());
+      XBMC->Log(LOG_ERROR, "%s: epg data excep. what=%s", __func__, ex.what());
     }
   }
 
@@ -172,7 +163,7 @@ int GuideManager::AddEvents(
     std::string channelNum;
     XMLTV::Channel* c;
 
-    channelNum = Utils::ToString(channel.number);
+    channelNum = std::to_string(channel.number);
     c = m_xmltv->GetChannelById(channelNum);
     if (c == nullptr)
     {
@@ -198,12 +189,12 @@ int GuideManager::AddEvents(
         e.cast = p->extra.cast;
         e.directors = p->extra.directors;
         e.writers = p->extra.writers;
-        e.year = Utils::StringToInt(p->date.substr(0, 4));
+        e.year = std::stoi(p->date.substr(0, 4));
         e.iconPath = p->icon;
         e.genreType = p->extra.genreType;
         e.genreDescription = p->extra.genreDescription;
         e.firstAired = p->previouslyShown;
-        e.starRating = Utils::StringToInt(p->starRating.substr(0, 1));
+        e.starRating = std::stoi(p->starRating.substr(0, 1));
         e.episodeNumber = p->episodeNumber;
         e.episodeName = p->subTitle;
 
@@ -218,7 +209,7 @@ int GuideManager::AddEvents(
 
 std::vector<Event> GuideManager::GetChannelEvents(Channel& channel, time_t start, time_t end)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   std::vector<Event> events;
   int addedEvents;

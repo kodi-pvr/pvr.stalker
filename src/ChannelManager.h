@@ -35,9 +35,8 @@ struct ChannelGroup
 class ChannelManager : public Base::ChannelManager<Channel>
 {
 public:
-  ChannelManager();
-
-  virtual ~ChannelManager();
+  ChannelManager() = default;
+  virtual ~ChannelManager() = default;
 
   virtual void SetAPI(SAPI* api) { m_api = api; }
 
@@ -67,7 +66,7 @@ private:
 
   std::string ParseStreamCmd(Json::Value& parsed);
 
-  SAPI* m_api;
+  SAPI* m_api = nullptr;
   std::vector<ChannelGroup> m_channelGroups;
 };
 } // namespace SC

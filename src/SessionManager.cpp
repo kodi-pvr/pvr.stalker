@@ -11,63 +11,39 @@
 #include "Utils.h"
 #include "client.h"
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#define usleep(usec) Sleep((DWORD)(usec) / 1000)
-#else
-#include <unistd.h>
-#endif
+#include <chrono>
+#include <thread>
 
 using namespace ADDON;
 using namespace SC;
 
-SessionManager::SessionManager()
-{
-  m_identity = nullptr;
-  m_hasUserDefinedToken = false;
-  m_profile = nullptr;
-  m_api = nullptr;
-  m_statusCallback = nullptr;
-  m_authenticated = false;
-  m_isAuthenticating = false;
-  m_watchdog = nullptr;
-  m_threadActive = false;
-}
-
 SessionManager::~SessionManager()
 {
-  m_identity = nullptr;
-  m_profile = nullptr;
-  m_api = nullptr;
-  m_statusCallback = nullptr;
-
   if (m_watchdog)
   {
     StopWatchdog();
     delete m_watchdog;
-    m_watchdog = nullptr;
   }
-  m_watchdog = nullptr;
 
   StopAuthInvoker();
 }
 
 SError SessionManager::DoHandshake()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
 
   if (!m_api->STBHandshake(parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: STBHandshake failed", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: STBHandshake failed", __func__);
     return SERROR_AUTHENTICATION;
   }
 
   if (parsed["js"].isMember("token"))
     SC_STR_SET(m_identity->token, parsed["js"]["token"].asCString());
 
-  XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity->token);
+  XBMC->Log(LOG_DEBUG, "%s: token=%s", __func__, m_identity->token);
 
   if (parsed["js"].isMember("not_valid"))
     m_identity->valid_token = !Utils::GetIntFromJsonValue(parsed["js"]["not_valid"]);
@@ -77,14 +53,14 @@ SError SessionManager::DoHandshake()
 
 SError SessionManager::DoAuth()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
   SError ret(SERROR_OK);
 
   if (!m_api->STBDoAuth(parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: STBDoAuth failed", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: STBDoAuth failed", __func__);
     return SERROR_AUTHENTICATION;
   }
 
@@ -96,14 +72,14 @@ SError SessionManager::DoAuth()
 
 SError SessionManager::GetProfile(bool authSecondStep)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
   SError ret(SERROR_OK);
 
   if (!m_api->STBGetProfile(authSecondStep, parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: STBGetProfile failed", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: STBGetProfile failed", __func__);
     return SERROR_AUTHENTICATION;
   }
 
@@ -127,7 +103,7 @@ SError SessionManager::GetProfile(bool authSecondStep)
   if (parsed["js"].isMember("timeslot"))
     m_profile->timeslot = Utils::GetDoubleFromJsonValue(parsed["js"]["timeslot"]);
 
-  XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __FUNCTION__, m_profile->timeslot);
+  XBMC->Log(LOG_DEBUG, "%s: timeslot=%f", __func__, m_profile->timeslot);
 
   switch (m_profile->status)
   {
@@ -142,7 +118,7 @@ SError SessionManager::GetProfile(bool authSecondStep)
     case 1:
     default:
       m_lastUnknownError = m_profile->msg;
-      XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s", __FUNCTION__, m_profile->status,
+      XBMC->Log(LOG_ERROR, "%s: status=%i | msg=%s | block_msg=%s", __func__, m_profile->status,
                 m_profile->msg, m_profile->block_msg);
       return SERROR_UNKNOWN;
   }
@@ -181,7 +157,7 @@ SError SessionManager::Authenticate()
 
     // don't sleep on first try
     if (numRetries > 1)
-      usleep(5000000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     if (!m_hasUserDefinedToken && SERROR_OK != DoHandshake())
       continue;
@@ -225,7 +201,7 @@ void SessionManager::StartAuthInvoker()
       count = 0;
       while (count < target)
       {
-        usleep(100000);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         if (!m_threadActive)
           break;
         count += 100;

@@ -61,7 +61,7 @@ public:
     std::vector<Programme> programmes;
   };
 
-  XMLTV();
+  XMLTV() = default;
 
   virtual ~XMLTV();
 
@@ -121,9 +121,9 @@ protected:
   }
 
 private:
-  bool m_useCache;
+  bool m_useCache = false;
   std::string m_cacheFile;
-  unsigned int m_cacheExpiry;
+  unsigned int m_cacheExpiry = 0;
   std::vector<Channel> m_channels;
-  std::map<int, std::vector<std::string>> m_genreMap;
+  std::map<int, std::vector<std::string>> m_genreMap = XMLTV::CreateGenreMap();
 };

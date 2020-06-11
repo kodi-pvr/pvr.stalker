@@ -39,13 +39,13 @@
 
 using namespace ADDON;
 
-CHelper_libXBMC_addon* XBMC = NULL;
-CHelper_libXBMC_pvr* PVR = NULL;
+CHelper_libXBMC_addon* XBMC = nullptr;
+CHelper_libXBMC_pvr* PVR = nullptr;
 
 std::string g_strUserPath = "";
 std::string g_strClientPath = "";
 
-SData* m_data = NULL;
+SData* m_data = nullptr;
 ADDON_STATUS m_currentStatus = ADDON_STATUS_UNKNOWN;
 
 extern "C"
@@ -71,7 +71,7 @@ extern "C"
       return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
-    XBMC->Log(LOG_DEBUG, "%s: Creating the Stalker Client PVR Add-on", __FUNCTION__);
+    XBMC->Log(LOG_DEBUG, "%s: Creating the Stalker Client PVR Add-on", __func__);
 
     AddonProperties_PVR* pvrProps = (AddonProperties_PVR*)props;
     g_strUserPath = pvrProps->strUserPath;
@@ -168,7 +168,7 @@ extern "C"
 
   void ADDON_Destroy()
   {
-    XBMC->Log(LOG_DEBUG, "%s: Destroying the Stalker Client PVR Add-on", __FUNCTION__);
+    XBMC->Log(LOG_DEBUG, "%s: Destroying the Stalker Client PVR Add-on", __func__);
 
     SAFE_DELETE(m_data);
     SAFE_DELETE(PVR);
@@ -358,7 +358,7 @@ extern "C"
   void DemuxReset(void) {}
   void DemuxAbort(void) {}
   void DemuxFlush(void) {}
-  DemuxPacket* DemuxRead(void) { return NULL; }
+  DemuxPacket* DemuxRead(void) { return nullptr; }
   void FillBuffer(bool mode) {}
   bool CanPauseStream(void) { return false; }
   bool CanSeekStream(void) { return false; }

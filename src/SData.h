@@ -22,7 +22,7 @@
 #include "libstalkerclient/stb.h"
 
 #include <json/json.h>
-#include <p8-platform/threads/mutex.h>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -67,16 +67,16 @@ protected:
 private:
   std::string GetChannelStreamURL(const PVR_CHANNEL& channel) const;
 
-  bool m_tokenManuallySet;
-  time_t m_lastEpgAccessTime;
-  time_t m_nextEpgLoadTime;
+  bool m_tokenManuallySet = false;
+  time_t m_lastEpgAccessTime = 0;
+  time_t m_nextEpgLoadTime = 0;
   sc_identity_t m_identity;
   sc_stb_profile_t m_profile;
-  bool m_epgThreadActive;
+  bool m_epgThreadActive = false;
   std::thread m_epgThread;
-  P8PLATFORM::CMutex m_epgMutex;
-  SC::SAPI* m_api;
-  SC::SessionManager* m_sessionManager;
-  SC::ChannelManager* m_channelManager;
-  SC::GuideManager* m_guideManager;
+  mutable std::mutex m_epgMutex;
+  SC::SAPI* m_api = new SC::SAPI;
+  SC::SessionManager* m_sessionManager = new SC::SessionManager;
+  SC::ChannelManager* m_channelManager = new SC::ChannelManager;
+  SC::GuideManager* m_guideManager = new SC::GuideManager;
 };

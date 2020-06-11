@@ -19,10 +19,6 @@ public:
 
   static std::string UrlEncode(const std::string& string);
 
-  static double StringToDouble(const std::string& value);
-
-  static int StringToInt(const std::string& value);
-
   static int GetIntFromJsonValue(Json::Value& value, int defaultValue = 0);
 
   static double GetDoubleFromJsonValue(Json::Value& value, double defaultValue = 0);
@@ -30,12 +26,4 @@ public:
   static bool GetBoolFromJsonValue(Json::Value& value);
 
   static std::string DetermineLogoURI(const std::string& basePath, const std::string& logo);
-
-  template<typename T>
-  static std::string ToString(const T& value)
-  {
-    std::ostringstream oss;
-    oss << value;
-    return oss.str();
-  }
 };

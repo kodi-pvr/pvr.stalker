@@ -20,7 +20,7 @@ namespace SC
 class SessionManager
 {
 public:
-  SessionManager();
+  SessionManager() = default;
 
   virtual ~SessionManager();
 
@@ -65,17 +65,17 @@ private:
 
   void StopWatchdog();
 
-  sc_identity_t* m_identity;
-  bool m_hasUserDefinedToken;
-  sc_stb_profile_t* m_profile;
-  SAPI* m_api;
-  std::function<void(SError)> m_statusCallback;
+  sc_identity_t* m_identity = nullptr;
+  bool m_hasUserDefinedToken = false;
+  sc_stb_profile_t* m_profile = nullptr;
+  SAPI* m_api = nullptr;
+  std::function<void(SError)> m_statusCallback = nullptr;
   std::string m_lastUnknownError;
-  bool m_authenticated;
-  bool m_isAuthenticating;
+  bool m_authenticated = false;
+  bool m_isAuthenticating = false;
   std::mutex m_authMutex;
-  CWatchdog* m_watchdog;
-  bool m_threadActive;
+  CWatchdog* m_watchdog = nullptr;
+  bool m_threadActive = false;
   std::thread m_thread;
 };
 } // namespace SC

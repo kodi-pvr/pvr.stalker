@@ -32,7 +32,7 @@ private:
   unsigned int m_interval;
   SAPI* m_api;
   std::function<void(SError)> m_errorCallback;
-  bool m_threadActive;
+  bool m_threadActive = false;
   std::thread m_thread;
 };
 } // namespace SC

@@ -16,20 +16,9 @@
 using namespace ADDON;
 using namespace SC;
 
-ChannelManager::ChannelManager() : Base::ChannelManager<Channel>()
-{
-  m_api = nullptr;
-}
-
-ChannelManager::~ChannelManager()
-{
-  m_api = nullptr;
-  m_channelGroups.clear();
-}
-
 SError ChannelManager::LoadChannels()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
   int genre = 10;
@@ -38,17 +27,17 @@ SError ChannelManager::LoadChannels()
 
   if (!m_api->ITVGetAllChannels(parsed) || !ParseChannels(parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: ITVGetAllChannels failed", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: ITVGetAllChannels failed", __func__);
     return SERROR_LOAD_CHANNELS;
   }
 
   while (currentPage <= maxPages)
   {
-    XBMC->Log(LOG_DEBUG, "%s: currentPage: %d", __FUNCTION__, currentPage);
+    XBMC->Log(LOG_DEBUG, "%s: currentPage: %d", __func__, currentPage);
 
     if (!m_api->ITVGetOrderedList(genre, currentPage, parsed) || !ParseChannels(parsed))
     {
-      XBMC->Log(LOG_ERROR, "%s: ITVGetOrderedList failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: ITVGetOrderedList failed", __func__);
       return SERROR_LOAD_CHANNELS;
     }
 
@@ -60,7 +49,7 @@ SError ChannelManager::LoadChannels()
       if (totalItems > 0 && maxPageItems > 0)
         maxPages = static_cast<unsigned int>(ceil((double)totalItems / maxPageItems));
 
-      XBMC->Log(LOG_DEBUG, "%s: totalItems: %d | maxPageItems: %d | maxPages: %d", __FUNCTION__,
+      XBMC->Log(LOG_DEBUG, "%s: totalItems: %d | maxPageItems: %d | maxPages: %d", __func__,
                 totalItems, maxPageItems, maxPages);
     }
 
@@ -72,7 +61,7 @@ SError ChannelManager::LoadChannels()
 
 bool ChannelManager::ParseChannels(Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   if (!parsed.isMember("js") || !parsed["js"].isMember("data"))
     return false;
@@ -89,10 +78,10 @@ bool ChannelManager::ParseChannels(Json::Value& parsed)
     {
       Channel channel;
       channel.uniqueId = GetChannelId((*it)["name"].asCString(), (*it)["number"].asCString());
-      channel.number = Utils::StringToInt((*it)["number"].asString());
+      channel.number = std::stoi((*it)["number"].asString());
       channel.name = (*it)["name"].asString();
 
-      channel.streamUrl = "pvr://stream/" + Utils::ToString(channel.uniqueId);
+      channel.streamUrl = "pvr://stream/" + std::to_string(channel.uniqueId);
 
       std::string strLogo = (*it)["logo"].asString();
       channel.iconPath = Utils::DetermineLogoURI(m_api->GetBasePath(), strLogo);
@@ -105,7 +94,7 @@ bool ChannelManager::ParseChannels(Json::Value& parsed)
 
       m_channels.push_back(channel);
 
-      XBMC->Log(LOG_DEBUG, "%s: %d - %s", __FUNCTION__, channel.number, channel.name.c_str());
+      XBMC->Log(LOG_DEBUG, "%s: %d - %s", __func__, channel.number, channel.name.c_str());
     }
   }
   catch (const std::exception& ex)
@@ -133,14 +122,14 @@ int ChannelManager::GetChannelId(const char* strChannelName, const char* strStre
 
 SError ChannelManager::LoadChannelGroups()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   Json::Value parsed;
 
   // genres are channel groups
   if (!m_api->ITVGetGenres(parsed) || !ParseChannelGroups(parsed))
   {
-    XBMC->Log(LOG_ERROR, "%s: ITVGetGenres|ParseChannelGroups failed", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: ITVGetGenres|ParseChannelGroups failed", __func__);
     return SERROR_LOAD_CHANNEL_GROUPS;
   }
 
@@ -149,7 +138,7 @@ SError ChannelManager::LoadChannelGroups()
 
 bool ChannelManager::ParseChannelGroups(Json::Value& parsed)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   if (!parsed.isMember("js"))
     return false;
@@ -173,7 +162,7 @@ bool ChannelManager::ParseChannelGroups(Json::Value& parsed)
 
       m_channelGroups.push_back(channelGroup);
 
-      XBMC->Log(LOG_DEBUG, "%s: %s - %s", __FUNCTION__, channelGroup.id.c_str(),
+      XBMC->Log(LOG_DEBUG, "%s: %s - %s", __func__, channelGroup.id.c_str(),
                 channelGroup.name.c_str());
     }
   }
@@ -187,7 +176,7 @@ bool ChannelManager::ParseChannelGroups(Json::Value& parsed)
 
 std::string ChannelManager::GetStreamURL(Channel& channel)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   std::string cmd;
   Json::Value parsed;
@@ -196,11 +185,11 @@ std::string ChannelManager::GetStreamURL(Channel& channel)
   // /c/player.js#L2198
   if (channel.useHttpTmpLink || channel.useLoadBalancing)
   {
-    XBMC->Log(LOG_DEBUG, "%s: getting temp stream url", __FUNCTION__);
+    XBMC->Log(LOG_DEBUG, "%s: getting temp stream url", __func__);
 
     if (!m_api->ITVCreateLink(channel.cmd, parsed))
     {
-      XBMC->Log(LOG_ERROR, "%s: ITVCreateLink failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: ITVCreateLink failed", __func__);
       return cmd;
     }
 

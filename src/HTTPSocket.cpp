@@ -29,14 +29,9 @@ HTTPSocket::HTTPSocket(unsigned int timeout) : m_timeout(timeout)
   // <= zero disables timeout
   if (m_timeout > 0)
   {
-    option = {"Connection-Timeout", Utils::ToString(m_timeout)};
+    option = {"Connection-Timeout", std::to_string(m_timeout)};
     m_defaultOptions.push_back(option);
   }
-}
-
-HTTPSocket::~HTTPSocket()
-{
-  m_defaultOptions.clear();
 }
 
 void HTTPSocket::SetDefaults(Request& request)
@@ -92,8 +87,8 @@ void HTTPSocket::BuildRequestURL(Request& request)
 bool HTTPSocket::Get(Request& request, Response& response, bool reqUseCache)
 {
   std::string reqUrl;
-  void* reqHdl = NULL;
-  void* resHdl = NULL;
+  void* reqHdl = nullptr;
+  void* resHdl = nullptr;
   char buffer[TEMP_BUFFER_SIZE];
   ssize_t res;
 
@@ -110,7 +105,7 @@ bool HTTPSocket::Get(Request& request, Response& response, bool reqUseCache)
   reqHdl = XBMC->OpenFile(reqUrl.c_str(), 0);
   if (!reqHdl)
   {
-    XBMC->Log(LOG_ERROR, "%s: failed to open reqUrl=%s", __FUNCTION__, reqUrl.c_str());
+    XBMC->Log(LOG_ERROR, "%s: failed to open reqUrl=%s", __func__, reqUrl.c_str());
     return false;
   }
 
@@ -119,7 +114,7 @@ bool HTTPSocket::Get(Request& request, Response& response, bool reqUseCache)
     resHdl = XBMC->OpenFileForWrite(response.url.c_str(), true);
     if (!resHdl)
     {
-      XBMC->Log(LOG_ERROR, "%s: failed to open url=%s", __FUNCTION__, response.url.c_str());
+      XBMC->Log(LOG_ERROR, "%s: failed to open url=%s", __func__, response.url.c_str());
       XBMC->CloseFile(reqHdl);
       return false;
     }
@@ -130,7 +125,7 @@ bool HTTPSocket::Get(Request& request, Response& response, bool reqUseCache)
   {
     if (resHdl && XBMC->WriteFile(resHdl, buffer, (size_t)res) == -1)
     {
-      XBMC->Log(LOG_ERROR, "%s: error when writing to url=%s", __FUNCTION__, response.url.c_str());
+      XBMC->Log(LOG_ERROR, "%s: error when writing to url=%s", __func__, response.url.c_str());
       break;
     }
     if (response.writeToBody)
@@ -158,7 +153,7 @@ bool HTTPSocket::ResponseIsFresh(Response& response)
     time_t now;
     time(&now);
 
-    XBMC->Log(LOG_DEBUG, "%s: now=%d | st_mtime=%d", __FUNCTION__, now, fileStat.st_mtime);
+    XBMC->Log(LOG_DEBUG, "%s: now=%d | st_mtime=%d", __func__, now, fileStat.st_mtime);
 
     result = (fileStat.st_mtime + response.expiry) > now;
   }
@@ -183,13 +178,13 @@ bool HTTPSocket::Execute(Request& request, Response& response)
 
   if (!result)
   {
-    XBMC->Log(LOG_ERROR, "%s: request failed", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: request failed", __func__);
     return false;
   }
 
   if (response.writeToBody)
   {
-    XBMC->Log(LOG_DEBUG, "%s: %s", __FUNCTION__,
+    XBMC->Log(LOG_DEBUG, "%s: %s", __func__,
               response.body.substr(0, 512).c_str()); // 512 is max
   }
 

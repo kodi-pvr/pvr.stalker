@@ -20,9 +20,8 @@ namespace SC
 class SAPI
 {
 public:
-  SAPI();
-
-  virtual ~SAPI();
+  SAPI() = default;
+  virtual ~SAPI() = default;
 
   virtual void SetIdentity(sc_identity_t* identity) { m_identity = identity; }
 
@@ -60,10 +59,10 @@ protected:
                              unsigned int cacheExpiry = 0);
 
 private:
-  sc_identity_t* m_identity;
+  sc_identity_t* m_identity = nullptr;
   std::string m_endpoint;
   std::string m_basePath;
   std::string m_referer;
-  unsigned int m_timeout;
+  unsigned int m_timeout = 0;
 };
 } // namespace SC

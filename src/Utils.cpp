@@ -44,28 +44,13 @@ std::string Utils::UrlEncode(const std::string& value)
   return escaped.str();
 }
 
-double Utils::StringToDouble(const std::string& value)
-{
-  std::istringstream iss(value);
-  double result;
-
-  iss >> result;
-
-  return result;
-}
-
-int Utils::StringToInt(const std::string& value)
-{
-  return (int)StringToDouble(value);
-}
-
 int Utils::GetIntFromJsonValue(Json::Value& value, int defaultValue)
 {
   int res = defaultValue;
 
   // some json responses have ints formated as strings
   if (value.isString())
-    res = StringToInt(value.asString());
+    res = std::stoi(value.asString());
   else if (value.isInt())
     res = value.asInt();
 
@@ -79,7 +64,7 @@ double Utils::GetDoubleFromJsonValue(Json::Value& value, double defaultValue)
   /* some json responses have doubles formated as strings,
     or an expected double is formated as an int */
   if (value.isString())
-    res = StringToDouble(value.asString());
+    res = std::stod(value.asString());
   else if (value.isInt() || value.isDouble())
     res = value.asDouble();
 

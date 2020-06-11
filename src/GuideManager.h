@@ -39,7 +39,7 @@ struct Event : Base::Event
 class GuideManager : public Base::GuideManager<Event>
 {
 public:
-  GuideManager();
+  GuideManager() = default;
 
   virtual ~GuideManager();
 
@@ -67,11 +67,11 @@ public:
 private:
   int AddEvents(int type, std::vector<Event>& events, Channel& channel, time_t start, time_t end);
 
-  SAPI* m_api;
-  Settings::GuidePreference m_guidePreference;
-  bool m_useCache;
-  unsigned int m_expiry;
-  std::shared_ptr<XMLTV> m_xmltv;
+  SAPI* m_api = nullptr;
+  Settings::GuidePreference m_guidePreference = (SC::Settings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
+  bool m_useCache = SC_SETTINGS_DEFAULT_GUIDE_CACHE;
+  unsigned int m_expiry = SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS * 3600;
+  std::shared_ptr<XMLTV> m_xmltv = std::make_shared<XMLTV>();
   Json::Value m_epgData;
 };
 } // namespace SC

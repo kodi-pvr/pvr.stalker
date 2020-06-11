@@ -27,7 +27,7 @@ class ChannelManager
 public:
   typedef typename std::vector<ChannelType>::iterator ChannelIterator;
 
-  ChannelManager() {}
+  ChannelManager() = default;
 
   virtual ~ChannelManager() { m_channels.clear(); }
 

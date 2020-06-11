@@ -10,18 +10,14 @@
 
 #include "client.h"
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#define usleep(usec) Sleep((DWORD)(usec) / 1000)
-#else
-#include <unistd.h>
-#endif
+#include <chrono>
+#include <thread>
 
 using namespace ADDON;
 using namespace SC;
 
 CWatchdog::CWatchdog(uint32_t interval, SAPI* api, std::function<void(SError)> errorCallback)
-  : m_interval(interval), m_api(api), m_errorCallback(errorCallback), m_threadActive(false)
+  : m_interval(interval), m_api(api), m_errorCallback(errorCallback)
 {
 }
 
@@ -45,7 +41,7 @@ void CWatchdog::Stop()
 
 void CWatchdog::Process()
 {
-  XBMC->Log(LOG_DEBUG, "%s: start", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s: start", __func__);
 
   int curPlayType;
   int eventActiveId;
@@ -63,7 +59,7 @@ void CWatchdog::Process()
     ret = m_api->WatchdogGetEvents(curPlayType, eventActiveId, parsed);
     if (ret != SERROR_OK)
     {
-      XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __func__);
 
       if (m_errorCallback != nullptr)
         m_errorCallback(ret);
@@ -76,12 +72,12 @@ void CWatchdog::Process()
     count = 0;
     while (count < target)
     {
-      usleep(100000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       if (!m_threadActive)
         break;
       count += 100;
     }
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: stop", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s: stop", __func__);
 }

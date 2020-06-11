@@ -11,9 +11,9 @@
 #include "Utils.h"
 #include "libstalkerclient/util.h"
 
+#include <chrono>
 #include <cmath>
 #include <p8-platform/util/StringUtils.h>
-#include <p8-platform/util/timeutils.h>
 #include <p8-platform/util/util.h>
 
 #define SERROR_MSG_UNKNOWN 30501
@@ -32,15 +32,6 @@ using namespace P8PLATFORM;
 
 SData::SData() : Base::Cache()
 {
-  m_tokenManuallySet = false;
-  m_lastEpgAccessTime = 0;
-  m_nextEpgLoadTime = 0;
-  m_epgThreadActive = false;
-  m_api = new SC::SAPI;
-  m_sessionManager = new SC::SessionManager;
-  m_channelManager = new SC::ChannelManager;
-  m_guideManager = new SC::GuideManager;
-
   sc_identity_defaults(&m_identity);
   sc_stb_profile_defaults(&m_profile);
 }
@@ -104,15 +95,15 @@ void SData::QueueErrorNotification(SError error) const
 
 bool SData::LoadCache()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   std::string cacheFile;
-  xmlDocPtr doc = NULL;
-  xmlNodePtr rootNode = NULL;
-  xmlNodePtr node = NULL;
-  xmlNodePtr portalsNode = NULL;
-  xmlNodePtr portalNode = NULL;
-  std::string portalNum = Utils::ToString(settings.activePortal);
+  xmlDocPtr doc = nullptr;
+  xmlNodePtr rootNode = nullptr;
+  xmlNodePtr node = nullptr;
+  xmlNodePtr portalsNode = nullptr;
+  xmlNodePtr portalNode = nullptr;
+  std::string portalNum = std::to_string(settings.activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -125,11 +116,11 @@ bool SData::LoadCache()
   portalsNode = FindNodeByName(rootNode->children, (const xmlChar*)"portals");
   if (!portalsNode)
   {
-    XBMC->Log(LOG_DEBUG, "%s: 'portals' element not found", __FUNCTION__);
+    XBMC->Log(LOG_DEBUG, "%s: 'portals' element not found", __func__);
   }
   else
   {
-    xmlChar* num = NULL;
+    xmlChar* num = nullptr;
     bool found = false;
     for (node = portalsNode->children; node; node = node->next)
     {
@@ -154,7 +145,7 @@ bool SData::LoadCache()
         FindAndGetNodeValue(portalNode, (const xmlChar*)"token", val);
         SC_STR_SET(m_identity.token, val.c_str());
 
-        XBMC->Log(LOG_DEBUG, "%s: token=%s", __FUNCTION__, m_identity.token);
+        XBMC->Log(LOG_DEBUG, "%s: token=%s", __func__, m_identity.token);
       }
     }
   }
@@ -166,16 +157,16 @@ bool SData::LoadCache()
 
 bool SData::SaveCache()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   std::string cacheFile;
   bool ret;
-  xmlDocPtr doc = NULL;
-  xmlNodePtr rootNode = NULL;
-  xmlNodePtr node = NULL;
-  xmlNodePtr portalsNode = NULL;
-  xmlNodePtr portalNode = NULL;
-  std::string portalNum = Utils::ToString(settings.activePortal);
+  xmlDocPtr doc = nullptr;
+  xmlNodePtr rootNode = nullptr;
+  xmlNodePtr node = nullptr;
+  xmlNodePtr portalsNode = nullptr;
+  xmlNodePtr portalNode = nullptr;
+  std::string portalNum = std::to_string(settings.activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -191,17 +182,17 @@ bool SData::SaveCache()
       xmlUnlinkNode(rootNode);
       xmlFreeNode(rootNode);
     }
-    rootNode = xmlNewDocNode(doc, NULL, (const xmlChar*)"cache", NULL);
+    rootNode = xmlNewDocNode(doc, nullptr, (const xmlChar*)"cache", nullptr);
     xmlDocSetRootElement(doc, rootNode);
   }
 
   portalsNode = FindNodeByName(rootNode->children, (const xmlChar*)"portals");
   if (!portalsNode)
   {
-    portalsNode = xmlNewChild(rootNode, NULL, (const xmlChar*)"portals", NULL);
+    portalsNode = xmlNewChild(rootNode, nullptr, (const xmlChar*)"portals", nullptr);
   }
 
-  xmlChar* num = NULL;
+  xmlChar* num = nullptr;
   for (node = portalsNode->children; node; node = node->next)
   {
     if (!xmlStrcmp(node->name, (const xmlChar*)"portal"))
@@ -223,7 +214,7 @@ bool SData::SaveCache()
   }
   if (!portalNode)
   {
-    portalNode = xmlNewChild(portalsNode, NULL, (const xmlChar*)"portal", NULL);
+    portalNode = xmlNewChild(portalsNode, nullptr, (const xmlChar*)"portal", nullptr);
     xmlNewProp(portalNode, (const xmlChar*)"num", (const xmlChar*)portalNum.c_str());
   }
 
@@ -236,7 +227,7 @@ bool SData::SaveCache()
                              1) >= 0;
   if (!ret)
   {
-    XBMC->Log(LOG_ERROR, "%s: failed to save cache file", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to save cache file", __func__);
   }
 
   xmlFreeDoc(doc);
@@ -246,7 +237,7 @@ bool SData::SaveCache()
 
 bool SData::ReloadSettings()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -305,7 +296,7 @@ bool SData::IsAuthenticated() const
 
 SError SData::Authenticate()
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -334,7 +325,7 @@ std::string ParseAsW3CDateString(time_t time)
 
 PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t start, time_t end)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   SC::Channel* chan;
   time_t now;
@@ -343,14 +334,14 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
   chan = m_channelManager->GetChannel(iChannelUid);
   if (chan == nullptr)
   {
-    XBMC->Log(LOG_ERROR, "%s: channel not found", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: channel not found", __func__);
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s", __FUNCTION__, start, end, chan->number,
+  XBMC->Log(LOG_DEBUG, "%s: time range: %d - %d | %d - %s", __func__, start, end, chan->number,
             chan->name.c_str());
 
-  m_epgMutex.Lock();
+  m_epgMutex.lock();
 
   time(&now);
   m_lastEpgAccessTime = now;
@@ -358,7 +349,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
   {
     // limit to 1 hour if caching is disabled
     m_nextEpgLoadTime = now + (settings.guideCache ? settings.guideCacheHours : 1) * 3600;
-    XBMC->Log(LOG_DEBUG, "%s: m_nextEpgLoadTime=%d", __FUNCTION__, m_nextEpgLoadTime);
+    XBMC->Log(LOG_DEBUG, "%s: m_nextEpgLoadTime=%d", __func__, m_nextEpgLoadTime);
 
     if (IsAuthenticated())
     {
@@ -406,7 +397,7 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
     PVR->TransferEpgEntry(handle, &tag);
   }
 
-  m_epgMutex.Unlock();
+  m_epgMutex.unlock();
 
   if (!m_epgThread.joinable())
   {
@@ -421,18 +412,18 @@ PVR_ERROR SData::GetEPGForChannel(ADDON_HANDLE handle, int iChannelUid, time_t s
 
         time_t now;
 
-        m_epgMutex.Lock();
+        m_epgMutex.lock();
 
         time(&now);
         if ((m_lastEpgAccessTime + 30 * 60) < now)
           m_guideManager->Clear();
 
-        m_epgMutex.Unlock();
+        m_epgMutex.unlock();
 
         count = 0;
         while (count < target)
         {
-          usleep(100000);
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
           if (!m_epgThreadActive)
             break;
           count += 100;
@@ -451,7 +442,7 @@ int SData::GetChannelGroupsAmount()
 
 PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool radio)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -492,14 +483,14 @@ PVR_ERROR SData::GetChannelGroups(ADDON_HANDLE handle, bool radio)
 
 PVR_ERROR SData::GetChannelGroupMembers(ADDON_HANDLE handle, const PVR_CHANNEL_GROUP& group)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   SC::ChannelGroup* channelGroup;
 
   channelGroup = m_channelManager->GetChannelGroup(group.strGroupName);
   if (channelGroup == nullptr)
   {
-    XBMC->Log(LOG_ERROR, "%s: channel not found", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: channel not found", __func__);
     return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -532,7 +523,7 @@ int SData::GetChannelsAmount()
 
 PVR_ERROR SData::GetChannels(ADDON_HANDLE handle, bool radio)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
@@ -596,7 +587,7 @@ PVR_ERROR SData::GetChannelStreamProperties(const PVR_CHANNEL* channel,
 
 std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   std::string streamUrl;
 
@@ -610,16 +601,16 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
   chan = m_channelManager->GetChannel(channel.iUniqueId);
   if (chan == nullptr)
   {
-    XBMC->Log(LOG_ERROR, "%s: channel not found", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: channel not found", __func__);
     return streamUrl;
   }
 
-  XBMC->Log(LOG_DEBUG, "%s: cmd=%s", __FUNCTION__, chan->cmd.c_str());
+  XBMC->Log(LOG_DEBUG, "%s: cmd=%s", __func__, chan->cmd.c_str());
 
   if (chan->cmd.find("matrix") != std::string::npos)
   {
     // non-standard call to server
-    XBMC->Log(LOG_DEBUG, "%s: getting matrix stream url", __FUNCTION__);
+    XBMC->Log(LOG_DEBUG, "%s: getting matrix stream url", __func__);
 
     std::vector<std::string> strSplit;
     std::ostringstream oss;
@@ -646,26 +637,26 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
         }
         else
         {
-          XBMC->Log(LOG_ERROR, "%s: empty response?", __FUNCTION__);
+          XBMC->Log(LOG_ERROR, "%s: empty response?", __func__);
           failed = true;
         }
       }
       else
       {
-        XBMC->Log(LOG_ERROR, "%s: matrix call failed", __FUNCTION__);
+        XBMC->Log(LOG_ERROR, "%s: matrix call failed", __func__);
         failed = true;
       }
     }
     else
     {
-      XBMC->Log(LOG_ERROR, "%s: not a matrix channel?", __FUNCTION__);
+      XBMC->Log(LOG_ERROR, "%s: not a matrix channel?", __func__);
       failed = true;
     }
 
     // fall back. maybe this is a valid, regular cmd/url
     if (failed)
     {
-      XBMC->Log(LOG_DEBUG, "%s: falling back to original channel cmd", __FUNCTION__);
+      XBMC->Log(LOG_DEBUG, "%s: falling back to original channel cmd", __func__);
       cmd = chan->cmd;
     }
 
@@ -683,7 +674,7 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
 
   if (streamUrl.empty())
   {
-    XBMC->Log(LOG_ERROR, "%s: no stream url found", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: no stream url found", __func__);
     QueueErrorNotification(SERROR_STREAM_URL);
   }
   else
@@ -691,9 +682,9 @@ std::string SData::GetChannelStreamURL(const PVR_CHANNEL& channel) const
     // protocol options for http(s) urls only
     // <= zero disables timeout
     //        if (streamUrl.find("http") == 0 && settings.connectionTimeout > 0)
-    //            streamUrl += "|Connection-Timeout=" + Utils::ToString(settings.connectionTimeout);
+    //            streamUrl += "|Connection-Timeout=" + std::to_string(settings.connectionTimeout);
 
-    XBMC->Log(LOG_DEBUG, "%s: streamUrl=%s", __FUNCTION__, streamUrl.c_str());
+    XBMC->Log(LOG_DEBUG, "%s: streamUrl=%s", __func__, streamUrl.c_str());
   }
 
   return streamUrl;

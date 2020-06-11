@@ -25,13 +25,6 @@
 
 using namespace ADDON;
 
-XMLTV::XMLTV()
-{
-  m_useCache = false;
-  m_cacheExpiry = 0;
-  m_genreMap = XMLTV::CreateGenreMap();
-}
-
 XMLTV::~XMLTV()
 {
   Clear();
@@ -39,12 +32,12 @@ XMLTV::~XMLTV()
 
 bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string& path)
 {
-  XBMC->Log(LOG_DEBUG, "%s", __FUNCTION__);
+  XBMC->Log(LOG_DEBUG, "%s", __func__);
 
   HTTPSocket sock(15);
   HTTPSocket::Request request;
   HTTPSocket::Response response;
-  sc_list_t* xmltv_channels = NULL;
+  sc_list_t* xmltv_channels = nullptr;
 
   Clear();
 
@@ -57,7 +50,7 @@ bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string& path)
   response.writeToBody = false;
 
   if (!sock.Execute(request, response) || !(xmltv_channels = sc_xmltv_parse(m_cacheFile.c_str())))
-    XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __FUNCTION__);
+    XBMC->Log(LOG_ERROR, "%s: failed to load XMLTV data", __func__);
 
   if ((!xmltv_channels || !m_useCache) && XBMC->FileExists(m_cacheFile.c_str(), false))
   {
@@ -167,7 +160,7 @@ void XMLTV::Clear()
 XMLTV::Channel* XMLTV::GetChannelById(const std::string& id)
 {
   std::vector<Channel>::iterator it;
-  Channel* chan = NULL;
+  Channel* chan = nullptr;
 
   it = std::find_if(m_channels.begin(), m_channels.end(),
                     [id](const Channel& channel) { return !id.compare(channel.id); });
@@ -181,7 +174,7 @@ XMLTV::Channel* XMLTV::GetChannelById(const std::string& id)
 XMLTV::Channel* XMLTV::GetChannelByDisplayName(std::string& displayName)
 {
   std::vector<Channel>::iterator it;
-  Channel* chan = NULL;
+  Channel* chan = nullptr;
 
   it = std::find_if(m_channels.begin(), m_channels.end(), [displayName](const Channel& channel) {
     std::vector<std::string>::const_iterator dnIt;

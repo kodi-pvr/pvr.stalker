@@ -26,8 +26,7 @@ template<class EventType>
 class GuideManager
 {
 public:
-  GuideManager() {}
-
-  virtual ~GuideManager() {}
+  GuideManager() = default;
+  virtual ~GuideManager() = default;
 };
 } // namespace Base
