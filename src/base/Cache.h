@@ -8,26 +8,32 @@
 
 #pragma once
 
-#include <string>
-
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <string>
 
-namespace Base {
-    class Cache {
-    public:
-        Cache();
+namespace Base
+{
+class Cache
+{
+public:
+  Cache() = default;
+  virtual ~Cache() = default;
 
-        virtual ~Cache();
+protected:
+  virtual bool Open(const std::string& cacheFile,
+                    xmlDocPtr& doc,
+                    xmlNodePtr& rootNode,
+                    const std::string& rootNodeName);
 
-    protected:
-        virtual bool Open(const std::string &cacheFile, xmlDocPtr &doc, xmlNodePtr &rootNode,
-                          const std::string &rootNodeName);
+  virtual xmlNodePtr FindNodeByName(xmlNodePtr& startNode, const xmlChar* name);
 
-        virtual xmlNodePtr FindNodeByName(xmlNodePtr &startNode, const xmlChar *name);
+  virtual xmlNodePtr FindAndGetNodeValue(xmlNodePtr& parentNode,
+                                         const xmlChar* name,
+                                         std::string& value);
 
-        virtual xmlNodePtr FindAndGetNodeValue(xmlNodePtr &parentNode, const xmlChar *name, std::string &value);
-
-        virtual xmlNodePtr FindAndSetNodeValue(xmlNodePtr &parentNode, const xmlChar *name, const xmlChar *value);
-    };
-}
+  virtual xmlNodePtr FindAndSetNodeValue(xmlNodePtr& parentNode,
+                                         const xmlChar* name,
+                                         const xmlChar* value);
+};
+} // namespace Base

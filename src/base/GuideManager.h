@@ -11,20 +11,22 @@
 #include <string>
 #include <vector>
 
-namespace Base {
-    struct Event {
-        unsigned int uniqueBroadcastId;
-        std::string title;
-        unsigned int channelNumber;
-        time_t startTime;
-        time_t endTime;
-    };
+namespace Base
+{
+struct Event
+{
+  unsigned int uniqueBroadcastId;
+  std::string title;
+  unsigned int channelNumber;
+  time_t startTime;
+  time_t endTime;
+};
 
-    template<class EventType>
-    class GuideManager {
-    public:
-        GuideManager() { }
-
-        virtual ~GuideManager() { }
-    };
-}
+template<class EventType>
+class GuideManager
+{
+public:
+  GuideManager() = default;
+  virtual ~GuideManager() = default;
+};
+} // namespace Base

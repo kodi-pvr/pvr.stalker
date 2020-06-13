@@ -8,74 +8,74 @@
 
 #include "CWatchdog.h"
 
-#include "client.h"
+#include <chrono>
+#include <kodi/General.h>
+#include <thread>
 
-#if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>
-#define usleep(usec) Sleep((DWORD)(usec)/1000)
-#else
-#include <unistd.h>
-#endif
-
-using namespace ADDON;
 using namespace SC;
 
-CWatchdog::CWatchdog(uint32_t interval, SAPI *api, std::function<void(SError)> errorCallback)
-        : m_interval(interval), m_api(api), m_errorCallback(errorCallback), m_threadActive(false) {
+CWatchdog::CWatchdog(uint32_t interval, SAPI* api, std::function<void(SError)> errorCallback)
+  : m_interval(interval), m_api(api), m_errorCallback(errorCallback)
+{
 }
 
-CWatchdog::~CWatchdog() {
-    Stop();
+CWatchdog::~CWatchdog()
+{
+  Stop();
 }
 
-void CWatchdog::Start() {
-    m_threadActive = true;
-    m_thread = std::thread([this] {
-        Process();
-    });
+void CWatchdog::Start()
+{
+  m_threadActive = true;
+  m_thread = std::thread([this] { Process(); });
 }
 
-void CWatchdog::Stop() {
-    m_threadActive = false;
-    if (m_thread.joinable())
-        m_thread.join();
+void CWatchdog::Stop()
+{
+  m_threadActive = false;
+  if (m_thread.joinable())
+    m_thread.join();
 }
 
-void CWatchdog::Process() {
-    XBMC->Log(LOG_DEBUG, "%s: start", __FUNCTION__);
+void CWatchdog::Process()
+{
+  kodi::Log(ADDON_LOG_DEBUG, "%s: start", __func__);
 
-    int curPlayType;
-    int eventActiveId;
-    Json::Value parsed;
-    SError ret;
-    unsigned int target(m_interval * 1000);
-    unsigned int count;
+  int curPlayType;
+  int eventActiveId;
+  Json::Value parsed;
+  SError ret;
+  unsigned int target(m_interval * 1000);
+  unsigned int count;
 
-    while (m_threadActive) {
-        // hardcode values for now
-        curPlayType = 1; // tv
-        eventActiveId = 0;
+  while (m_threadActive)
+  {
+    // hardcode values for now
+    curPlayType = 1; // tv
+    eventActiveId = 0;
 
-        ret = m_api->WatchdogGetEvents(curPlayType, eventActiveId, parsed);
-        if (ret != SERROR_OK) {
-            XBMC->Log(LOG_ERROR, "%s: WatchdogGetEvents failed", __FUNCTION__);
+    ret = m_api->WatchdogGetEvents(curPlayType, eventActiveId, parsed);
+    if (ret != SERROR_OK)
+    {
+      kodi::Log(ADDON_LOG_ERROR, "%s: WatchdogGetEvents failed", __func__);
 
-            if (m_errorCallback != nullptr)
-                m_errorCallback(ret);
-        }
-
-        // ignore the result. don't confirm events (yet)
-
-        parsed.clear();
-
-        count = 0;
-        while (count < target) {
-            usleep(100000);
-            if (!m_threadActive)
-                break;
-            count += 100;
-        }
+      if (m_errorCallback != nullptr)
+        m_errorCallback(ret);
     }
 
-    XBMC->Log(LOG_DEBUG, "%s: stop", __FUNCTION__);
+    // ignore the result. don't confirm events (yet)
+
+    parsed.clear();
+
+    count = 0;
+    while (count < target)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (!m_threadActive)
+        break;
+      count += 100;
+    }
+  }
+
+  kodi::Log(ADDON_LOG_DEBUG, "%s: stop", __func__);
 }
