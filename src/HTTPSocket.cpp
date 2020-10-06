@@ -11,7 +11,7 @@
 #include "Utils.h"
 
 #include <kodi/Filesystem.h>
-#include <p8-platform/util/StringUtils.h>
+#include <kodi/tools/StringUtils.h>
 
 #define TEMP_BUFFER_SIZE 1024
 
@@ -43,7 +43,7 @@ void HTTPSocket::SetDefaults(Request& request)
     for (std::vector<URLOption>::iterator it = request.options.begin(); it != request.options.end();
          ++it)
     {
-      if ((found = !StringUtils::CompareNoCase(it->name, option->name)))
+      if ((found = !kodi::tools::StringUtils::CompareNoCase(it->name, option->name)))
         break;
     }
 

@@ -14,7 +14,7 @@
 #include <chrono>
 #include <cmath>
 #include <kodi/General.h>
-#include <p8-platform/util/StringUtils.h>
+#include <kodi/tools/StringUtils.h>
 
 #define SERROR_MSG_UNKNOWN 30501
 #define SERROR_MSG_INITIALIZE 30502
@@ -719,7 +719,7 @@ std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) c
     HTTPSocket sock(settings.connectionTimeout);
     bool failed(false);
 
-    strSplit = StringUtils::Split(chan->cmd, "/");
+    strSplit = kodi::tools::StringUtils::Split(chan->cmd, "/");
     if (!strSplit.empty())
     {
       oss << m_api->GetBasePath();
@@ -730,7 +730,7 @@ std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) c
 
       if (sock.Execute(request, response))
       {
-        strSplit = StringUtils::Split(response.body, " ");
+        strSplit = kodi::tools::StringUtils::Split(response.body, " ");
         if (!strSplit.empty())
         {
           cmd = strSplit.back();
