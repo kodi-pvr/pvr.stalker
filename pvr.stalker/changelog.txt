@@ -1,3 +1,6 @@
+v6.0.2
+- Remove p8 from debian control file
+
 v6.0.1
 - Use kodi StringUtils and remove p8-platform dependency
 
