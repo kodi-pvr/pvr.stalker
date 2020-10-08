@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <kodi/Filesystem.h>
-#include <p8-platform/util/StringUtils.h>
+#include <kodi/tools/StringUtils.h>
 
 XMLTV::~XMLTV()
 {
@@ -118,7 +118,7 @@ bool XMLTV::Parse(HTTPSocket::Scope scope, const std::string& path)
         node3 = node3->next;
       }
       p.extra.genreType = EPGGenreByCategory(p.categories);
-      p.extra.genreDescription = StringUtils::Join(p.categories, ", ");
+      p.extra.genreDescription = kodi::tools::StringUtils::Join(p.categories, ", ");
 
       p.episodeNumber = prog->episode_num;
       p.previouslyShown = prog->previously_shown;
@@ -171,7 +171,7 @@ XMLTV::Channel* XMLTV::GetChannelByDisplayName(std::string& displayName)
 
     dnIt = std::find_if(channel.displayNames.begin(), channel.displayNames.end(),
                         [displayName](const std::string& dn) {
-                          return !StringUtils::CompareNoCase(displayName, dn);
+                          return !kodi::tools::StringUtils::CompareNoCase(displayName, dn);
                         });
 
     return dnIt != channel.displayNames.end();
@@ -199,7 +199,7 @@ int XMLTV::EPGGenreByCategory(std::vector<std::string>& categories)
 
       gmIt = std::find_if(
           genreCategories.begin(), genreCategories.end(),
-          [category](const std::string& g) { return !StringUtils::CompareNoCase(*category, g); });
+          [category](const std::string& g) { return !kodi::tools::StringUtils::CompareNoCase(*category, g); });
 
       if (gmIt != genreCategories.end())
       {
@@ -256,5 +256,5 @@ std::string XMLTV::CreditsAsString(std::vector<Credit>& credits,
        credit != filteredCredits.end(); ++credit)
     creditList.push_back(credit->name);
 
-  return StringUtils::Join(creditList, ", ");
+  return kodi::tools::StringUtils::Join(creditList, ", ");
 }
