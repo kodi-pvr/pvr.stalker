@@ -1,3 +1,6 @@
+v7.0.0
+- Update PVR API 7.0.2
+
 v6.0.2
 - Remove p8 from debian control file
 
@@ -5,7 +8,7 @@ v6.0.1
 - Use kodi StringUtils and remove p8-platform dependency
 
 v6.0.0
-- PVR API 7.0.0
+- Update PVR API 7.0.0
 - Rework addon to support new API interface
 - Code cleanup
 
