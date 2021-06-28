@@ -7,18 +7,31 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: Ukrainian (Ukraine) (http://www.transifex.com/projects/p/kodi-main/language/uk_UA/)\n"
+"PO-Revision-Date: 2021-06-28 08:29+0000\n"
+"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"Language-Team: Ukrainian <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/uk_ua/>\n"
+"Language: uk_ua\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: uk_UA\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.7\n"
 
 msgctxt "#30000"
 msgid "General"
 msgstr "Загальні"
+
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr ""
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -38,7 +51,7 @@ msgstr "Облікові дані для авторизації"
 
 msgctxt "#30105"
 msgid "Login"
-msgstr " Логін"
+msgstr "Логін"
 
 msgctxt "#30106"
 msgid "Password"
@@ -48,13 +61,73 @@ msgctxt "#30107"
 msgid "Guide"
 msgstr "Керівництво"
 
+msgctxt "#30108"
+msgid "Preference"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr ""
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr ""
+
 msgctxt "#30115"
 msgid "XMLTV"
 msgstr "XMLTV"
 
+msgctxt "#30116"
+msgid "Scope"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr ""
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "Додатково"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr ""
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
