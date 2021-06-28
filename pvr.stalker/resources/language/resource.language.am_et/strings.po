@@ -7,22 +7,27 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Kodi Translation Team\n"
-"Language-Team: Amharic (Ethiopia) (http://www.transifex.com/projects/p/kodi-main/language/am_ET/)\n"
+"PO-Revision-Date: 2021-06-28 08:29+0000\n"
+"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"Language-Team: Amharic (Ethiopia) <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/am_et/>\n"
+"Language: am_et\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: am_ET\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.7\n"
 
 msgctxt "#30000"
 msgid "General"
 msgstr "ባጠቃላይ"
 
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr ""
+
 msgctxt "#30002"
 msgid "Misc"
-msgstr "የተለያዩ "
+msgstr "የተለያዩ"
 
 msgctxt "#30003"
 msgid "Connection Timeout (seconds)"
@@ -34,11 +39,15 @@ msgstr "MAC አድራሻ"
 
 msgctxt "#30102"
 msgid "Server Address"
-msgstr "የ ሰርቨር አድራሻ "
+msgstr "የ ሰርቨር አድራሻ"
 
 msgctxt "#30103"
 msgid "Time Zone"
 msgstr "የ ሰአት ክልል"
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr ""
 
 msgctxt "#30105"
 msgid "Login"
@@ -50,7 +59,7 @@ msgstr "የ መግቢያ ቃል"
 
 msgctxt "#30107"
 msgid "Guide"
-msgstr "መመሪያ "
+msgstr "መመሪያ"
 
 msgctxt "#30108"
 msgid "Preference"
@@ -60,6 +69,10 @@ msgctxt "#30109"
 msgid "Prefer Provider"
 msgstr "የሚመርጡት አቅራቢ"
 
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr ""
+
 msgctxt "#30111"
 msgid "Provider Only"
 msgstr "አቅራቢ ብቻ"
@@ -68,13 +81,62 @@ msgctxt "#30112"
 msgid "XMLTV Only"
 msgstr "XMLTV ብቻ"
 
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr ""
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr ""
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "የረቀቀ"
 
+msgctxt "#30120"
+msgid "Token"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr ""
+
 msgctxt "#30124"
 msgid "Signature"
-msgstr "ፊርማ "
+msgstr "ፊርማ"
+
+# empty strings from id 30125 to 30500
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr ""
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr ""
 
 msgctxt "#30503"
 msgid "Failed to connect to server."

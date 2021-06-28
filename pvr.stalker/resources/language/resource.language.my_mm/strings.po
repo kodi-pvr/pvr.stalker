@@ -10,16 +10,187 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Kodi Translation Team\n"
 "Language-Team: Burmese (Myanmar) (http://www.transifex.com/projects/p/kodi-main/language/my_MM/)\n"
+"Language: my_MM\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: my_MM\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgctxt "#30000"
 msgid "General"
 msgstr "ယေဘုယျ"
 
+msgctxt "#30001"
+msgid "Active Portal"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Misc"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Connection Timeout (seconds)"
+msgstr ""
+
+# empty strings from id 30004 to 30100
+msgctxt "#30101"
+msgid "MAC Address"
+msgstr ""
+
+msgctxt "#30102"
+msgid "Server Address"
+msgstr ""
+
+msgctxt "#30103"
+msgid "Time Zone"
+msgstr ""
+
+msgctxt "#30104"
+msgid "Auth Credentials"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Login"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30107"
+msgid "Guide"
+msgstr ""
+
+msgctxt "#30108"
+msgid "Preference"
+msgstr ""
+
+msgctxt "#30109"
+msgid "Prefer Provider"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Prefer XMLTV"
+msgstr ""
+
+msgctxt "#30111"
+msgid "Provider Only"
+msgstr ""
+
+msgctxt "#30112"
+msgid "XMLTV Only"
+msgstr ""
+
+msgctxt "#30113"
+msgid "Cache Guide Data"
+msgstr ""
+
+msgctxt "#30114"
+msgid "Cache Time (hours)"
+msgstr ""
+
+msgctxt "#30115"
+msgid "XMLTV"
+msgstr ""
+
+msgctxt "#30116"
+msgid "Scope"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Remote URL"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Local Path"
+msgstr ""
+
 msgctxt "#30119"
 msgid "Advanced"
 msgstr "အဆင့်မြင့်သော"
+
+msgctxt "#30120"
+msgid "Token"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Serial Number"
+msgstr ""
+
+msgctxt "#30122"
+msgid "Device ID"
+msgstr ""
+
+msgctxt "#30123"
+msgid "Device ID2"
+msgstr ""
+
+msgctxt "#30124"
+msgid "Signature"
+msgstr ""
+
+# empty strings from id 30125 to 30500
+msgctxt "#30501"
+msgid "Unknown error. See log for details."
+msgstr ""
+
+msgctxt "#30502"
+msgid "Startup failed."
+msgstr ""
+
+msgctxt "#30503"
+msgid "Failed to connect to server."
+msgstr ""
+
+msgctxt "#30504"
+msgid "Authentication failed. Retrying."
+msgstr ""
+
+msgctxt "#30505"
+msgid "Unable to load channels."
+msgstr ""
+
+msgctxt "#30506"
+msgid "Unable to load channel groups."
+msgstr ""
+
+msgctxt "#30507"
+msgid "Unable to load guide."
+msgstr ""
+
+msgctxt "#30508"
+msgid "Failed to get stream URL."
+msgstr ""
+
+msgctxt "#30509"
+msgid "Authorization lost. Re-authenticating."
+msgstr ""
+
+msgctxt "#30510"
+msgid "Re-authenticated."
+msgstr ""
+
+# empty strings from id 30511 to 30999
+msgctxt "#31000"
+msgid "Portal 1"
+msgstr ""
+
+# empty strings from id 31001 to 31999
+msgctxt "#32000"
+msgid "Portal 2"
+msgstr ""
+
+# empty strings from id 32001 to 32999
+msgctxt "#33000"
+msgid "Portal 3"
+msgstr ""
+
+# empty strings from id 33001 to 33999
+msgctxt "#34000"
+msgid "Portal 4"
+msgstr ""
+
+# empty strings from id 34001 to 34999
+msgctxt "#35000"
+msgid "Portal 5"
+msgstr ""
