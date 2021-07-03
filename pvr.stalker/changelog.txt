@@ -1,3 +1,6 @@
+v7.1.1
+- Language update from Weblate
+
 v7.1.0
 - Update PVR API 7.1.0
 

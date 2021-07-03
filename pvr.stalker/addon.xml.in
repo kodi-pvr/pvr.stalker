@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.stalker"
-  version="7.1.0"
+  version="7.1.1"
   name="Stalker Client"
   provider-name="Jamal Edey">
   <requires>@ADDON_DEPENDS@</requires>
@@ -166,5 +166,9 @@
     <assets>
       <icon>icon.png</icon>
     </assets>
+    <news>
+v7.1.1
+- Language update from Weblate
+    </news>
   </extension>
 </addon>
