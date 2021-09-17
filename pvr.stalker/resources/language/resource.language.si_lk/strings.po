@@ -16,6 +16,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgctxt "Addon Summary"
+msgid "PVR Client to connect Kodi to Stalker Middleware"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "PVR Client to connect Kodi to Stalker Middleware"
+msgstr ""
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "මෙය අස්ථිර මෘදුකාංගයකි! මෙහි සිදුවන පටිගත කිරීම් අසාර්ථක වීම්, සාවද්‍ය මුහුර්තක, නාස්ති වූ කාලයන්, හෝ වෙනත් යමිකිසි නුසුදුසු බලපෑම් සඳහා කතෘ වග කියනු නොලැබේ."
+
 msgctxt "#30000"
 msgid "General"
 msgstr "සාමාන්‍ය"

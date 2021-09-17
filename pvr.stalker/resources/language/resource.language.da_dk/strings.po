@@ -17,6 +17,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.6\n"
 
+msgctxt "Addon Summary"
+msgid "PVR Client to connect Kodi to Stalker Middleware"
+msgstr "PVR klient som forbinder Kodi til Stalker Middleware"
+
+msgctxt "Addon Description"
+msgid "PVR Client to connect Kodi to Stalker Middleware"
+msgstr "PVR klient som forbinder Kodi til Stalker Middleware"
+
+msgctxt "Addon Disclaimer"
+msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
+msgstr "Dette er ustabil software! Ophavsmændene er på ingen måde ansvarlige for mislykkede optagelser, ukorrekte timere, spildte timer, eller andre uønskede konsekvenser."
+
 msgctxt "#30000"
 msgid "General"
 msgstr "Generelt"

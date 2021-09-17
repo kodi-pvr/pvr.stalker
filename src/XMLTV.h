@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2015-2020 Team Kodi (https://kodi.tv)
+ *  Copyright (C) 2015-2021 Team Kodi (https://kodi.tv)
  *  Copyright (C) 2015, 2016 Jamal Edey
  *
  *  SPDX-License-Identifier: GPL-2.0-or-later
