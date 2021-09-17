@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-05-01 19:29+0000\n"
+"PO-Revision-Date: 2021-07-28 22:29+0000\n"
 "Last-Translator: Christian Gade <gade@kodi.tv>\n"
 "Language-Team: Danish <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/da_dk/>\n"
 "Language: da_dk\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.6\n"
+"X-Generator: Weblate 4.7.2\n"
 
 msgctxt "Addon Summary"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
@@ -43,7 +43,7 @@ msgstr "Diverse"
 
 msgctxt "#30003"
 msgid "Connection Timeout (seconds)"
-msgstr "Forbindelsestimeout (sekunder)"
+msgstr "Tidsfrist for forbindelse (sekunder)"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -75,7 +75,7 @@ msgstr "Guide"
 
 msgctxt "#30108"
 msgid "Preference"
-msgstr "Foretrukken tilstand"
+msgstr "Præference"
 
 msgctxt "#30109"
 msgid "Prefer Provider"
@@ -107,11 +107,11 @@ msgstr "XMLTV"
 
 msgctxt "#30116"
 msgid "Scope"
-msgstr "Scope"
+msgstr "Anvendelsesområde"
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Fjern sti"
+msgstr "Fjern-URL"
 
 msgctxt "#30118"
 msgid "Local Path"
@@ -139,7 +139,7 @@ msgstr "Enheds ID2"
 
 msgctxt "#30124"
 msgid "Signature"
-msgstr "Signature"
+msgstr "Signatur"
 
 # empty strings from id 30125 to 30500
 msgctxt "#30501"
