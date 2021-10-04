@@ -1,3 +1,6 @@
+v20.1.0
+- Kodi API to 8.0.0
+
 v20.0.0
 - Translations updates from Weblate
   - Danish (da_dk)
