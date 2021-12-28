@@ -26,9 +26,9 @@
 #include <thread>
 #include <vector>
 
-class ATTRIBUTE_HIDDEN SData : public kodi::addon::CAddonBase,
-                               public kodi::addon::CInstancePVRClient,
-                               private Base::Cache
+class ATTR_DLL_LOCAL SData : public kodi::addon::CAddonBase,
+                             public kodi::addon::CInstancePVRClient,
+                             private Base::Cache
 {
 public:
   SData();
@@ -36,7 +36,7 @@ public:
 
   ADDON_STATUS Create() override;
   ADDON_STATUS SetSetting(const std::string& settingName,
-                          const kodi::CSettingValue& settingValue) override
+                          const kodi::addon::CSettingValue& settingValue) override
   {
     return ADDON_STATUS_NEED_RESTART;
   }

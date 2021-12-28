@@ -87,7 +87,7 @@ void SData::QueueErrorNotification(SError error) const
   }
 
   if (errorMsg > 0)
-    kodi::QueueNotification(QUEUE_ERROR, "", kodi::GetLocalizedString(errorMsg));
+    kodi::QueueNotification(QUEUE_ERROR, "", kodi::addon::GetLocalizedString(errorMsg));
 }
 
 bool SData::LoadCache()
@@ -265,7 +265,7 @@ bool SData::ReloadSettings()
   m_sessionManager->SetStatusCallback([this](SError err) {
     if (err == SERROR_OK)
     {
-      kodi::QueueNotification(QUEUE_INFO, "", kodi::GetLocalizedString(MSG_RE_AUTHENTICATED));
+      kodi::QueueNotification(QUEUE_INFO, "", kodi::addon::GetLocalizedString(MSG_RE_AUTHENTICATED));
     }
     else
     {
@@ -324,17 +324,17 @@ std::string ParseAsW3CDateString(time_t time)
 
 #define GET_SETTING_STR2(setting, name, portal, store, def) \
   sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
-  store = kodi::GetSettingString(setting, def);
+  store = kodi::addon::GetSettingString(setting, def);
 
 #define GET_SETTING_INT2(setting, name, portal, store, def) \
   sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
-  store = kodi::GetSettingInt(setting, def);
+  store = kodi::addon::GetSettingInt(setting, def);
 
 ADDON_STATUS SData::Create()
 {
-  settings.activePortal = kodi::GetSettingInt("active_portal", SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
+  settings.activePortal = kodi::addon::GetSettingInt("active_portal", SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
   settings.connectionTimeout =
-      kodi::GetSettingInt("connection_timeout", SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
+      kodi::addon::GetSettingInt("connection_timeout", SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
   // calc based on index (5 second steps)
   settings.connectionTimeout *= 5;
 
