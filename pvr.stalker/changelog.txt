@@ -1,3 +1,7 @@
+v19.0.1
+- Translations updates from Weblate
+	- be_by, da_dk, es_mx, id_id, is_is, ko_kr, lt_lt, nb_no
+
 v19.0.0
 - Translations updates from Weblate
   - Danish (da_dk)
