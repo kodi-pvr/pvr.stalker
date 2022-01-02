@@ -15,7 +15,7 @@
 
 std::string Utils::GetFilePath(const std::string& path, bool isUserPath)
 {
-  return (isUserPath ? kodi::GetBaseUserPath(path) : kodi::GetAddonPath(path));
+  return (isUserPath ? kodi::addon::GetUserPath(path) : kodi::addon::GetAddonPath(path));
 }
 
 // http://stackoverflow.com/a/17708801
