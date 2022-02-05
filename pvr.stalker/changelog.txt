@@ -1,3 +1,7 @@
+v20.2.1
+- Updated depends libxml2 to version 2.9.10
+  - To fix some Windows UWP builds
+
 v20.2.0
 - Translation updates by Weblate
 - Kodi main API update to version 2.0.0
