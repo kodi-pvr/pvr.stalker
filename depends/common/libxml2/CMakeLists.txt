@@ -1,6 +1,6 @@
-project(libxml2)
-
 cmake_minimum_required(VERSION 3.5)
+
+project(libxml2 VERSION 2.9.10)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
