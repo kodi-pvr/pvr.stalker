@@ -1,3 +1,6 @@
+v19.0.3
+- Fix libxml2 dependency for Windows/UWP/Xbox
+
 v19.0.2
 - Updated depends libxml2 to version 2.9.10
   - To fix some Windows UWP builds
