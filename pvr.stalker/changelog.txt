@@ -1,3 +1,7 @@
+v19.0.4
+- Translations updates from Weblate
+	- be_by, et_ee, fi_fi, it_it, uk_ua
+
 v19.0.3
 - Fix libxml2 dependency for Windows/UWP/Xbox
 
