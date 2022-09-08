@@ -5,198 +5,205 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2022-09-08 07:53+0000\n"
-"Last-Translator: Sopor <sopor@hotmail.com>\n"
-"Language-Team: Swedish <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/sv_se/>\n"
-"Language: sv_se\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: ast_es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14\n"
 
 msgctxt "Addon Summary"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
-msgstr "PVR-klient för anslutning av Kodi till Stalker Middleware"
+msgstr ""
 
 msgctxt "Addon Description"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
-msgstr "PVR-klient för anslutning av Kodi till Stalker Middleware"
+msgstr ""
 
 msgctxt "Addon Disclaimer"
 msgid "This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects."
-msgstr "Detta är instabil mjukvara! Upphovsmännen är inte ansvariga för misslyckade inspelningar, felaktiga timers, bortslösade timmar, eller någon annan oönskad effekt."
+msgstr ""
 
+#settings labels
 msgctxt "#30000"
 msgid "General"
-msgstr "Allmänt"
+msgstr ""
 
 msgctxt "#30001"
 msgid "Active Portal"
-msgstr "Aktiv portal"
+msgstr ""
 
 msgctxt "#30002"
 msgid "Misc"
-msgstr "Övrigt"
+msgstr ""
 
 msgctxt "#30003"
 msgid "Connection Timeout (seconds)"
-msgstr "Anslutnings Avbrott (sekunder)"
+msgstr ""
 
+#empty strings from id 30004 to 30100
 msgctxt "#30101"
 msgid "MAC Address"
-msgstr "Hårdvaruadress"
+msgstr ""
 
 msgctxt "#30102"
 msgid "Server Address"
-msgstr "Serveradress"
+msgstr ""
 
 msgctxt "#30103"
 msgid "Time Zone"
-msgstr "Tidszon"
+msgstr ""
 
 msgctxt "#30104"
 msgid "Auth Credentials"
-msgstr "Inloggningsuppgifter"
+msgstr ""
 
 msgctxt "#30105"
 msgid "Login"
-msgstr "Logga in"
+msgstr ""
 
 msgctxt "#30106"
 msgid "Password"
-msgstr "Lösenord"
+msgstr ""
 
 msgctxt "#30107"
 msgid "Guide"
-msgstr "Guide"
+msgstr ""
 
 msgctxt "#30108"
 msgid "Preference"
-msgstr "Preferens"
+msgstr ""
 
 msgctxt "#30109"
 msgid "Prefer Provider"
-msgstr "Föredra leverantör"
+msgstr ""
 
 msgctxt "#30110"
 msgid "Prefer XMLTV"
-msgstr "Föredra XMLTV"
+msgstr ""
 
 msgctxt "#30111"
 msgid "Provider Only"
-msgstr "Endast leverantör"
+msgstr ""
 
 msgctxt "#30112"
 msgid "XMLTV Only"
-msgstr "Endast XMLTV"
+msgstr ""
 
 msgctxt "#30113"
 msgid "Cache Guide Data"
-msgstr "Cache Guide Data"
+msgstr ""
 
 msgctxt "#30114"
 msgid "Cache Time (hours)"
-msgstr "Cache Tid (timmar)"
+msgstr ""
 
 msgctxt "#30115"
 msgid "XMLTV"
-msgstr "XMLTV"
+msgstr ""
 
 msgctxt "#30116"
 msgid "Scope"
-msgstr "Omfattning"
+msgstr ""
 
 msgctxt "#30117"
 msgid "Remote URL"
-msgstr "Fjärr-URL"
+msgstr ""
 
 msgctxt "#30118"
 msgid "Local Path"
-msgstr "Lokal sökväg"
+msgstr ""
 
 msgctxt "#30119"
 msgid "Advanced"
-msgstr "Avancerat"
+msgstr ""
 
 msgctxt "#30120"
 msgid "Token"
-msgstr "Token"
+msgstr ""
 
 msgctxt "#30121"
 msgid "Serial Number"
-msgstr "Serienummer"
+msgstr ""
 
 msgctxt "#30122"
 msgid "Device ID"
-msgstr "Enhets-ID"
+msgstr ""
 
 msgctxt "#30123"
 msgid "Device ID2"
-msgstr "Enhets-ID 2"
+msgstr ""
 
 msgctxt "#30124"
 msgid "Signature"
-msgstr "Signatur"
+msgstr ""
 
+#empty strings from id 30125 to 30500
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
-msgstr "Okänt fel. Se loggen för detaljer."
+msgstr ""
 
 msgctxt "#30502"
 msgid "Startup failed."
-msgstr "Uppstart misslyckades."
+msgstr ""
 
 msgctxt "#30503"
 msgid "Failed to connect to server."
-msgstr "Kunde inte ansluta till server."
+msgstr ""
 
 msgctxt "#30504"
 msgid "Authentication failed. Retrying."
-msgstr "Autentisering misslyckades. Försöker igen."
+msgstr ""
 
 msgctxt "#30505"
 msgid "Unable to load channels."
-msgstr "Kunde inte ladda kanaler."
+msgstr ""
 
 msgctxt "#30506"
 msgid "Unable to load channel groups."
-msgstr "Kunde inte ladda kanalgrupper."
+msgstr ""
 
 msgctxt "#30507"
 msgid "Unable to load guide."
-msgstr "Kan inte ladda guide."
+msgstr ""
 
 msgctxt "#30508"
 msgid "Failed to get stream URL."
-msgstr "Kunde inte hämta stream URL."
+msgstr ""
 
 msgctxt "#30509"
 msgid "Authorization lost. Re-authenticating."
-msgstr "Tillstånd förlorades. Åter-autentiseringar."
+msgstr ""
 
 msgctxt "#30510"
 msgid "Re-authenticated."
-msgstr "Åter-autentiserad."
+msgstr ""
 
+#empty strings from id 30511 to 30999
 msgctxt "#31000"
 msgid "Portal 1"
-msgstr "Portal 1"
+msgstr ""
 
+#empty strings from id 31001 to 31999
 msgctxt "#32000"
 msgid "Portal 2"
-msgstr "Portal 2"
+msgstr ""
 
+#empty strings from id 32001 to 32999
 msgctxt "#33000"
 msgid "Portal 3"
-msgstr "Portal 3"
+msgstr ""
 
+#empty strings from id 33001 to 33999
 msgctxt "#34000"
 msgid "Portal 4"
-msgstr "Portal 4"
+msgstr ""
 
+#empty strings from id 34001 to 34999
 msgctxt "#35000"
 msgid "Portal 5"
-msgstr "Portal 5"
+msgstr ""
