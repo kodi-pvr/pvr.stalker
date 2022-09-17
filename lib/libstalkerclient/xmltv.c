@@ -27,6 +27,8 @@
 
 #include "util.h"
 
+#include <kodi/c-api/addon-instance/pvr/pvr_epg.h>
+
 void *sc_xmltv_create(enum sc_xmltv_strct type) {
     size_t size = 0;
     void *strct = NULL;
@@ -60,6 +62,7 @@ void *sc_xmltv_create(enum sc_xmltv_strct type) {
             sc_xmltv_programme_t *p = (sc_xmltv_programme_t *) strct;
             p->credits = sc_list_create();
             p->categories = sc_list_create();
+            p->episode_num = EPG_TAG_INVALID_SERIES_EPISODE;
             break;
         }
         default:
