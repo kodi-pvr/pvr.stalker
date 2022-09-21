@@ -183,12 +183,14 @@ int GuideManager::AddEvents(
         e.cast = p->extra.cast;
         e.directors = p->extra.directors;
         e.writers = p->extra.writers;
-        e.year = std::stoi(p->date.substr(0, 4));
+        if (!p->date.empty())
+          e.year = std::stoi(p->date.substr(0, 4));
         e.iconPath = p->icon;
         e.genreType = p->extra.genreType;
         e.genreDescription = p->extra.genreDescription;
         e.firstAired = p->previouslyShown;
-        e.starRating = std::stoi(p->starRating.substr(0, 1));
+        if (!p->starRating.empty())
+          e.starRating = std::stoi(p->starRating.substr(0, 1));
         e.episodeNumber = p->episodeNumber;
         e.episodeName = p->subTitle;
 

@@ -1,3 +1,7 @@
+v19.0.4
+- Fix issue #189 : "year" and "starRating" are optional in xmltv contract
+- Fix issue : init episodeNumber to undefined instead of "0"
+
 v19.0.3
 - Fix libxml2 dependency for Windows/UWP/Xbox
 
