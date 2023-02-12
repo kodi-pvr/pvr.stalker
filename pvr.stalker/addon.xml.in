@@ -119,7 +119,7 @@
     <disclaimer lang="en_NZ">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="en_US">This is unstable software! The authors are in no way responsible for failed recordings, incorrect timers, wasted hours, or any other undesirable effects.</disclaimer>
     <disclaimer lang="es_AR">¡Este software es inestable! Los autores no se responsabilizan por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
-    <disclaimer lang="es_ES">¡Este es un software inestable! Los autores no son de ninguna manera responsables de las grabaciones fallidas o incorrectas, las temporizadores perdidas, ni otros efectos no deseables.</disclaimer>
+    <disclaimer lang="es_ES">¡Este software es inestable! Los autores no se hacen responsables de grabaciones fallidas, temporizadores incorrectos, horas perdidas o cualquier otro efecto no deseado...</disclaimer>
     <disclaimer lang="es_MX">¡Esto es software inestable! Los autores no son responsables de ninguna forma por grabaciones fallidas, temporizadores incorrectos, horas perdidas, o cualquier otro efecto no deseado.</disclaimer>
     <disclaimer lang="et_EE">See on ebastabiilne tarkvara! Autorid ei ole kuidagi moodi vastutavad nurjunud salvestiste, vale taimeri, raisatud aja ega muude soovimatute asjade eest.</disclaimer>
     <disclaimer lang="eu_ES">Software hau ezegonkorra da! Egilea ez da arduratzen grabazio-erroreetaz, kronometro-erroreetaz, ordu galduetaz edo beste edozein ondorio ezerosoetaz.</disclaimer>
@@ -133,7 +133,7 @@
     <disclaimer lang="hy_AM">Սա անկայուն ծրագրային ապահովում է: Հեղինակները պատասխանատու չեն վատ ձայնագրումների, սխալ ժամանակացույցերի, կորած ժամանակի կամ այլ ոչ ցանկալի երևույթների համար:</disclaimer>
     <disclaimer lang="id_ID">Ini merupakan software yang tidak stabil! Penulis tidak bertanggung jawab untuk rekaman gagal, timer salah, waktu terbuang, atau efek tak diinginkan lainnya.</disclaimer>
     <disclaimer lang="is_IS">Þetta er óstöðugur hugbúnaður! Höfundar eru á engann hátt ábyrgir fyrir mistökum í upptöku, röngum tíma, klukkustundum sem fara í súginn, eða nokkru öðrum óæskilegum hegðunum.</disclaimer>
-    <disclaimer lang="it_IT">Questo software è instabile! Gli autori non sono in alcun modo responsabili per le registrazioni fallite ì, timer non corretti, ore perse o qualsiasi altro effetto non desiderato.</disclaimer>
+    <disclaimer lang="it_IT">Questo è un software instabile! Gli autori non sono in alcun modo responsabili per registrazioni fallite, timer errati, ore sprecate o qualsiasi altro effetto indesiderato.</disclaimer>
     <disclaimer lang="ja_JP">これは不安定なソフトウェアです！本プログラムの作者は、録画の失敗、正確に作動しなかったタイマー、無駄にした時間、その他あらゆる好ましくない結果について責任を負わないものとします。</disclaimer>
     <disclaimer lang="ko_KR">완성되지 않은 소프트웨어입니다! 개발자는 녹화와 예약의 실패, 시간 허비나 다른 의도하지 않은 결과에 대한 책임을 지지 않습니다.</disclaimer>
     <disclaimer lang="lt_LT">Tai nestabili programinė įranga! Autoriai jokiu būdu neatsako už nepavykusius įrašus, neteisingus laikmačius, sugaištas valandas ar bet kokius kitus nepageidaujamus padarinius.</disclaimer>
