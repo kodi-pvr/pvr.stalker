@@ -29,7 +29,7 @@
     <summary lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</summary>
     <summary lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</summary>
     <summary lang="et_EE">PVR&apos;i klient ühendamaks Kodi Stalker Middleware&apos;ga</summary>
-    <summary lang="fi_FI">Kodin Stalker Middleware -asiakasohjelma</summary>
+    <summary lang="fi_FI">Stalker Middleware PVR-pääte Kodille.</summary>
     <summary lang="fr_CA">Client de numériscope pour connecter Kodi à l’intergiciel Stalker</summary>
     <summary lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l&apos;intergiciel Stalker</summary>
     <summary lang="gl_ES">Cliente PVR para conectar Kodi a un Stalker Middleware</summary>
@@ -74,7 +74,7 @@
     <description lang="es_ES">Cliente PVR para conectar Kodi al Middleware Stalker</description>
     <description lang="es_MX">Cliente PVR para conectar Kodi al Stalker Middleware</description>
     <description lang="et_EE">PVR&apos;i klient ühendamaks Kodi Stalker Middleware&apos;ga</description>
-    <description lang="fi_FI">PVR-asiakasohjelma, joka kytkeytyy Stalker Middlewareen</description>
+    <description lang="fi_FI">Stalker Middleware PVR-pääte Kodille.</description>
     <description lang="fr_CA">Client de numériscope pour connecter Kodi à l’intergiciel Stalker</description>
     <description lang="fr_FR">Client enregistreur vidéo (PVR) pour connecter Kodi à l&apos;intergiciel Stalker</description>
     <description lang="gl_ES">Cliente PVR que conecta Kodi a un Stalker Middleware</description>
