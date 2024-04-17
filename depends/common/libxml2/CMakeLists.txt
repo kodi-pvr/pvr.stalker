@@ -14,6 +14,7 @@ list(APPEND libxml2_conf LDFLAGS=-L${CMAKE_INSTALL_PREFIX}/lib)
 include(ExternalProject)
 externalproject_add(libxml2
                     SOURCE_DIR ${CMAKE_SOURCE_DIR}
+                    UPDATE_COMMAND ""
                     CONFIGURE_COMMAND <SOURCE_DIR>/configure
                       --prefix=${CMAKE_INSTALL_PREFIX}
                       --without-python
@@ -24,7 +25,9 @@ externalproject_add(libxml2
                       --without-modules
                       --disable-shared
                       --with-pic
-                      ${libxml2_conf})
+                      ${libxml2_conf}
+                    INSTALL_COMMAND ""
+                    BUILD_IN_SOURCE 1)
 
 externalproject_add_step(libxml2
                          RunSedCommand
