@@ -323,11 +323,11 @@ std::string ParseAsW3CDateString(time_t time)
 #define PORTAL_SUFFIX_FORMAT "%s_%d"
 
 #define GET_SETTING_STR2(setting, name, portal, store, def) \
-  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
+  snprintf(setting, sizeof(setting), PORTAL_SUFFIX_FORMAT, name, portal); \
   store = kodi::addon::GetSettingString(setting, def);
 
 #define GET_SETTING_INT2(setting, name, portal, store, def) \
-  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
+  snprintf(setting, sizeof(setting), PORTAL_SUFFIX_FORMAT, name, portal); \
   store = kodi::addon::GetSettingInt(setting, def);
 
 ADDON_STATUS SData::Create()
