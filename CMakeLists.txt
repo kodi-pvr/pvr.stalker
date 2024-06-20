@@ -28,13 +28,17 @@ set(BASE_SOURCES
         src/base/Cache.cpp)
 
 set(SOURCES
+        src/addon.cpp
+        src/AddonSettings.cpp
         src/ChannelManager.cpp
         src/CWatchdog.cpp
         src/GuideManager.cpp
         src/HTTPSocket.cpp
+        src/InstanceSettings.cpp
         src/SAPI.cpp
-        src/SData.cpp
         src/SessionManager.cpp
+        src/SettingsMigration.cpp
+        src/StalkerInstance.cpp
         src/Utils.cpp
         src/XMLTV.cpp)
 
@@ -43,15 +47,18 @@ set(STALKER_SOURCES
         ${SOURCES})
 
 set(STALKER_HEADERS
+        src/addon.h
+        src/AddonSettings.h
         src/ChannelManager.h
         src/CWatchdog.h
         src/Error.h
         src/GuideManager.h
         src/HTTPSocket.h
+        src/InstanceSettings.h
         src/SAPI.h
-        src/SData.h
         src/SessionManager.h
-        src/Settings.h
+        src/SettingsMigration.h
+        src/StalkerInstance.h
         src/Utils.h
         src/XMLTV.h
         src/base/Cache.h

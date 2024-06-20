@@ -14,7 +14,7 @@
 #include "GuideManager.h"
 #include "SAPI.h"
 #include "SessionManager.h"
-#include "Settings.h"
+#include "InstanceSettings.h"
 #include "XMLTV.h"
 #include "base/Cache.h"
 #include "libstalkerclient/identity.h"
@@ -22,24 +22,28 @@
 
 #include <json/json.h>
 #include <kodi/addon-instance/PVR.h>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
 
-class ATTR_DLL_LOCAL SData : public kodi::addon::CAddonBase,
-                             public kodi::addon::CInstancePVRClient,
-                             private Base::Cache
+namespace SC
+{
+
+class ATTR_DLL_LOCAL StalkerInstance : public kodi::addon::CInstancePVRClient,
+                                       private Base::Cache
 {
 public:
-  SData();
-  ~SData();
+  StalkerInstance(const kodi::addon::IInstanceInfo& instance);
+  ~StalkerInstance();
 
-  ADDON_STATUS Create() override;
-  ADDON_STATUS SetSetting(const std::string& settingName,
-                          const kodi::addon::CSettingValue& settingValue) override
+  ADDON_STATUS SetInstanceSetting(const std::string& settingName,
+                                  const kodi::addon::CSettingValue& settingValue) override
   {
     return ADDON_STATUS_NEED_RESTART;
   }
+
+  ADDON_STATUS Initialize();
 
   PVR_ERROR GetCapabilities(kodi::addon::PVRCapabilities& capabilities) override;
   PVR_ERROR GetBackendName(std::string& name) override;
@@ -62,7 +66,7 @@ public:
       const kodi::addon::PVRChannel& channel,
       std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
-  SC::Settings settings;
+  std::shared_ptr<SC::InstanceSettings> settings;
 
 protected:
   bool LoadCache();
@@ -76,7 +80,7 @@ protected:
   void QueueErrorNotification(SError error) const;
 
 private:
-  bool ReloadSettings();
+  bool ConfigureStalkerAPISettings();
   std::string GetChannelStreamURL(const kodi::addon::PVRChannel& channel) const;
 
   bool m_tokenManuallySet = false;
@@ -92,3 +96,5 @@ private:
   SC::ChannelManager* m_channelManager = new SC::ChannelManager;
   SC::GuideManager* m_guideManager = new SC::GuideManager;
 };
+
+} // SC

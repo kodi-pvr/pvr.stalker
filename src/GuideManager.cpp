@@ -27,7 +27,7 @@ SError GuideManager::LoadGuide(time_t start, time_t end)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_XMLTV_ONLY)
+  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_XMLTV_ONLY)
     return SERROR_OK;
 
   bool ret(false);
@@ -69,7 +69,7 @@ SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
+  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
     return SERROR_OK;
 
   bool ret(false);
@@ -94,7 +94,7 @@ SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
 }
 
 int GuideManager::AddEvents(
-    int type, std::vector<Event>& events, Channel& channel, time_t start, time_t end)
+    int type, std::vector<Event>& events, Channel& channel, time_t start, time_t end, int epgTimeshiftSecs)
 {
   int addedEvents(0);
 
@@ -123,8 +123,8 @@ int GuideManager::AddEvents(
       {
         try
         {
-          startTimestamp = Utils::GetIntFromJsonValue((*it)["start_timestamp"]);
-          stopTimestamp = Utils::GetIntFromJsonValue((*it)["stop_timestamp"]);
+          startTimestamp = Utils::GetIntFromJsonValue((*it)["start_timestamp"]) + epgTimeshiftSecs;
+          stopTimestamp = Utils::GetIntFromJsonValue((*it)["stop_timestamp"]) + epgTimeshiftSecs;
 
           if (start != 0 && end != 0 && !(startTimestamp >= start && stopTimestamp <= end))
             continue;
@@ -177,8 +177,8 @@ int GuideManager::AddEvents(
         e.uniqueBroadcastId = p->extra.broadcastId;
         e.title = p->title;
         e.channelNumber = channel.number;
-        e.startTime = p->start;
-        e.endTime = p->stop;
+        e.startTime = p->start + epgTimeshiftSecs;
+        e.endTime = p->stop + epgTimeshiftSecs;
         e.plot = p->desc;
         e.cast = p->extra.cast;
         e.directors = p->extra.directors;
@@ -203,27 +203,27 @@ int GuideManager::AddEvents(
   return addedEvents;
 }
 
-std::vector<Event> GuideManager::GetChannelEvents(Channel& channel, time_t start, time_t end)
+std::vector<Event> GuideManager::GetChannelEvents(Channel& channel, time_t start, time_t end, int epgTimeshiftSecs)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   std::vector<Event> events;
   int addedEvents;
 
-  if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_PROVIDER ||
-      m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PROVIDER_ONLY)
+  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_PROVIDER ||
+      m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PROVIDER_ONLY)
   {
-    addedEvents = AddEvents(0, events, channel, start, end);
-    if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_PROVIDER && !addedEvents)
-      AddEvents(1, events, channel, start, end);
+    addedEvents = AddEvents(0, events, channel, start, end, epgTimeshiftSecs);
+    if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_PROVIDER && !addedEvents)
+      AddEvents(1, events, channel, start, end, epgTimeshiftSecs);
   }
 
-  if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_XMLTV ||
-      m_guidePreference == SC::Settings::GUIDE_PREFERENCE_XMLTV_ONLY)
+  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_XMLTV ||
+      m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_XMLTV_ONLY)
   {
-    addedEvents = AddEvents(1, events, channel, start, end);
-    if (m_guidePreference == SC::Settings::GUIDE_PREFERENCE_PREFER_XMLTV && !addedEvents)
-      AddEvents(0, events, channel, start, end);
+    addedEvents = AddEvents(1, events, channel, start, end, epgTimeshiftSecs);
+    if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_XMLTV && !addedEvents)
+      AddEvents(0, events, channel, start, end, epgTimeshiftSecs);
   }
 
   return events;
