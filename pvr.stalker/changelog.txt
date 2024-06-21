@@ -1,3 +1,8 @@
+v21.1.0
+- Move to new settings format and support PVR multi-instance
+  - Note that only the first portal will be migrated in settings, the other portal will need to be set up manually
+- Add setting for EPG timeShift
+
 v21.0.1
 - Translations updates from Weblate
 	- ar_sa, ast_es, be_by, bs_ba, cs_cz, cy_gb, de_de, en_au, eo, es_ar, es_es, et_ee, fa_af, fa_ir, fi_fi, fo_fo, fr_fr, hr_hr, hy_am, id_id, it_it, ja_jp, mi, mk_mk, mn_mn, my_mm, ru_ru, si_lk, sk_sk, sq_al, sv_se, ta_in, te_in, tg_tj, th_th, uk_ua, uz_uz
