@@ -8,7 +8,7 @@
 
 #include "addon.h"
 #include "StalkerInstance.h"
-#include "SettingsMigration.h"
+#include "stalker/SettingsMigration.h"
 
 using namespace Stalker;
 

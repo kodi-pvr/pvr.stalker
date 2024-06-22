@@ -8,15 +8,15 @@
 
 #pragma once
 
-#include "CWatchdog.h"
-#include "ChannelManager.h"
-#include "Error.h"
-#include "GuideManager.h"
-#include "SAPI.h"
-#include "SessionManager.h"
-#include "InstanceSettings.h"
-#include "XMLTV.h"
-#include "base/Cache.h"
+#include "stalker/CWatchdog.h"
+#include "stalker/ChannelManager.h"
+#include "stalker/Error.h"
+#include "stalker/GuideManager.h"
+#include "stalker/SAPI.h"
+#include "stalker/SessionManager.h"
+#include "stalker/InstanceSettings.h"
+#include "stalker/XMLTV.h"
+#include "stalker/base/Cache.h"
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"
 

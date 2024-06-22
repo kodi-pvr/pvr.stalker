@@ -25,22 +25,22 @@ set(DEPLIBS
         ${JSONCPP_LIBRARIES})
 
 set(BASE_SOURCES
-        src/base/Cache.cpp)
+        src/stalker/base/Cache.cpp)
 
 set(SOURCES
         src/addon.cpp
-        src/AddonSettings.cpp
-        src/ChannelManager.cpp
-        src/CWatchdog.cpp
-        src/GuideManager.cpp
-        src/HTTPSocket.cpp
-        src/InstanceSettings.cpp
-        src/SAPI.cpp
-        src/SessionManager.cpp
-        src/SettingsMigration.cpp
         src/StalkerInstance.cpp
-        src/Utils.cpp
-        src/XMLTV.cpp)
+        src/stalker/AddonSettings.cpp
+        src/stalker/ChannelManager.cpp
+        src/stalker/CWatchdog.cpp
+        src/stalker/GuideManager.cpp
+        src/stalker/HTTPSocket.cpp
+        src/stalker/InstanceSettings.cpp
+        src/stalker/SAPI.cpp
+        src/stalker/SessionManager.cpp
+        src/stalker/SettingsMigration.cpp
+        src/stalker/Utils.cpp
+        src/stalker/XMLTV.cpp)
 
 set(STALKER_SOURCES
         ${BASE_SOURCES}
@@ -48,22 +48,22 @@ set(STALKER_SOURCES
 
 set(STALKER_HEADERS
         src/addon.h
-        src/AddonSettings.h
-        src/ChannelManager.h
-        src/CWatchdog.h
-        src/Error.h
-        src/GuideManager.h
-        src/HTTPSocket.h
-        src/InstanceSettings.h
-        src/SAPI.h
-        src/SessionManager.h
-        src/SettingsMigration.h
         src/StalkerInstance.h
-        src/Utils.h
-        src/XMLTV.h
-        src/base/Cache.h
-        src/base/ChannelManager.h
-        src/base/GuideManager.h)
+        src/stalker/AddonSettings.h
+        src/stalker/ChannelManager.h
+        src/stalker/CWatchdog.h
+        src/stalker/Error.h
+        src/stalker/GuideManager.h
+        src/stalker/HTTPSocket.h
+        src/stalker/InstanceSettings.h
+        src/stalker/SAPI.h
+        src/stalker/SessionManager.h
+        src/stalker/SettingsMigration.h
+        src/stalker/Utils.h
+        src/stalker/XMLTV.h
+        src/stalker/base/Cache.h
+        src/stalker/base/ChannelManager.h
+        src/stalker/base/GuideManager.h)
 
 build_addon(pvr.stalker STALKER DEPLIBS)
 

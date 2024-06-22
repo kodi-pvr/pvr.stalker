@@ -8,7 +8,7 @@
 
 #include "StalkerInstance.h"
 
-#include "Utils.h"
+#include "stalker/Utils.h"
 #include "libstalkerclient/util.h"
 
 #include <chrono>

@@ -12,7 +12,7 @@
 
 #include <memory>
 
-#include "AddonSettings.h"
+#include "stalker/AddonSettings.h"
 
 namespace Stalker
 {
