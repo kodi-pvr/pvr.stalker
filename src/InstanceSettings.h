@@ -34,7 +34,7 @@
 #define SC_SETTINGS_DEFAULT_DEVICE_ID2 ""
 #define SC_SETTINGS_DEFAULT_SIGNATURE ""
 
-namespace SC
+namespace Stalker
 {
 class InstanceSettings
 {
@@ -73,4 +73,4 @@ public:
 
   kodi::addon::IAddonInstance& m_instance;
 };
-} // namespace SC
+} // namespace Stalker

@@ -11,7 +11,7 @@
 
 #include "kodi/General.h"
 
-using namespace SC;
+using namespace Stalker;
 
 AddonSettings::AddonSettings()
 {

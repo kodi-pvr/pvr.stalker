@@ -15,7 +15,7 @@
 
 #include <mutex>
 
-namespace SC
+namespace Stalker
 {
 class SessionManager
 {
@@ -78,4 +78,4 @@ private:
   bool m_threadActive = false;
   std::thread m_thread;
 };
-} // namespace SC
+} // namespace Stalker

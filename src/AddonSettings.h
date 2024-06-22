@@ -11,7 +11,7 @@
 
 #include "kodi/AddonBase.h"
 
-namespace SC
+namespace Stalker
 {
 /**
    * Represents the current addon settings
@@ -36,4 +36,4 @@ class AddonSettings
     void ReadSettings();
 };
 
-} // namespace SC
+} // namespace Stalker

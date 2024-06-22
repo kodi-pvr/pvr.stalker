@@ -20,7 +20,7 @@
 
 #define SC_SAPI_AUTHORIZATION_FAILED "Authorization failed."
 
-using namespace SC;
+using namespace Stalker;
 
 void SAPI::SetEndpoint(const std::string& endpoint)
 {

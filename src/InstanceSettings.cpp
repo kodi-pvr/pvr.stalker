@@ -7,7 +7,7 @@
 
 #include "InstanceSettings.h"
 
-using namespace SC;
+using namespace Stalker;
 
 InstanceSettings::InstanceSettings(kodi::addon::IAddonInstance& instance)
   : m_instance(instance)

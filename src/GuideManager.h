@@ -18,7 +18,7 @@
 #include <kodi/addon-instance/pvr/EPG.h>
 #include <memory>
 
-namespace SC
+namespace Stalker
 {
 struct Event : Base::Event
 {
@@ -69,10 +69,10 @@ private:
 
   SAPI* m_api = nullptr;
   InstanceSettings::GuidePreference m_guidePreference =
-      (SC::InstanceSettings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
+      (Stalker::InstanceSettings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
   bool m_useCache = SC_SETTINGS_DEFAULT_GUIDE_CACHE;
   unsigned int m_expiry = SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS * 3600;
   std::shared_ptr<XMLTV> m_xmltv = std::make_shared<XMLTV>();
   Json::Value m_epgData;
 };
-} // namespace SC
+} // namespace Stalker

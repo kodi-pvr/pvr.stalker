@@ -27,7 +27,7 @@
 #define SERROR_MSG_AUTHORIZATION 30509
 #define MSG_RE_AUTHENTICATED 30510
 
-using namespace SC;
+using namespace Stalker;
 
 StalkerInstance::StalkerInstance(const kodi::addon::IInstanceInfo& instance) : kodi::addon::CInstancePVRClient(instance), Base::Cache()
 {
@@ -373,7 +373,7 @@ PVR_ERROR StalkerInstance::GetEPGForChannel(int channelUid,
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  SC::Channel* chan;
+  Stalker::Channel* chan;
   time_t now;
   SError ret;
 
@@ -409,11 +409,11 @@ PVR_ERROR StalkerInstance::GetEPGForChannel(int channelUid,
       QueueErrorNotification(ret);
   }
 
-  std::vector<SC::Event> events;
+  std::vector<Stalker::Event> events;
 
   int epgTimeshiftSecs = static_cast<int>(settings->epgTimeshiftHours * 60 * 60);
   events = m_guideManager->GetChannelEvents(*chan, start, end, epgTimeshiftSecs);
-  for (std::vector<SC::Event>::iterator event = events.begin(); event != events.end(); ++event)
+  for (std::vector<Stalker::Event>::iterator event = events.begin(); event != events.end(); ++event)
   {
     kodi::addon::PVREPGTag tag;
 
@@ -506,10 +506,10 @@ PVR_ERROR StalkerInstance::GetChannelGroups(bool radio, kodi::addon::PVRChannelG
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  std::vector<SC::ChannelGroup> channelGroups;
+  std::vector<Stalker::ChannelGroup> channelGroups;
 
   channelGroups = m_channelManager->GetChannelGroups();
-  for (std::vector<SC::ChannelGroup>::iterator group = channelGroups.begin();
+  for (std::vector<Stalker::ChannelGroup>::iterator group = channelGroups.begin();
        group != channelGroups.end(); ++group)
   {
     // exclude group id '*' (all)
@@ -532,7 +532,7 @@ PVR_ERROR StalkerInstance::GetChannelGroupMembers(const kodi::addon::PVRChannelG
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  SC::ChannelGroup* channelGroup;
+  Stalker::ChannelGroup* channelGroup;
 
   channelGroup = m_channelManager->GetChannelGroup(group.GetGroupName());
   if (channelGroup == nullptr)
@@ -541,10 +541,10 @@ PVR_ERROR StalkerInstance::GetChannelGroupMembers(const kodi::addon::PVRChannelG
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  std::vector<SC::Channel> channels;
+  std::vector<Stalker::Channel> channels;
 
   channels = m_channelManager->GetChannels();
-  for (std::vector<SC::Channel>::iterator channel = channels.begin(); channel != channels.end();
+  for (std::vector<Stalker::Channel>::iterator channel = channels.begin(); channel != channels.end();
        ++channel)
   {
     if (channel->tvGenreId.compare(channelGroup->id))
@@ -587,10 +587,10 @@ PVR_ERROR StalkerInstance::GetChannels(bool radio, kodi::addon::PVRChannelsResul
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  std::vector<SC::Channel> channels;
+  std::vector<Stalker::Channel> channels;
 
   channels = m_channelManager->GetChannels();
-  for (std::vector<SC::Channel>::iterator channel = channels.begin(); channel != channels.end();
+  for (std::vector<Stalker::Channel>::iterator channel = channels.begin(); channel != channels.end();
        ++channel)
   {
     kodi::addon::PVRChannel tag;
@@ -631,7 +631,7 @@ std::string StalkerInstance::GetChannelStreamURL(const kodi::addon::PVRChannel& 
   if (!IsAuthenticated())
     return streamUrl;
 
-  SC::Channel* chan;
+  Stalker::Channel* chan;
   std::string cmd;
   size_t pos;
 

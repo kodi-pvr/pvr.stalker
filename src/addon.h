@@ -14,7 +14,7 @@
 
 #include "AddonSettings.h"
 
-namespace SC
+namespace Stalker
 {
 class StalkerInstance;
 }
@@ -33,6 +33,6 @@ public:
 
 private:
 
-  SC::StalkerInstance* m_stalker = nullptr;
-  std::shared_ptr<SC::AddonSettings> m_settings;
+  Stalker::StalkerInstance* m_stalker = nullptr;
+  std::shared_ptr<Stalker::AddonSettings> m_settings;
 };

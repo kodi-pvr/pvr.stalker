@@ -15,7 +15,7 @@
 #include <kodi/General.h>
 #include <thread>
 
-using namespace SC;
+using namespace Stalker;
 
 GuideManager::~GuideManager()
 {
@@ -27,7 +27,7 @@ SError GuideManager::LoadGuide(time_t start, time_t end)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_XMLTV_ONLY)
+  if (m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_XMLTV_ONLY)
     return SERROR_OK;
 
   bool ret(false);
@@ -69,7 +69,7 @@ SError GuideManager::LoadXMLTV(HTTPSocket::Scope scope, const std::string& path)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
+  if (m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_PROVIDER_ONLY || path.empty())
     return SERROR_OK;
 
   bool ret(false);
@@ -210,19 +210,19 @@ std::vector<Event> GuideManager::GetChannelEvents(Channel& channel, time_t start
   std::vector<Event> events;
   int addedEvents;
 
-  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_PROVIDER ||
-      m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PROVIDER_ONLY)
+  if (m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_PREFER_PROVIDER ||
+      m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_PROVIDER_ONLY)
   {
     addedEvents = AddEvents(0, events, channel, start, end, epgTimeshiftSecs);
-    if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_PROVIDER && !addedEvents)
+    if (m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_PREFER_PROVIDER && !addedEvents)
       AddEvents(1, events, channel, start, end, epgTimeshiftSecs);
   }
 
-  if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_XMLTV ||
-      m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_XMLTV_ONLY)
+  if (m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_PREFER_XMLTV ||
+      m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_XMLTV_ONLY)
   {
     addedEvents = AddEvents(1, events, channel, start, end, epgTimeshiftSecs);
-    if (m_guidePreference == SC::InstanceSettings::GUIDE_PREFERENCE_PREFER_XMLTV && !addedEvents)
+    if (m_guidePreference == Stalker::InstanceSettings::GUIDE_PREFERENCE_PREFER_XMLTV && !addedEvents)
       AddEvents(0, events, channel, start, end, epgTimeshiftSecs);
   }
 

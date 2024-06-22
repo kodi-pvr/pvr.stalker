@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-using namespace SC;
+using namespace Stalker;
 
 namespace
 {

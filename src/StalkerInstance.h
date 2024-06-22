@@ -27,7 +27,7 @@
 #include <thread>
 #include <vector>
 
-namespace SC
+namespace Stalker
 {
 
 class ATTR_DLL_LOCAL StalkerInstance : public kodi::addon::CInstancePVRClient,
@@ -66,7 +66,7 @@ public:
       const kodi::addon::PVRChannel& channel,
       std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
-  std::shared_ptr<SC::InstanceSettings> settings;
+  std::shared_ptr<Stalker::InstanceSettings> settings;
 
 protected:
   bool LoadCache();
@@ -91,10 +91,10 @@ private:
   bool m_epgThreadActive = false;
   std::thread m_epgThread;
   mutable std::mutex m_epgMutex;
-  SC::SAPI* m_api = new SC::SAPI;
-  SC::SessionManager* m_sessionManager = new SC::SessionManager;
-  SC::ChannelManager* m_channelManager = new SC::ChannelManager;
-  SC::GuideManager* m_guideManager = new SC::GuideManager;
+  Stalker::SAPI* m_api = new Stalker::SAPI;
+  Stalker::SessionManager* m_sessionManager = new Stalker::SessionManager;
+  Stalker::ChannelManager* m_channelManager = new Stalker::ChannelManager;
+  Stalker::GuideManager* m_guideManager = new Stalker::GuideManager;
 };
 
 } // SC

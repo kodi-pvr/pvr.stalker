@@ -10,7 +10,7 @@
 #include "StalkerInstance.h"
 #include "SettingsMigration.h"
 
-using namespace SC;
+using namespace Stalker;
 
 ADDON_STATUS CStalkerAddon::Create()
 {
@@ -28,7 +28,7 @@ ADDON_STATUS CStalkerAddon::CreateInstance(const kodi::addon::IInstanceInfo& ins
   {
     kodi::Log(ADDON_LOG_DEBUG, "creating Stalker Portal PVR addon");
 
-    m_stalker = new SC::StalkerInstance(instance);
+    m_stalker = new Stalker::StalkerInstance(instance);
     ADDON_STATUS status = m_stalker->Initialize();
 
     // Try to migrate settings from a pre-multi-instance setup
@@ -36,7 +36,7 @@ ADDON_STATUS CStalkerAddon::CreateInstance(const kodi::addon::IInstanceInfo& ins
     {
       // Initial client operated on old/incomplete settings
       delete m_stalker;
-      m_stalker = new SC::StalkerInstance(instance);
+      m_stalker = new Stalker::StalkerInstance(instance);
     }
 
     hdl = m_stalker;

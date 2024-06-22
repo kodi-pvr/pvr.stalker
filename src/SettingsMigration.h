@@ -17,7 +17,7 @@ class IAddonInstance;
 }
 } // namespace kodi
 
-namespace SC
+namespace Stalker
 {
 class SettingsMigration
 {
@@ -40,4 +40,4 @@ private:
   bool m_changed{false};
 };
 
-} // namespace SC
+} // namespace Stalker
