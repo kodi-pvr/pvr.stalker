@@ -71,7 +71,7 @@ void HTTPSocket::BuildRequestURL(Request& request)
   for (std::vector<URLOption>::iterator it = request.options.begin(); it != request.options.end();
        ++it)
   {
-    sprintf(buffer, "%s=%s", it->name.c_str(), Utils::UrlEncode(it->value).c_str());
+    snprintf(buffer, sizeof(buffer), "%s=%s", it->name.c_str(), Utils::UrlEncode(it->value).c_str());
     requestUrl += buffer;
 
     if (it + 1 != request.options.end())

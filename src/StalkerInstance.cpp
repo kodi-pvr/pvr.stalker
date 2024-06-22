@@ -6,9 +6,9 @@
  *  See LICENSE.md for more information.
  */
 
-#include "SData.h"
+#include "StalkerInstance.h"
 
-#include "Utils.h"
+#include "stalker/Utils.h"
 #include "libstalkerclient/util.h"
 
 #include <chrono>
@@ -27,13 +27,17 @@
 #define SERROR_MSG_AUTHORIZATION 30509
 #define MSG_RE_AUTHENTICATED 30510
 
-SData::SData() : Base::Cache()
+using namespace Stalker;
+
+StalkerInstance::StalkerInstance(const kodi::addon::IInstanceInfo& instance) : kodi::addon::CInstancePVRClient(instance), Base::Cache()
 {
   sc_identity_defaults(&m_identity);
   sc_stb_profile_defaults(&m_profile);
+
+  settings = std::make_shared<InstanceSettings>(*this);
 }
 
-SData::~SData()
+StalkerInstance::~StalkerInstance()
 {
   m_epgThreadActive = false;
   if (m_epgThread.joinable())
@@ -45,7 +49,19 @@ SData::~SData()
   delete m_guideManager;
 }
 
-void SData::QueueErrorNotification(SError error) const
+ADDON_STATUS StalkerInstance::Initialize()
+{
+  // Settings are loaded on creation of the instance, as they are already loaded we can safely configure the API
+
+  if (!ConfigureStalkerAPISettings())
+  {
+    return ADDON_STATUS_LOST_CONNECTION;
+  }
+
+  return ADDON_STATUS_OK;
+}
+
+void StalkerInstance::QueueErrorNotification(SError error) const
 {
   int errorMsg = 0;
 
@@ -90,7 +106,7 @@ void SData::QueueErrorNotification(SError error) const
     kodi::QueueNotification(QUEUE_ERROR, "", kodi::addon::GetLocalizedString(errorMsg));
 }
 
-bool SData::LoadCache()
+bool StalkerInstance::LoadCache()
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
@@ -100,7 +116,7 @@ bool SData::LoadCache()
   xmlNodePtr node = nullptr;
   xmlNodePtr portalsNode = nullptr;
   xmlNodePtr portalNode = nullptr;
-  std::string portalNum = std::to_string(settings.activePortal);
+  std::string portalNum = std::to_string(settings->activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -152,7 +168,7 @@ bool SData::LoadCache()
   return true;
 }
 
-bool SData::SaveCache()
+bool StalkerInstance::SaveCache()
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
@@ -163,7 +179,7 @@ bool SData::SaveCache()
   xmlNodePtr node = nullptr;
   xmlNodePtr portalsNode = nullptr;
   xmlNodePtr portalNode = nullptr;
-  std::string portalNum = std::to_string(settings.activePortal);
+  std::string portalNum = std::to_string(settings->activePortal);
 
   cacheFile = Utils::GetFilePath("cache.xml");
 
@@ -232,22 +248,22 @@ bool SData::SaveCache()
   return ret;
 }
 
-bool SData::ReloadSettings()
+bool StalkerInstance::ConfigureStalkerAPISettings()
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SError ret;
 
   sc_identity_defaults(&m_identity);
-  SC_STR_SET(m_identity.mac, settings.mac.c_str());
-  SC_STR_SET(m_identity.time_zone, settings.timeZone.c_str());
-  SC_STR_SET(m_identity.token, settings.token.c_str());
-  SC_STR_SET(m_identity.login, settings.login.c_str());
-  SC_STR_SET(m_identity.password, settings.password.c_str());
-  SC_STR_SET(m_identity.serial_number, settings.serialNumber.c_str());
-  SC_STR_SET(m_identity.device_id, settings.deviceId.c_str());
-  SC_STR_SET(m_identity.device_id2, settings.deviceId2.c_str());
-  SC_STR_SET(m_identity.signature, settings.signature.c_str());
+  SC_STR_SET(m_identity.mac, settings->mac.c_str());
+  SC_STR_SET(m_identity.time_zone, settings->timeZone.c_str());
+  SC_STR_SET(m_identity.token, settings->token.c_str());
+  SC_STR_SET(m_identity.login, settings->login.c_str());
+  SC_STR_SET(m_identity.password, settings->password.c_str());
+  SC_STR_SET(m_identity.serial_number, settings->serialNumber.c_str());
+  SC_STR_SET(m_identity.device_id, settings->deviceId.c_str());
+  SC_STR_SET(m_identity.device_id2, settings->deviceId2.c_str());
+  SC_STR_SET(m_identity.signature, settings->signature.c_str());
 
   // skip handshake if token setting was set
   if (strlen(m_identity.token) > 0)
@@ -256,8 +272,8 @@ bool SData::ReloadSettings()
   LoadCache();
 
   m_api->SetIdentity(&m_identity);
-  m_api->SetEndpoint(settings.server);
-  m_api->SetTimeout(settings.connectionTimeout);
+  m_api->SetEndpoint(settings->server);
+  m_api->SetTimeout(settings->connectionTimeout);
 
   m_sessionManager->SetIdentity(&m_identity, m_tokenManuallySet);
   m_sessionManager->SetProfile(&m_profile);
@@ -276,8 +292,8 @@ bool SData::ReloadSettings()
   m_channelManager->SetAPI(m_api);
 
   m_guideManager->SetAPI(m_api);
-  m_guideManager->SetGuidePreference(settings.guidePreference);
-  m_guideManager->SetCacheOptions(settings.guideCache, settings.guideCacheHours * 3600);
+  m_guideManager->SetGuidePreference(settings->guidePreference);
+  m_guideManager->SetCacheOptions(settings->guideCache, settings->guideCacheHours * 3600);
 
   ret = Authenticate();
   if (ret != SERROR_OK)
@@ -286,12 +302,12 @@ bool SData::ReloadSettings()
   return ret == SERROR_OK;
 }
 
-bool SData::IsAuthenticated() const
+bool StalkerInstance::IsAuthenticated() const
 {
   return m_sessionManager->IsAuthenticated();
 }
 
-SError SData::Authenticate()
+SError StalkerInstance::Authenticate()
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
@@ -320,87 +336,7 @@ std::string ParseAsW3CDateString(time_t time)
 
 } // unnamed namespace
 
-#define PORTAL_SUFFIX_FORMAT "%s_%d"
-
-#define GET_SETTING_STR2(setting, name, portal, store, def) \
-  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
-  store = kodi::addon::GetSettingString(setting, def);
-
-#define GET_SETTING_INT2(setting, name, portal, store, def) \
-  sprintf(setting, PORTAL_SUFFIX_FORMAT, name, portal); \
-  store = kodi::addon::GetSettingInt(setting, def);
-
-ADDON_STATUS SData::Create()
-{
-  settings.activePortal = kodi::addon::GetSettingInt("active_portal", SC_SETTINGS_DEFAULT_ACTIVE_PORTAL);
-  settings.connectionTimeout =
-      kodi::addon::GetSettingInt("connection_timeout", SC_SETTINGS_DEFAULT_CONNECTION_TIMEOUT);
-  // calc based on index (5 second steps)
-  settings.connectionTimeout *= 5;
-
-  char setting[256];
-  int enumTemp;
-  int portal = settings.activePortal;
-  GET_SETTING_STR2(setting, "mac", portal, settings.mac, SC_SETTINGS_DEFAULT_MAC);
-  GET_SETTING_STR2(setting, "server", portal, settings.server, SC_SETTINGS_DEFAULT_SERVER);
-  GET_SETTING_STR2(setting, "time_zone", portal, settings.timeZone, SC_SETTINGS_DEFAULT_TIME_ZONE);
-  GET_SETTING_STR2(setting, "login", portal, settings.login, SC_SETTINGS_DEFAULT_LOGIN);
-  GET_SETTING_STR2(setting, "password", portal, settings.password, SC_SETTINGS_DEFAULT_PASSWORD);
-  GET_SETTING_INT2(setting, "guide_preference", portal, enumTemp,
-                   SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE);
-  settings.guidePreference = (SC::Settings::GuidePreference)enumTemp;
-  GET_SETTING_INT2(setting, "guide_cache", portal, settings.guideCache,
-                   SC_SETTINGS_DEFAULT_GUIDE_CACHE);
-  GET_SETTING_INT2(setting, "guide_cache_hours", portal, settings.guideCacheHours,
-                   SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS);
-  GET_SETTING_INT2(setting, "xmltv_scope", portal, enumTemp, SC_SETTINGS_DEFAULT_XMLTV_SCOPE);
-  settings.xmltvScope = (HTTPSocket::Scope)enumTemp;
-  if (settings.xmltvScope == HTTPSocket::Scope::SCOPE_REMOTE)
-  {
-    GET_SETTING_STR2(setting, "xmltv_url", portal, settings.xmltvPath,
-                     SC_SETTINGS_DEFAULT_XMLTV_URL);
-  }
-  else
-  {
-    GET_SETTING_STR2(setting, "xmltv_path", portal, settings.xmltvPath,
-                     SC_SETTINGS_DEFAULT_XMLTV_PATH);
-  }
-  GET_SETTING_STR2(setting, "token", portal, settings.token, SC_SETTINGS_DEFAULT_TOKEN);
-  GET_SETTING_STR2(setting, "serial_number", portal, settings.serialNumber,
-                   SC_SETTINGS_DEFAULT_SERIAL_NUMBER);
-  GET_SETTING_STR2(setting, "device_id", portal, settings.deviceId, SC_SETTINGS_DEFAULT_DEVICE_ID);
-  GET_SETTING_STR2(setting, "device_id2", portal, settings.deviceId2,
-                   SC_SETTINGS_DEFAULT_DEVICE_ID2);
-  GET_SETTING_STR2(setting, "signature", portal, settings.signature, SC_SETTINGS_DEFAULT_SIGNATURE);
-
-  kodi::Log(ADDON_LOG_DEBUG, "active_portal=%d", settings.activePortal);
-  kodi::Log(ADDON_LOG_DEBUG, "connection_timeout=%d", settings.connectionTimeout);
-
-  kodi::Log(ADDON_LOG_DEBUG, "mac=%s", settings.mac.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "server=%s", settings.server.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "timeZone=%s", settings.timeZone.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "login=%s", settings.login.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "password=%s", settings.password.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "guidePreference=%d", settings.guidePreference);
-  kodi::Log(ADDON_LOG_DEBUG, "guideCache=%d", settings.guideCache);
-  kodi::Log(ADDON_LOG_DEBUG, "guideCacheHours=%d", settings.guideCacheHours);
-  kodi::Log(ADDON_LOG_DEBUG, "xmltvScope=%d", settings.xmltvScope);
-  kodi::Log(ADDON_LOG_DEBUG, "xmltvPath=%s", settings.xmltvPath.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "token=%s", settings.token.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "serialNumber=%s", settings.serialNumber.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "deviceId=%s", settings.deviceId.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "deviceId2=%s", settings.deviceId2.c_str());
-  kodi::Log(ADDON_LOG_DEBUG, "signature=%s", settings.signature.c_str());
-
-  if (!ReloadSettings())
-  {
-    return ADDON_STATUS_LOST_CONNECTION;
-  }
-
-  return ADDON_STATUS_OK;
-}
-
-PVR_ERROR SData::GetCapabilities(kodi::addon::PVRCapabilities& capabilities)
+PVR_ERROR StalkerInstance::GetCapabilities(kodi::addon::PVRCapabilities& capabilities)
 {
   capabilities.SetSupportsEPG(true);
   capabilities.SetSupportsTV(true);
@@ -412,32 +348,32 @@ PVR_ERROR SData::GetCapabilities(kodi::addon::PVRCapabilities& capabilities)
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetBackendName(std::string& name)
+PVR_ERROR StalkerInstance::GetBackendName(std::string& name)
 {
   name = "Stalker Middleware";
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetBackendVersion(std::string& version)
+PVR_ERROR StalkerInstance::GetBackendVersion(std::string& version)
 {
   version = "Unknown";
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetConnectionString(std::string& connection)
+PVR_ERROR StalkerInstance::GetConnectionString(std::string& connection)
 {
-  connection = settings.server;
+  connection = settings->server;
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetEPGForChannel(int channelUid,
+PVR_ERROR StalkerInstance::GetEPGForChannel(int channelUid,
                                   time_t start,
                                   time_t end,
                                   kodi::addon::PVREPGTagsResultSet& results)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  SC::Channel* chan;
+  Stalker::Channel* chan;
   time_t now;
   SError ret;
 
@@ -458,7 +394,7 @@ PVR_ERROR SData::GetEPGForChannel(int channelUid,
   if (m_nextEpgLoadTime < now)
   {
     // limit to 1 hour if caching is disabled
-    m_nextEpgLoadTime = now + (settings.guideCache ? settings.guideCacheHours : 1) * 3600;
+    m_nextEpgLoadTime = now + (settings->guideCache ? settings->guideCacheHours : 1) * 3600;
     kodi::Log(ADDON_LOG_DEBUG, "%s: m_nextEpgLoadTime=%d", __func__, m_nextEpgLoadTime);
 
     if (IsAuthenticated())
@@ -468,15 +404,16 @@ PVR_ERROR SData::GetEPGForChannel(int channelUid,
         QueueErrorNotification(ret);
     }
 
-    ret = m_guideManager->LoadXMLTV(settings.xmltvScope, settings.xmltvPath);
+    ret = m_guideManager->LoadXMLTV(settings->xmltvScope, settings->xmltvPath);
     if (ret != SERROR_OK)
       QueueErrorNotification(ret);
   }
 
-  std::vector<SC::Event> events;
+  std::vector<Stalker::Event> events;
 
-  events = m_guideManager->GetChannelEvents(*chan, start, end);
-  for (std::vector<SC::Event>::iterator event = events.begin(); event != events.end(); ++event)
+  int epgTimeshiftSecs = static_cast<int>(settings->epgTimeshiftHours * 60 * 60);
+  events = m_guideManager->GetChannelEvents(*chan, start, end, epgTimeshiftSecs);
+  for (std::vector<Stalker::Event>::iterator event = events.begin(); event != events.end(); ++event)
   {
     kodi::addon::PVREPGTag tag;
 
@@ -544,13 +481,13 @@ PVR_ERROR SData::GetEPGForChannel(int channelUid,
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelGroupsAmount(int& amount)
+PVR_ERROR StalkerInstance::GetChannelGroupsAmount(int& amount)
 {
   amount = m_channelManager->GetChannelGroups().size();
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results)
+PVR_ERROR StalkerInstance::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
@@ -569,10 +506,10 @@ PVR_ERROR SData::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResul
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  std::vector<SC::ChannelGroup> channelGroups;
+  std::vector<Stalker::ChannelGroup> channelGroups;
 
   channelGroups = m_channelManager->GetChannelGroups();
-  for (std::vector<SC::ChannelGroup>::iterator group = channelGroups.begin();
+  for (std::vector<Stalker::ChannelGroup>::iterator group = channelGroups.begin();
        group != channelGroups.end(); ++group)
   {
     // exclude group id '*' (all)
@@ -590,12 +527,12 @@ PVR_ERROR SData::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResul
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+PVR_ERROR StalkerInstance::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
                                         kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
-  SC::ChannelGroup* channelGroup;
+  Stalker::ChannelGroup* channelGroup;
 
   channelGroup = m_channelManager->GetChannelGroup(group.GetGroupName());
   if (channelGroup == nullptr)
@@ -604,10 +541,10 @@ PVR_ERROR SData::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& grou
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  std::vector<SC::Channel> channels;
+  std::vector<Stalker::Channel> channels;
 
   channels = m_channelManager->GetChannels();
-  for (std::vector<SC::Channel>::iterator channel = channels.begin(); channel != channels.end();
+  for (std::vector<Stalker::Channel>::iterator channel = channels.begin(); channel != channels.end();
        ++channel)
   {
     if (channel->tvGenreId.compare(channelGroup->id))
@@ -625,13 +562,13 @@ PVR_ERROR SData::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& grou
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelsAmount(int& amount)
+PVR_ERROR StalkerInstance::GetChannelsAmount(int& amount)
 {
   amount = m_channelManager->GetChannels().size();
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results)
+PVR_ERROR StalkerInstance::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results)
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
@@ -650,10 +587,10 @@ PVR_ERROR SData::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& resu
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  std::vector<SC::Channel> channels;
+  std::vector<Stalker::Channel> channels;
 
   channels = m_channelManager->GetChannels();
-  for (std::vector<SC::Channel>::iterator channel = channels.begin(); channel != channels.end();
+  for (std::vector<Stalker::Channel>::iterator channel = channels.begin(); channel != channels.end();
        ++channel)
   {
     kodi::addon::PVRChannel tag;
@@ -671,7 +608,7 @@ PVR_ERROR SData::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& resu
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR SData::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel,
+PVR_ERROR StalkerInstance::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel,
                                             std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   const std::string strUrl = GetChannelStreamURL(channel);
@@ -685,7 +622,7 @@ PVR_ERROR SData::GetChannelStreamProperties(const kodi::addon::PVRChannel& chann
   return PVR_ERROR_NO_ERROR;
 }
 
-std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) const
+std::string StalkerInstance::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) const
 {
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
@@ -694,7 +631,7 @@ std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) c
   if (!IsAuthenticated())
     return streamUrl;
 
-  SC::Channel* chan;
+  Stalker::Channel* chan;
   std::string cmd;
   size_t pos;
 
@@ -716,7 +653,7 @@ std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) c
     std::ostringstream oss;
     HTTPSocket::Request request;
     HTTPSocket::Response response;
-    HTTPSocket sock(settings.connectionTimeout);
+    HTTPSocket sock(settings->connectionTimeout);
     bool failed(false);
 
     strSplit = kodi::tools::StringUtils::Split(chan->cmd, "/");
@@ -781,8 +718,8 @@ std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) c
   {
     // protocol options for http(s) urls only
     // <= zero disables timeout
-    //        if (streamUrl.find("http") == 0 && settings.connectionTimeout > 0)
-    //            streamUrl += "|Connection-Timeout=" + std::to_string(settings.connectionTimeout);
+    //        if (streamUrl.find("http") == 0 && settings->connectionTimeout > 0)
+    //            streamUrl += "|Connection-Timeout=" + std::to_string(settings->connectionTimeout);
 
     kodi::Log(ADDON_LOG_DEBUG, "%s: streamUrl=%s", __func__, streamUrl.c_str());
   }
@@ -790,4 +727,3 @@ std::string SData::GetChannelStreamURL(const kodi::addon::PVRChannel& channel) c
   return streamUrl;
 }
 
-ADDONCREATOR(SData)

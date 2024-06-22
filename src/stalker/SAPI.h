@@ -15,7 +15,7 @@
 #include <json/json.h>
 #include <string>
 
-namespace SC
+namespace Stalker
 {
 class SAPI
 {
@@ -65,4 +65,4 @@ private:
   std::string m_referer;
   unsigned int m_timeout = 0;
 };
-} // namespace SC
+} // namespace Stalker

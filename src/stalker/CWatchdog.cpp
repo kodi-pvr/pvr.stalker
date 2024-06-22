@@ -12,7 +12,7 @@
 #include <kodi/General.h>
 #include <thread>
 
-using namespace SC;
+using namespace Stalker;
 
 CWatchdog::CWatchdog(uint32_t interval, SAPI* api, std::function<void(SError)> errorCallback)
   : m_interval(interval), m_api(api), m_errorCallback(errorCallback)

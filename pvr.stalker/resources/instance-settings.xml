@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<settings version="1">
+  <section id="addon" help="-1">
+
+    <category id="general" label="30000">
+      <group id="connection" label="30001">
+        <setting id="mac" type="string" label="30101" help="30601">
+          <level>0</level>
+          <default>00:1A:79:00:00:00</default>
+          <constraints>
+            <allowempty>false</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="server" type="string" label="30102" help="30602">
+          <level>0</level>
+          <default>127.0.0.1</default>
+          <constraints>
+            <allowempty>false</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="time_zone" type="string" label="30103" help="30603">
+          <level>0</level>
+          <default>Europe/Kiev</default>
+          <constraints>
+            <allowempty>false</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="connection_timeout" type="integer" label="30003" help="30600">
+          <level>3</level>
+          <default>5</default>
+          <constraints>
+            <minimum>0</minimum>
+            <step>5</step>
+            <maximum>120</maximum>
+          </constraints>
+          <control type="slider" format="integer">
+            <formatlabel>30127</formatlabel> <!-- seconds-->
+          </control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="auth" label="30104">
+      <group id="authenication" label="30104">
+        <setting id="login" type="string" label="30105" help="30605">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="password" type="string" label="30106" help="30606">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string">
+            <hidden>true</hidden>
+          </control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="EPG" label="30128">
+      <group id="guide" label="30107">
+        <setting id="guide_preference" type="integer" label="30108" help="30607">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30109">0</option> <!-- PREFER_PROVIDER -->
+              <option label="30110">1</option> <!-- PREFER_XMLTV -->
+              <option label="30111">3</option> <!-- PROVIDER_ONLY -->
+              <option label="30112">4</option> <!-- XMLTV_ONLY -->
+            </options>
+          </constraints>
+          <control type="spinner" format="integer" />
+        </setting>
+        <setting id="guide_cache" type="boolean" label="30113" help="30608">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="guide_cache_hours" type="integer" label="30114" help="30609">
+          <level>0</level>
+          <default>24</default>
+          <constraints>
+            <minimum>0</minimum>
+            <step>1</step>
+            <maximum>168</maximum>
+          </constraints>
+          <control type="slider" format="integer" />
+        </setting>
+        <setting id="epg_timeShift" type="number" label="30125" help="30604">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <minimum>-12</minimum>
+            <step>0.5</step>
+            <maximum>14</maximum>
+          </constraints>
+          <control type="slider" format="number">
+            <formatlabel>30126</formatlabel>
+          </control>
+        </setting>
+      </group>
+      <group id="xmltv" label="30115">
+        <setting id="xmltv_scope" type="integer" label="30116" help="30610">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30117">0</option> <!-- REMOTE_URL -->
+              <option label="30118">1</option> <!-- LOCAL_PATH -->
+            </options>
+          </constraints>
+          <control type="spinner" format="integer" />
+        </setting>
+        <setting id="xmltv_url" type="string" parent="xmltv_scope" label="30117" help="30611">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <dependencies>
+            <dependency type="visible" setting="xmltv_scope" operator="is">0</dependency>
+          </dependencies>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="xmltv_path" type="path" parent="xmltv_scope" label="30118" help="30612">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+            <writable>false</writable>
+          </constraints>
+          <dependencies>
+            <dependency type="visible" setting="xmltv_scope" operator="is">1</dependency>
+          </dependencies>
+          <control type="button" format="file">
+            <heading>1033</heading>
+          </control>
+        </setting>
+      </group>
+    </category>
+
+    <category id="advanced" label="30119">
+      <group id="advanced" label="30119">
+        <setting id="token" type="string" label="30120" help="30613">
+          <level>3</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="serial_number" type="string" label="30121" help="30614">
+          <level>3</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="device_id" type="string" label="30122" help="30615">
+          <level>3</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="device_id2" type="string" label="30123" help="30616">
+          <level>3</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="signature" type="string" label="30124" help="30617">
+          <level>3</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <control type="edit" format="string" />
+        </setting>
+      </group>
+    </category>
+
+  </section>
+</settings>

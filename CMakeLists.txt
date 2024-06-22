@@ -25,38 +25,45 @@ set(DEPLIBS
         ${JSONCPP_LIBRARIES})
 
 set(BASE_SOURCES
-        src/base/Cache.cpp)
+        src/stalker/base/Cache.cpp)
 
 set(SOURCES
-        src/ChannelManager.cpp
-        src/CWatchdog.cpp
-        src/GuideManager.cpp
-        src/HTTPSocket.cpp
-        src/SAPI.cpp
-        src/SData.cpp
-        src/SessionManager.cpp
-        src/Utils.cpp
-        src/XMLTV.cpp)
+        src/addon.cpp
+        src/StalkerInstance.cpp
+        src/stalker/AddonSettings.cpp
+        src/stalker/ChannelManager.cpp
+        src/stalker/CWatchdog.cpp
+        src/stalker/GuideManager.cpp
+        src/stalker/HTTPSocket.cpp
+        src/stalker/InstanceSettings.cpp
+        src/stalker/SAPI.cpp
+        src/stalker/SessionManager.cpp
+        src/stalker/SettingsMigration.cpp
+        src/stalker/Utils.cpp
+        src/stalker/XMLTV.cpp)
 
 set(STALKER_SOURCES
         ${BASE_SOURCES}
         ${SOURCES})
 
 set(STALKER_HEADERS
-        src/ChannelManager.h
-        src/CWatchdog.h
-        src/Error.h
-        src/GuideManager.h
-        src/HTTPSocket.h
-        src/SAPI.h
-        src/SData.h
-        src/SessionManager.h
-        src/Settings.h
-        src/Utils.h
-        src/XMLTV.h
-        src/base/Cache.h
-        src/base/ChannelManager.h
-        src/base/GuideManager.h)
+        src/addon.h
+        src/StalkerInstance.h
+        src/stalker/AddonSettings.h
+        src/stalker/ChannelManager.h
+        src/stalker/CWatchdog.h
+        src/stalker/Error.h
+        src/stalker/GuideManager.h
+        src/stalker/HTTPSocket.h
+        src/stalker/InstanceSettings.h
+        src/stalker/SAPI.h
+        src/stalker/SessionManager.h
+        src/stalker/SettingsMigration.h
+        src/stalker/Utils.h
+        src/stalker/XMLTV.h
+        src/stalker/base/Cache.h
+        src/stalker/base/ChannelManager.h
+        src/stalker/base/GuideManager.h)
 
 build_addon(pvr.stalker STALKER DEPLIBS)
 

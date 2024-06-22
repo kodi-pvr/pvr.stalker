@@ -11,14 +11,14 @@
 #include "ChannelManager.h"
 #include "HTTPSocket.h"
 #include "SAPI.h"
-#include "Settings.h"
+#include "InstanceSettings.h"
 #include "XMLTV.h"
 #include "base/GuideManager.h"
 
 #include <kodi/addon-instance/pvr/EPG.h>
 #include <memory>
 
-namespace SC
+namespace Stalker
 {
 struct Event : Base::Event
 {
@@ -45,7 +45,7 @@ public:
 
   virtual void SetAPI(SAPI* api) { m_api = api; }
 
-  virtual void SetGuidePreference(Settings::GuidePreference guidePreference)
+  virtual void SetGuidePreference(InstanceSettings::GuidePreference guidePreference)
   {
     m_guidePreference = guidePreference;
   }
@@ -60,19 +60,19 @@ public:
 
   virtual SError LoadXMLTV(HTTPSocket::Scope scope, const std::string& path);
 
-  virtual std::vector<Event> GetChannelEvents(Channel& channel, time_t start = 0, time_t end = 0);
+  virtual std::vector<Event> GetChannelEvents(Channel& channel, time_t start, time_t end, int epgTimeshiftSecs);
 
   virtual void Clear();
 
 private:
-  int AddEvents(int type, std::vector<Event>& events, Channel& channel, time_t start, time_t end);
+  int AddEvents(int type, std::vector<Event>& events, Channel& channel, time_t start, time_t end, int epgTimeshiftSecs);
 
   SAPI* m_api = nullptr;
-  Settings::GuidePreference m_guidePreference =
-      (SC::Settings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
+  InstanceSettings::GuidePreference m_guidePreference =
+      (Stalker::InstanceSettings::GuidePreference)SC_SETTINGS_DEFAULT_GUIDE_PREFERENCE;
   bool m_useCache = SC_SETTINGS_DEFAULT_GUIDE_CACHE;
   unsigned int m_expiry = SC_SETTINGS_DEFAULT_GUIDE_CACHE_HOURS * 3600;
   std::shared_ptr<XMLTV> m_xmltv = std::make_shared<XMLTV>();
   Json::Value m_epgData;
 };
-} // namespace SC
+} // namespace Stalker

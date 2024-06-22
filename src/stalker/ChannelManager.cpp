@@ -13,7 +13,7 @@
 #include <cmath>
 #include <kodi/General.h>
 
-using namespace SC;
+using namespace Stalker;
 
 SError ChannelManager::LoadChannels()
 {

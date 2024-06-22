@@ -8,38 +8,42 @@
 
 #pragma once
 
-#include "CWatchdog.h"
-#include "ChannelManager.h"
-#include "Error.h"
-#include "GuideManager.h"
-#include "SAPI.h"
-#include "SessionManager.h"
-#include "Settings.h"
-#include "XMLTV.h"
-#include "base/Cache.h"
+#include "stalker/CWatchdog.h"
+#include "stalker/ChannelManager.h"
+#include "stalker/Error.h"
+#include "stalker/GuideManager.h"
+#include "stalker/SAPI.h"
+#include "stalker/SessionManager.h"
+#include "stalker/InstanceSettings.h"
+#include "stalker/XMLTV.h"
+#include "stalker/base/Cache.h"
 #include "libstalkerclient/identity.h"
 #include "libstalkerclient/stb.h"
 
 #include <json/json.h>
 #include <kodi/addon-instance/PVR.h>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
 
-class ATTR_DLL_LOCAL SData : public kodi::addon::CAddonBase,
-                             public kodi::addon::CInstancePVRClient,
-                             private Base::Cache
+namespace Stalker
+{
+
+class ATTR_DLL_LOCAL StalkerInstance : public kodi::addon::CInstancePVRClient,
+                                       private Base::Cache
 {
 public:
-  SData();
-  ~SData();
+  StalkerInstance(const kodi::addon::IInstanceInfo& instance);
+  ~StalkerInstance();
 
-  ADDON_STATUS Create() override;
-  ADDON_STATUS SetSetting(const std::string& settingName,
-                          const kodi::addon::CSettingValue& settingValue) override
+  ADDON_STATUS SetInstanceSetting(const std::string& settingName,
+                                  const kodi::addon::CSettingValue& settingValue) override
   {
     return ADDON_STATUS_NEED_RESTART;
   }
+
+  ADDON_STATUS Initialize();
 
   PVR_ERROR GetCapabilities(kodi::addon::PVRCapabilities& capabilities) override;
   PVR_ERROR GetBackendName(std::string& name) override;
@@ -62,7 +66,7 @@ public:
       const kodi::addon::PVRChannel& channel,
       std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
-  SC::Settings settings;
+  std::shared_ptr<Stalker::InstanceSettings> settings;
 
 protected:
   bool LoadCache();
@@ -76,7 +80,7 @@ protected:
   void QueueErrorNotification(SError error) const;
 
 private:
-  bool ReloadSettings();
+  bool ConfigureStalkerAPISettings();
   std::string GetChannelStreamURL(const kodi::addon::PVRChannel& channel) const;
 
   bool m_tokenManuallySet = false;
@@ -87,8 +91,10 @@ private:
   bool m_epgThreadActive = false;
   std::thread m_epgThread;
   mutable std::mutex m_epgMutex;
-  SC::SAPI* m_api = new SC::SAPI;
-  SC::SessionManager* m_sessionManager = new SC::SessionManager;
-  SC::ChannelManager* m_channelManager = new SC::ChannelManager;
-  SC::GuideManager* m_guideManager = new SC::GuideManager;
+  Stalker::SAPI* m_api = new Stalker::SAPI;
+  Stalker::SessionManager* m_sessionManager = new Stalker::SessionManager;
+  Stalker::ChannelManager* m_channelManager = new Stalker::ChannelManager;
+  Stalker::GuideManager* m_guideManager = new Stalker::GuideManager;
 };
+
+} // SC

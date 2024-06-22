@@ -12,7 +12,7 @@
 #include "SAPI.h"
 #include "base/ChannelManager.h"
 
-namespace SC
+namespace Stalker
 {
 struct Channel : Base::Channel
 {
@@ -69,4 +69,4 @@ private:
   SAPI* m_api = nullptr;
   std::vector<ChannelGroup> m_channelGroups;
 };
-} // namespace SC
+} // namespace Stalker

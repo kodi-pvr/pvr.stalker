@@ -13,7 +13,7 @@
 #include <functional>
 #include <thread>
 
-namespace SC
+namespace Stalker
 {
 class CWatchdog
 {
@@ -35,4 +35,4 @@ private:
   bool m_threadActive = false;
   std::thread m_thread;
 };
-} // namespace SC
+} // namespace Stalker

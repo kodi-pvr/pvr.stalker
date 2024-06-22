@@ -14,7 +14,7 @@
 #include <kodi/General.h>
 #include <thread>
 
-using namespace SC;
+using namespace Stalker;
 
 SessionManager::~SessionManager()
 {

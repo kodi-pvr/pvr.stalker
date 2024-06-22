@@ -59,7 +59,7 @@ msgid "Time Zone"
 msgstr ""
 
 msgctxt "#30104"
-msgid "Auth Credentials"
+msgid "Authentication"
 msgstr ""
 
 msgctxt "#30105"
