@@ -142,10 +142,15 @@ SError SessionManager::Authenticate()
   kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3");
 
   m_authMutex.lock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3a");
   m_isAuthenticating = true;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3b");
   m_authenticated = false;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3c");
   m_lastUnknownError.clear();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3d");
   m_authMutex.unlock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3e");
 
   kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 4");
 
