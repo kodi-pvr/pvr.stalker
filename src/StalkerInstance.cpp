@@ -254,6 +254,9 @@ bool StalkerInstance::ConfigureStalkerAPISettings()
 
   SError ret;
 
+kodi::Log(ADDON_LOG_DEBUG, "ZZ ConfigureStalkerAPISettings 1");
+
+
   sc_identity_defaults(&m_identity);
   SC_STR_SET(m_identity.mac, settings->mac.c_str());
   SC_STR_SET(m_identity.time_zone, settings->timeZone.c_str());
@@ -295,9 +298,14 @@ bool StalkerInstance::ConfigureStalkerAPISettings()
   m_guideManager->SetGuidePreference(settings->guidePreference);
   m_guideManager->SetCacheOptions(settings->guideCache, settings->guideCacheHours * 3600);
 
+kodi::Log(ADDON_LOG_DEBUG, "ZZ ConfigureStalkerAPISettings 2");
+
   ret = Authenticate();
+kodi::Log(ADDON_LOG_DEBUG, "ZZ ConfigureStalkerAPISettings 3");
   if (ret != SERROR_OK)
     QueueErrorNotification(ret);
+
+kodi::Log(ADDON_LOG_DEBUG, "ZZ ConfigureStalkerAPISettings 4");
 
   return ret == SERROR_OK;
 }
@@ -309,6 +317,7 @@ bool StalkerInstance::IsAuthenticated() const
 
 SError StalkerInstance::Authenticate()
 {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ Authenticate 1");
   kodi::Log(ADDON_LOG_DEBUG, "%s", __func__);
 
   SError ret;
@@ -316,8 +325,12 @@ SError StalkerInstance::Authenticate()
   if (!m_sessionManager->IsAuthenticated() && SERROR_OK != (ret = m_sessionManager->Authenticate()))
     return ret;
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ Authenticate 2");
+
   if (m_profile.store_auth_data_on_stb && !SaveCache())
     return SERROR_UNKNOWN;
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ Authenticate 3");
 
   return SERROR_OK;
 }
