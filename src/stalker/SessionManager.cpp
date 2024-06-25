@@ -127,6 +127,7 @@ SError SessionManager::GetProfile(bool authSecondStep)
 
 SError SessionManager::Authenticate()
 {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 1");
   bool wasAuthenticated(m_authenticated);
   int maxRetires(5);
   int numRetries(0);
@@ -134,7 +135,11 @@ SError SessionManager::Authenticate()
   if (m_isAuthenticating)
     return SERROR_OK;
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 2");
+
   StopWatchdog();
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3");
 
   m_authMutex.lock();
   m_isAuthenticating = true;
@@ -142,11 +147,17 @@ SError SessionManager::Authenticate()
   m_lastUnknownError.clear();
   m_authMutex.unlock();
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 4");
+
   if (wasAuthenticated && m_statusCallback != nullptr)
     m_statusCallback(SERROR_AUTHORIZATION);
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 5");
+
   while (!m_authenticated && ++numRetries <= maxRetires)
   {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 6");
+
     // notify once after the first try failed
     if (numRetries == 2)
     {
@@ -154,30 +165,51 @@ SError SessionManager::Authenticate()
         m_statusCallback(SERROR_AUTHENTICATION);
     }
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 7");
+
     // don't sleep on first try
     if (numRetries > 1)
       std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 8");
+
     if (!m_hasUserDefinedToken && SERROR_OK != DoHandshake())
       continue;
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 9");
+
     if (SERROR_OK != GetProfile())
       continue;
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10");
 
     m_authMutex.lock();
     m_authenticated = true;
     m_isAuthenticating = false;
     m_authMutex.unlock();
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 11");
+
+
     if (wasAuthenticated && m_statusCallback != nullptr)
       m_statusCallback(SERROR_OK);
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 12");
+
   }
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 13");
 
   if (m_authenticated)
   {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 14");
     StartAuthInvoker();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 15");
     StartWatchdog();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 16");
   }
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 17");
 
   return SERROR_OK;
 }
