@@ -189,8 +189,11 @@ SError SessionManager::Authenticate()
   kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10");
 
     m_authMutex.lock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10a");
     m_authenticated = true;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10b");
     m_isAuthenticating = false;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10c");
     m_authMutex.unlock();
 
   kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 11");
@@ -255,20 +258,28 @@ void SessionManager::StopAuthInvoker()
 
 void SessionManager::StartWatchdog()
 {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 1");
   if (!m_watchdog)
   {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 2");
     m_watchdog = new CWatchdog((unsigned int)m_profile->timeslot, m_api, [this](SError err) {
       if (err == SERROR_AUTHORIZATION)
       {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 3");
         m_authMutex.lock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 4");
         m_authenticated = false;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 5");
         m_authMutex.unlock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 6");
       }
     });
   }
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 7");
 
   if (m_watchdog)
     m_watchdog->Start();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 8");
 }
 
 void SessionManager::StopWatchdog()
