@@ -5,17 +5,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-06-28 08:29+0000\n"
-"Last-Translator: Christian Gade <gade@kodi.tv>\n"
+"PO-Revision-Date: 2024-07-15 07:34+0000\n"
+"Last-Translator: Havok Dan <havokdan@yahoo.com.br>\n"
 "Language-Team: Portuguese (Brazil) <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/pt_br/>\n"
 "Language: pt_br\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.7\n"
+"X-Generator: Weblate 5.6.2\n"
 
 msgctxt "Addon Summary"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
@@ -34,16 +34,16 @@ msgid "General"
 msgstr "Geral"
 
 msgctxt "#30001"
-msgid "Active Portal"
-msgstr "Portal ativo"
+msgid "Connection"
+msgstr "Conexão"
 
 msgctxt "#30002"
 msgid "Misc"
 msgstr "Outras"
 
 msgctxt "#30003"
-msgid "Connection Timeout (seconds)"
-msgstr "Tempo limite para conexão (segundos)"
+msgid "Connection Timeout"
+msgstr "Tempo Limite de Conexão"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -58,8 +58,8 @@ msgid "Time Zone"
 msgstr "Fuso Horário"
 
 msgctxt "#30104"
-msgid "Auth Credentials"
-msgstr "Credenciais de Autenticação"
+msgid "Authentication"
+msgstr "Autenticação"
 
 msgctxt "#30105"
 msgid "Login"
@@ -141,6 +141,24 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Assinatura"
 
+msgctxt "#30125"
+msgid "EPG time shift"
+msgstr "Mudança de horário do EPG"
+
+#. format-label: EPG Settings - epg_timeShift
+msgctxt "#30126"
+msgid "{0:.1f} hours"
+msgstr "{0:.1f} horas"
+
+msgctxt "#30127"
+msgid "{0:d} seconds"
+msgstr "{0:d} segundos"
+
+#, fuzzy
+msgctxt "#30128"
+msgid "EPG"
+msgstr "EPG"
+
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
 msgstr "Erro desconhecido. Ver o log para detalhes."
@@ -181,22 +199,107 @@ msgctxt "#30510"
 msgid "Re-authenticated."
 msgstr "Autorizar Novamente."
 
-msgctxt "#31000"
-msgid "Portal 1"
-msgstr "Portal 1"
+# empty strings from id 30511 to 30599
+msgctxt "#30600"
+msgid "The connection timeout to use for the stalker protal"
+msgstr "O tempo limite de conexão a ser usado para o stalker protal"
 
-msgctxt "#32000"
-msgid "Portal 2"
-msgstr "Portal 2"
+msgctxt "#30601"
+msgid "The mac of the stalker portal"
+msgstr "O mac do portal stalker"
 
-msgctxt "#33000"
-msgid "Portal 3"
-msgstr "Portal 3"
+msgctxt "#30601"
+msgid "The address of the stalker portal"
+msgstr "O endereço do portal stalker"
 
-msgctxt "#34000"
-msgid "Portal 4"
-msgstr "Portal 4"
+msgctxt "#30603"
+msgid "The timezone of this stalker portal"
+msgstr "O fuso horário deste portal stalker"
 
-msgctxt "#35000"
-msgid "Portal 5"
-msgstr "Portal 5"
+msgctxt "#30604"
+msgid "Adjust the EPG times by this value, from -12 hours to +14 hours."
+msgstr "Ajuste os tempos do EPG por este valor, de -12 horas a +14 horas."
+
+msgctxt "#30605"
+msgid "The username for login."
+msgstr "O nome de usuário para login."
+
+msgctxt "#30606"
+msgid "The login password."
+msgstr "A senha de login."
+
+msgctxt "#30607"
+msgid "The source of guide data."
+msgstr "A fonte dos dados do guia."
+
+msgctxt "#30608"
+msgid "Enable cache for guide data."
+msgstr "Ative o cache para dados de guia."
+
+msgctxt "#30609"
+msgid "The length of time to cache the guide data for."
+msgstr "O período de tempo para armazenar em cache os dados do guia."
+
+msgctxt "#30610"
+msgid "Remote URL or local path selection."
+msgstr "URL remoto ou seleção de caminho local."
+
+msgctxt "#30611"
+msgid "Remote URL for XMLTV data."
+msgstr "URL Remota para dados XMLTV."
+
+msgctxt "#30612"
+msgid "Local path used for XMLTV data."
+msgstr "Caminho local usado para dados XMLTV."
+
+msgctxt "#30613"
+msgid "The token to be used with the stalker portal."
+msgstr "O token a ser usado com o portal stalker."
+
+msgctxt "#30614"
+msgid "The serial number of the stalker portal."
+msgstr "O número de série do portal stalker."
+
+msgctxt "#30615"
+msgid "The device ID of the stalker portal."
+msgstr "O ID do dispositivo do portal stalker."
+
+msgctxt "#30616"
+msgid "The device ID2 of the stalker portal."
+msgstr "O dispositivo ID2 do portal stalker."
+
+msgctxt "#30617"
+msgid "The signature of the stalker portal."
+msgstr "A assinatura do portal stalker."
+
+#~ msgctxt "#30001"
+#~ msgid "Active Portal"
+#~ msgstr "Portal ativo"
+
+#~ msgctxt "#30003"
+#~ msgid "Connection Timeout (seconds)"
+#~ msgstr "Tempo limite para conexão (segundos)"
+
+#~ msgctxt "#30104"
+#~ msgid "Auth Credentials"
+#~ msgstr "Credenciais de Autenticação"
+
+#~ msgctxt "#31000"
+#~ msgid "Portal 1"
+#~ msgstr "Portal 1"
+
+#~ msgctxt "#32000"
+#~ msgid "Portal 2"
+#~ msgstr "Portal 2"
+
+#~ msgctxt "#33000"
+#~ msgid "Portal 3"
+#~ msgstr "Portal 3"
+
+#~ msgctxt "#34000"
+#~ msgid "Portal 4"
+#~ msgstr "Portal 4"
+
+#~ msgctxt "#35000"
+#~ msgid "Portal 5"
+#~ msgstr "Portal 5"

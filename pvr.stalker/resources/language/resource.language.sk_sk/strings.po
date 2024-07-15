@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: translations@kodi.tv\n"
+"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: 2023-03-08 13:16+0000\n"
 "Last-Translator: Patrik Špaňo <patrik.spano@gmail.com>\n"
@@ -34,16 +34,16 @@ msgid "General"
 msgstr "Hlavné"
 
 msgctxt "#30001"
-msgid "Active Portal"
-msgstr "Aktívny portál"
+msgid "Connection"
+msgstr ""
 
 msgctxt "#30002"
 msgid "Misc"
 msgstr "Rôzne"
 
 msgctxt "#30003"
-msgid "Connection Timeout (seconds)"
-msgstr "Časový limit spojenia (sekundy)"
+msgid "Connection Timeout"
+msgstr ""
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -58,8 +58,8 @@ msgid "Time Zone"
 msgstr "Časové pásmo"
 
 msgctxt "#30104"
-msgid "Auth Credentials"
-msgstr "Autorské poverenia"
+msgid "Authentication"
+msgstr ""
 
 msgctxt "#30105"
 msgid "Login"
@@ -141,6 +141,23 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Označenie"
 
+msgctxt "#30125"
+msgid "EPG time shift"
+msgstr ""
+
+#. format-label: EPG Settings - epg_timeShift
+msgctxt "#30126"
+msgid "{0:.1f} hours"
+msgstr ""
+
+msgctxt "#30127"
+msgid "{0:d} seconds"
+msgstr ""
+
+msgctxt "#30128"
+msgid "EPG"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
 msgstr "Neznáma chyba. Pre viac informácií si pozrite výpis z denníka."
@@ -181,22 +198,107 @@ msgctxt "#30510"
 msgid "Re-authenticated."
 msgstr "Opätovná autentifikácia bola úspešná."
 
-msgctxt "#31000"
-msgid "Portal 1"
-msgstr "Portál 1"
+# empty strings from id 30511 to 30599
+msgctxt "#30600"
+msgid "The connection timeout to use for the stalker protal"
+msgstr ""
 
-msgctxt "#32000"
-msgid "Portal 2"
-msgstr "Portál 2"
+msgctxt "#30601"
+msgid "The mac of the stalker portal"
+msgstr ""
 
-msgctxt "#33000"
-msgid "Portal 3"
-msgstr "Portál 3"
+msgctxt "#30601"
+msgid "The address of the stalker portal"
+msgstr ""
 
-msgctxt "#34000"
-msgid "Portal 4"
-msgstr "Portál 4"
+msgctxt "#30603"
+msgid "The timezone of this stalker portal"
+msgstr ""
 
-msgctxt "#35000"
-msgid "Portal 5"
-msgstr "Portál 5"
+msgctxt "#30604"
+msgid "Adjust the EPG times by this value, from -12 hours to +14 hours."
+msgstr ""
+
+msgctxt "#30605"
+msgid "The username for login."
+msgstr ""
+
+msgctxt "#30606"
+msgid "The login password."
+msgstr ""
+
+msgctxt "#30607"
+msgid "The source of guide data."
+msgstr ""
+
+msgctxt "#30608"
+msgid "Enable cache for guide data."
+msgstr ""
+
+msgctxt "#30609"
+msgid "The length of time to cache the guide data for."
+msgstr ""
+
+msgctxt "#30610"
+msgid "Remote URL or local path selection."
+msgstr ""
+
+msgctxt "#30611"
+msgid "Remote URL for XMLTV data."
+msgstr ""
+
+msgctxt "#30612"
+msgid "Local path used for XMLTV data."
+msgstr ""
+
+msgctxt "#30613"
+msgid "The token to be used with the stalker portal."
+msgstr ""
+
+msgctxt "#30614"
+msgid "The serial number of the stalker portal."
+msgstr ""
+
+msgctxt "#30615"
+msgid "The device ID of the stalker portal."
+msgstr ""
+
+msgctxt "#30616"
+msgid "The device ID2 of the stalker portal."
+msgstr ""
+
+msgctxt "#30617"
+msgid "The signature of the stalker portal."
+msgstr ""
+
+#~ msgctxt "#30001"
+#~ msgid "Active Portal"
+#~ msgstr "Aktívny portál"
+
+#~ msgctxt "#30003"
+#~ msgid "Connection Timeout (seconds)"
+#~ msgstr "Časový limit spojenia (sekundy)"
+
+#~ msgctxt "#30104"
+#~ msgid "Auth Credentials"
+#~ msgstr "Autorské poverenia"
+
+#~ msgctxt "#31000"
+#~ msgid "Portal 1"
+#~ msgstr "Portál 1"
+
+#~ msgctxt "#32000"
+#~ msgid "Portal 2"
+#~ msgstr "Portál 2"
+
+#~ msgctxt "#33000"
+#~ msgid "Portal 3"
+#~ msgstr "Portál 3"
+
+#~ msgctxt "#34000"
+#~ msgid "Portal 4"
+#~ msgstr "Portál 4"
+
+#~ msgctxt "#35000"
+#~ msgid "Portal 5"
+#~ msgstr "Portál 5"
