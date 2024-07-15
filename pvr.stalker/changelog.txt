@@ -1,3 +1,6 @@
+v21.1.1
+- Update libxml2 v2.11.7, which should also fix msix installer
+
 v21.1.0
 - Move to new settings format and support PVR multi-instance
   - Note that only the first portal will be migrated in settings, the other portal will need to be set up manually
