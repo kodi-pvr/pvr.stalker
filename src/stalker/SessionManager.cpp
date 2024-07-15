@@ -127,6 +127,7 @@ SError SessionManager::GetProfile(bool authSecondStep)
 
 SError SessionManager::Authenticate()
 {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 1");
   bool wasAuthenticated(m_authenticated);
   int maxRetires(5);
   int numRetries(0);
@@ -134,19 +135,37 @@ SError SessionManager::Authenticate()
   if (m_isAuthenticating)
     return SERROR_OK;
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 2");
+
   StopWatchdog();
 
-  m_authMutex.lock();
-  m_isAuthenticating = true;
-  m_authenticated = false;
-  m_lastUnknownError.clear();
-  m_authMutex.unlock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3");
+
+  {
+    std::lock_guard<std::mutex> guard(m_authMutex);
+    //m_authMutex.lock();
+    kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3a");
+    m_isAuthenticating = true;
+    kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3b");
+    m_authenticated = false;
+    kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3c");
+    m_lastUnknownError.clear();
+    kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3d");
+    //m_authMutex.unlock();
+    kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 3e");
+  }
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 4");
 
   if (wasAuthenticated && m_statusCallback != nullptr)
     m_statusCallback(SERROR_AUTHORIZATION);
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 5");
+
   while (!m_authenticated && ++numRetries <= maxRetires)
   {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 6");
+
     // notify once after the first try failed
     if (numRetries == 2)
     {
@@ -154,30 +173,57 @@ SError SessionManager::Authenticate()
         m_statusCallback(SERROR_AUTHENTICATION);
     }
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 7");
+
     // don't sleep on first try
     if (numRetries > 1)
       std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 8");
+
     if (!m_hasUserDefinedToken && SERROR_OK != DoHandshake())
       continue;
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 9");
 
     if (SERROR_OK != GetProfile())
       continue;
 
-    m_authMutex.lock();
-    m_authenticated = true;
-    m_isAuthenticating = false;
-    m_authMutex.unlock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10");
+
+    {
+      std::lock_guard<std::mutex> guard(m_authMutex);
+      //m_authMutex.lock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10a");
+      m_authenticated = true;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10b");
+      m_isAuthenticating = false;
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 10c");
+      //m_authMutex.unlock();
+    }
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 11");
+
 
     if (wasAuthenticated && m_statusCallback != nullptr)
       m_statusCallback(SERROR_OK);
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 12");
+
   }
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 13");
 
   if (m_authenticated)
   {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 14");
     StartAuthInvoker();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 15");
     StartWatchdog();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 16");
   }
+
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::Authenticate 17");
 
   return SERROR_OK;
 }
@@ -218,20 +264,29 @@ void SessionManager::StopAuthInvoker()
 
 void SessionManager::StartWatchdog()
 {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 1");
   if (!m_watchdog)
   {
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 2");
     m_watchdog = new CWatchdog((unsigned int)m_profile->timeslot, m_api, [this](SError err) {
       if (err == SERROR_AUTHORIZATION)
       {
-        m_authMutex.lock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 3");
+        std::lock_guard<std::mutex> guard(m_authMutex);
+        //m_authMutex.lock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 4");
         m_authenticated = false;
-        m_authMutex.unlock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 5");
+        // m_authMutex.unlock();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 6");
       }
     });
   }
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 7");
 
   if (m_watchdog)
     m_watchdog->Start();
+  kodi::Log(ADDON_LOG_DEBUG, "ZZ SessionManager::StartWatchdog 8");
 }
 
 void SessionManager::StopWatchdog()
