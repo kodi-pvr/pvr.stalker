@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-05-03 09:16+0000\n"
+"PO-Revision-Date: 2024-06-24 13:09+0000\n"
 "Last-Translator: Massimo Pissarello <mapi68@gmail.com>\n"
 "Language-Team: Italian <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/it_it/>\n"
 "Language: it_it\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.2\n"
+"X-Generator: Weblate 5.6\n"
 
 msgctxt "Addon Summary"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
@@ -34,16 +34,16 @@ msgid "General"
 msgstr "Generale"
 
 msgctxt "#30001"
-msgid "Active Portal"
-msgstr "Portale attivo"
+msgid "Connection"
+msgstr "Connessione"
 
 msgctxt "#30002"
 msgid "Misc"
 msgstr "Varie"
 
 msgctxt "#30003"
-msgid "Connection Timeout (seconds)"
-msgstr "Timeout connessione (secondi)"
+msgid "Connection Timeout"
+msgstr "Timeout connessione"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -58,8 +58,8 @@ msgid "Time Zone"
 msgstr "Fuso orario"
 
 msgctxt "#30104"
-msgid "Auth Credentials"
-msgstr "Credenziali autenticazione"
+msgid "Authentication"
+msgstr "Autenticazione"
 
 msgctxt "#30105"
 msgid "Login"
@@ -141,6 +141,23 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Firma"
 
+msgctxt "#30125"
+msgid "EPG time shift"
+msgstr "Timeshift EPG"
+
+#. format-label: EPG Settings - epg_timeShift
+msgctxt "#30126"
+msgid "{0:.1f} hours"
+msgstr "{0:.1f} ore"
+
+msgctxt "#30127"
+msgid "{0:d} seconds"
+msgstr "{0:d} secondi"
+
+msgctxt "#30128"
+msgid "EPG"
+msgstr "EPG"
+
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
 msgstr "Errore sconosciuto. Vedi il registro per i dettagli."
@@ -181,22 +198,107 @@ msgctxt "#30510"
 msgid "Re-authenticated."
 msgstr "Ri-autenticato."
 
-msgctxt "#31000"
-msgid "Portal 1"
-msgstr "Portale 1"
+# empty strings from id 30511 to 30599
+msgctxt "#30600"
+msgid "The connection timeout to use for the stalker protal"
+msgstr "Il timeout della connessione da usare per il portale stalker"
 
-msgctxt "#32000"
-msgid "Portal 2"
-msgstr "Portale 2"
+msgctxt "#30601"
+msgid "The mac of the stalker portal"
+msgstr "Il MAC del portale stalker"
 
-msgctxt "#33000"
-msgid "Portal 3"
-msgstr "Portale 3"
+msgctxt "#30601"
+msgid "The address of the stalker portal"
+msgstr "L'indirizzo del portale stalker"
 
-msgctxt "#34000"
-msgid "Portal 4"
-msgstr "Portale 4"
+msgctxt "#30603"
+msgid "The timezone of this stalker portal"
+msgstr "Il fuso orario di questo portale stalker"
 
-msgctxt "#35000"
-msgid "Portal 5"
-msgstr "Portale 5"
+msgctxt "#30604"
+msgid "Adjust the EPG times by this value, from -12 hours to +14 hours."
+msgstr "Regola i tempi EPG di questo valore, da -12 ore a +14 ore."
+
+msgctxt "#30605"
+msgid "The username for login."
+msgstr "Il nome utente per l'accesso."
+
+msgctxt "#30606"
+msgid "The login password."
+msgstr "La password di accesso."
+
+msgctxt "#30607"
+msgid "The source of guide data."
+msgstr "La fonte dei dati della guida."
+
+msgctxt "#30608"
+msgid "Enable cache for guide data."
+msgstr "Abilita la cache per i dati della guida."
+
+msgctxt "#30609"
+msgid "The length of time to cache the guide data for."
+msgstr "Tempo di memorizzazione nella cache dei dati della guida."
+
+msgctxt "#30610"
+msgid "Remote URL or local path selection."
+msgstr "URL remoto o selezione del percorso locale."
+
+msgctxt "#30611"
+msgid "Remote URL for XMLTV data."
+msgstr "URL remoto per i dati XMLTV."
+
+msgctxt "#30612"
+msgid "Local path used for XMLTV data."
+msgstr "Percorso locale usato per i dati XMLTV."
+
+msgctxt "#30613"
+msgid "The token to be used with the stalker portal."
+msgstr "Il token da usare con il portale stalker."
+
+msgctxt "#30614"
+msgid "The serial number of the stalker portal."
+msgstr "Il numero di serie del portale stalker."
+
+msgctxt "#30615"
+msgid "The device ID of the stalker portal."
+msgstr "L'ID del dispositivo del portale stalker."
+
+msgctxt "#30616"
+msgid "The device ID2 of the stalker portal."
+msgstr "Il dispositivo ID2 del portale stalker."
+
+msgctxt "#30617"
+msgid "The signature of the stalker portal."
+msgstr "La firma del portale stalker."
+
+#~ msgctxt "#30001"
+#~ msgid "Active Portal"
+#~ msgstr "Portale attivo"
+
+#~ msgctxt "#30003"
+#~ msgid "Connection Timeout (seconds)"
+#~ msgstr "Timeout connessione (secondi)"
+
+#~ msgctxt "#30104"
+#~ msgid "Auth Credentials"
+#~ msgstr "Credenziali autenticazione"
+
+#~ msgctxt "#31000"
+#~ msgid "Portal 1"
+#~ msgstr "Portale 1"
+
+#~ msgctxt "#32000"
+#~ msgid "Portal 2"
+#~ msgstr "Portale 2"
+
+#~ msgctxt "#33000"
+#~ msgid "Portal 3"
+#~ msgstr "Portale 3"
+
+#~ msgctxt "#34000"
+#~ msgid "Portal 4"
+#~ msgstr "Portale 4"
+
+#~ msgctxt "#35000"
+#~ msgid "Portal 5"
+#~ msgstr "Portale 5"

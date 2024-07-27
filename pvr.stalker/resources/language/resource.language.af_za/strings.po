@@ -33,16 +33,16 @@ msgid "General"
 msgstr "Algemeen"
 
 msgctxt "#30001"
-msgid "Active Portal"
-msgstr "Aktiewe Portaal"
+msgid "Connection"
+msgstr ""
 
 msgctxt "#30002"
 msgid "Misc"
 msgstr "Diverse"
 
 msgctxt "#30003"
-msgid "Connection Timeout (seconds)"
-msgstr "Konneksie tydverstreke (sekondes)"
+msgid "Connection Timeout"
+msgstr ""
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -57,8 +57,8 @@ msgid "Time Zone"
 msgstr "Tyd Sone"
 
 msgctxt "#30104"
-msgid "Auth Credentials"
-msgstr "Waarmerk Bewyse"
+msgid "Authentication"
+msgstr ""
 
 msgctxt "#30105"
 msgid "Login"
@@ -140,6 +140,23 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "Handtekening"
 
+msgctxt "#30125"
+msgid "EPG time shift"
+msgstr ""
+
+#. format-label: EPG Settings - epg_timeShift
+msgctxt "#30126"
+msgid "{0:.1f} hours"
+msgstr ""
+
+msgctxt "#30127"
+msgid "{0:d} seconds"
+msgstr ""
+
+msgctxt "#30128"
+msgid "EPG"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
 msgstr "Onbekende fout. Sien log vir besonderhede."
@@ -180,22 +197,107 @@ msgctxt "#30510"
 msgid "Re-authenticated."
 msgstr "Ge-her-waarmerk."
 
-msgctxt "#31000"
-msgid "Portal 1"
-msgstr "Portaal 1"
+# empty strings from id 30511 to 30599
+msgctxt "#30600"
+msgid "The connection timeout to use for the stalker protal"
+msgstr ""
 
-msgctxt "#32000"
-msgid "Portal 2"
-msgstr "Portaal 2"
+msgctxt "#30601"
+msgid "The mac of the stalker portal"
+msgstr ""
 
-msgctxt "#33000"
-msgid "Portal 3"
-msgstr "Portaal 3"
+msgctxt "#30601"
+msgid "The address of the stalker portal"
+msgstr ""
 
-msgctxt "#34000"
-msgid "Portal 4"
-msgstr "Portaal 4"
+msgctxt "#30603"
+msgid "The timezone of this stalker portal"
+msgstr ""
 
-msgctxt "#35000"
-msgid "Portal 5"
-msgstr "Portaal 5"
+msgctxt "#30604"
+msgid "Adjust the EPG times by this value, from -12 hours to +14 hours."
+msgstr ""
+
+msgctxt "#30605"
+msgid "The username for login."
+msgstr ""
+
+msgctxt "#30606"
+msgid "The login password."
+msgstr ""
+
+msgctxt "#30607"
+msgid "The source of guide data."
+msgstr ""
+
+msgctxt "#30608"
+msgid "Enable cache for guide data."
+msgstr ""
+
+msgctxt "#30609"
+msgid "The length of time to cache the guide data for."
+msgstr ""
+
+msgctxt "#30610"
+msgid "Remote URL or local path selection."
+msgstr ""
+
+msgctxt "#30611"
+msgid "Remote URL for XMLTV data."
+msgstr ""
+
+msgctxt "#30612"
+msgid "Local path used for XMLTV data."
+msgstr ""
+
+msgctxt "#30613"
+msgid "The token to be used with the stalker portal."
+msgstr ""
+
+msgctxt "#30614"
+msgid "The serial number of the stalker portal."
+msgstr ""
+
+msgctxt "#30615"
+msgid "The device ID of the stalker portal."
+msgstr ""
+
+msgctxt "#30616"
+msgid "The device ID2 of the stalker portal."
+msgstr ""
+
+msgctxt "#30617"
+msgid "The signature of the stalker portal."
+msgstr ""
+
+#~ msgctxt "#30001"
+#~ msgid "Active Portal"
+#~ msgstr "Aktiewe Portaal"
+
+#~ msgctxt "#30003"
+#~ msgid "Connection Timeout (seconds)"
+#~ msgstr "Konneksie tydverstreke (sekondes)"
+
+#~ msgctxt "#30104"
+#~ msgid "Auth Credentials"
+#~ msgstr "Waarmerk Bewyse"
+
+#~ msgctxt "#31000"
+#~ msgid "Portal 1"
+#~ msgstr "Portaal 1"
+
+#~ msgctxt "#32000"
+#~ msgid "Portal 2"
+#~ msgstr "Portaal 2"
+
+#~ msgctxt "#33000"
+#~ msgid "Portal 3"
+#~ msgstr "Portaal 3"
+
+#~ msgctxt "#34000"
+#~ msgid "Portal 4"
+#~ msgstr "Portaal 4"
+
+#~ msgctxt "#35000"
+#~ msgid "Portal 5"
+#~ msgstr "Portaal 5"

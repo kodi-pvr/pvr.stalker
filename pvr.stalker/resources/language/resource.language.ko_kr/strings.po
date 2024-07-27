@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: KODI Main\n"
 "Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2021-09-25 08:30+0000\n"
+"PO-Revision-Date: 2024-06-24 13:09+0000\n"
 "Last-Translator: Minho Park <parkmino@gmail.com>\n"
 "Language-Team: Korean <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/ko_kr/>\n"
 "Language: ko_kr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.8\n"
+"X-Generator: Weblate 5.6\n"
 
 msgctxt "Addon Summary"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
@@ -34,16 +34,16 @@ msgid "General"
 msgstr "일반"
 
 msgctxt "#30001"
-msgid "Active Portal"
-msgstr "활성 포탈"
+msgid "Connection"
+msgstr "연결"
 
 msgctxt "#30002"
 msgid "Misc"
 msgstr "기타"
 
 msgctxt "#30003"
-msgid "Connection Timeout (seconds)"
-msgstr "연결 시간 제한 (초)"
+msgid "Connection Timeout"
+msgstr "연결 시간 초과"
 
 msgctxt "#30101"
 msgid "MAC Address"
@@ -58,8 +58,8 @@ msgid "Time Zone"
 msgstr "시간대"
 
 msgctxt "#30104"
-msgid "Auth Credentials"
-msgstr "보안 인증"
+msgid "Authentication"
+msgstr "인증"
 
 msgctxt "#30105"
 msgid "Login"
@@ -141,6 +141,23 @@ msgctxt "#30124"
 msgid "Signature"
 msgstr "서명"
 
+msgctxt "#30125"
+msgid "EPG time shift"
+msgstr "EPG 시간 이동"
+
+#. format-label: EPG Settings - epg_timeShift
+msgctxt "#30126"
+msgid "{0:.1f} hours"
+msgstr "{0:.1f} 시간"
+
+msgctxt "#30127"
+msgid "{0:d} seconds"
+msgstr "{0:d} 초"
+
+msgctxt "#30128"
+msgid "EPG"
+msgstr "EPG"
+
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
 msgstr "알 수 없는 에러. 로그를 확인하세요."
@@ -181,22 +198,107 @@ msgctxt "#30510"
 msgid "Re-authenticated."
 msgstr "재인증됨."
 
-msgctxt "#31000"
-msgid "Portal 1"
-msgstr "포탈 1"
+# empty strings from id 30511 to 30599
+msgctxt "#30600"
+msgid "The connection timeout to use for the stalker protal"
+msgstr "Stalker Portal에 사용할 연결 시간 초과"
 
-msgctxt "#32000"
-msgid "Portal 2"
-msgstr "포탈 2"
+msgctxt "#30601"
+msgid "The mac of the stalker portal"
+msgstr "Stalker Portal의 MAC"
 
-msgctxt "#33000"
-msgid "Portal 3"
-msgstr "포탈 3"
+msgctxt "#30601"
+msgid "The address of the stalker portal"
+msgstr "Stalker Portal의 주소"
 
-msgctxt "#34000"
-msgid "Portal 4"
-msgstr "포탈 4"
+msgctxt "#30603"
+msgid "The timezone of this stalker portal"
+msgstr "Stalker Portal의 시간대"
 
-msgctxt "#35000"
-msgid "Portal 5"
-msgstr "포탈 5"
+msgctxt "#30604"
+msgid "Adjust the EPG times by this value, from -12 hours to +14 hours."
+msgstr "이 값으로 EPG 시간을 -12시간에서 +14시간까지 조정합니다."
+
+msgctxt "#30605"
+msgid "The username for login."
+msgstr "로그인을 위한 사용자 이름입니다."
+
+msgctxt "#30606"
+msgid "The login password."
+msgstr "로그인 비밀번호입니다."
+
+msgctxt "#30607"
+msgid "The source of guide data."
+msgstr "안내 자료의 출처입니다."
+
+msgctxt "#30608"
+msgid "Enable cache for guide data."
+msgstr "안내 자료에 대한 캐시를 사용합니다."
+
+msgctxt "#30609"
+msgid "The length of time to cache the guide data for."
+msgstr "안내 자료를 캐시하는 기간입니다."
+
+msgctxt "#30610"
+msgid "Remote URL or local path selection."
+msgstr "원격 URL 또는 로컬 경로 선택."
+
+msgctxt "#30611"
+msgid "Remote URL for XMLTV data."
+msgstr "XMLTV 데이터의 원격 URL입니다."
+
+msgctxt "#30612"
+msgid "Local path used for XMLTV data."
+msgstr "XMLTV 데이터에 사용되는 로컬 경로입니다."
+
+msgctxt "#30613"
+msgid "The token to be used with the stalker portal."
+msgstr "Stalker Portal에 사용할 토큰입니다."
+
+msgctxt "#30614"
+msgid "The serial number of the stalker portal."
+msgstr "Stalker Portal의 일련번호입니다."
+
+msgctxt "#30615"
+msgid "The device ID of the stalker portal."
+msgstr "Stalker Portal의 장치 ID입니다."
+
+msgctxt "#30616"
+msgid "The device ID2 of the stalker portal."
+msgstr "Stalker Portal의 장치 ID2입니다."
+
+msgctxt "#30617"
+msgid "The signature of the stalker portal."
+msgstr "Stalker Portal의 서명입니다."
+
+#~ msgctxt "#30001"
+#~ msgid "Active Portal"
+#~ msgstr "활성 포탈"
+
+#~ msgctxt "#30003"
+#~ msgid "Connection Timeout (seconds)"
+#~ msgstr "연결 시간 제한 (초)"
+
+#~ msgctxt "#30104"
+#~ msgid "Auth Credentials"
+#~ msgstr "보안 인증"
+
+#~ msgctxt "#31000"
+#~ msgid "Portal 1"
+#~ msgstr "포탈 1"
+
+#~ msgctxt "#32000"
+#~ msgid "Portal 2"
+#~ msgstr "포탈 2"
+
+#~ msgctxt "#33000"
+#~ msgid "Portal 3"
+#~ msgstr "포탈 3"
+
+#~ msgctxt "#34000"
+#~ msgid "Portal 4"
+#~ msgstr "포탈 4"
+
+#~ msgctxt "#35000"
+#~ msgid "Portal 5"
+#~ msgstr "포탈 5"
