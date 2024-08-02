@@ -1,3 +1,6 @@
+v22.0.0
+- Initial release for Piers (PVR Add-on API v8.4.0)
+
 v21.1.1
 - Update libxml2 v2.11.7, which should also fix msix installer
 
