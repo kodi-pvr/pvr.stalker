@@ -609,6 +609,7 @@ PVR_ERROR StalkerInstance::GetChannels(bool radio, kodi::addon::PVRChannelsResul
 }
 
 PVR_ERROR StalkerInstance::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel,
+                                            PVR_SOURCE source,
                                             std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   const std::string strUrl = GetChannelStreamURL(channel);
