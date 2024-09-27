@@ -5,9 +5,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: KODI Main\n"
-"Report-Msgid-Bugs-To: https://github.com/xbmc/xbmc/issues/\n"
+"Report-Msgid-Bugs-To: translations@kodi.tv\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"PO-Revision-Date: 2023-01-03 12:15+0000\n"
+"PO-Revision-Date: 2024-09-18 16:53+0000\n"
 "Last-Translator: skypichat <skypichat@hotmail.fr>\n"
 "Language-Team: French (France) <https://kodi.weblate.cloud/projects/kodi-add-ons-pvr-clients/pvr-stalker/fr_fr/>\n"
 "Language: fr_fr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.15\n"
+"X-Generator: Weblate 5.7.2\n"
 
 msgctxt "Addon Summary"
 msgid "PVR Client to connect Kodi to Stalker Middleware"
@@ -35,7 +35,7 @@ msgstr "Général"
 
 msgctxt "#30001"
 msgid "Connection"
-msgstr ""
+msgstr "Connexion"
 
 msgctxt "#30002"
 msgid "Misc"
@@ -143,12 +143,12 @@ msgstr "Signature"
 
 msgctxt "#30125"
 msgid "EPG time shift"
-msgstr ""
+msgstr "Décalage d'enregistrement du guide EPG"
 
 #. format-label: EPG Settings - epg_timeShift
 msgctxt "#30126"
 msgid "{0:.1f} hours"
-msgstr ""
+msgstr "{0:.1f} heures"
 
 msgctxt "#30127"
 msgid "{0:d} seconds"
@@ -156,7 +156,7 @@ msgstr ""
 
 msgctxt "#30128"
 msgid "EPG"
-msgstr ""
+msgstr "Guide électronique des programmes TV"
 
 msgctxt "#30501"
 msgid "Unknown error. See log for details."
@@ -217,7 +217,7 @@ msgstr ""
 
 msgctxt "#30604"
 msgid "Adjust the EPG times by this value, from -12 hours to +14 hours."
-msgstr ""
+msgstr "Ajuster les temps EPG par cette valeur, de -12 heures à +14 heures."
 
 msgctxt "#30605"
 msgid "The username for login."
