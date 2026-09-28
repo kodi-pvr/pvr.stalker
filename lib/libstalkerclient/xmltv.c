@@ -408,7 +408,12 @@ sc_list_t *sc_xmltv_parse(const char *filename) {
     int ret;
     sc_list_node_t *node = NULL;
 
-    reader = xmlNewTextReaderFilename(filename);
+    /* libxml2 2.15 requires explicit opt-in for compressed XMLTV files. */
+#if LIBXML_VERSION >= 21500
+    reader = xmlReaderForFile(filename, NULL, XML_PARSE_UNZIP);
+#else
+    reader = xmlReaderForFile(filename, NULL, 0);
+#endif
     if (!reader)
         return NULL;
 
